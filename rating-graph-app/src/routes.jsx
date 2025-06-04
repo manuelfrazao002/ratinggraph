@@ -6,7 +6,7 @@ function MainRoutes() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/ratinggraph" element={<App />} />
         <Route path="/imdb" element={<IMDBMainpage />} />
       </Routes>
     </Router>
