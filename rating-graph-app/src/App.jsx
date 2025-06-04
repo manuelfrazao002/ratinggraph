@@ -85,7 +85,7 @@ const navigate = useNavigate();
           src={Navbar}
           alt=""
           onClick={() => navigate("/imdb")}
-          style={{ paddingTop: "12px", paddingBottom: "9.8px" }}
+          style={{cursor: "pointer", paddingTop: "12px", paddingBottom: "9.8px" }}
         />
 
         <section style={{ backgroundColor: "white" }}>
