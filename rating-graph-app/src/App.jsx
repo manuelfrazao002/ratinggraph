@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
 import RatingChart from "./RatingChart";
 import VotingChart from "./VoteChart";
 import Chart from "./VotesOvertime";
@@ -36,6 +38,7 @@ import Papa from "papaparse";
 
 function App() {
   const [seriesData, setSeriesData] = useState([]);
+const navigate = useNavigate();
 
   useEffect(() => {
     fetch(
@@ -81,6 +84,7 @@ function App() {
         <img
           src={Navbar}
           alt=""
+          onClick={() => navigate("/imdb")}
           style={{ paddingTop: "12px", paddingBottom: "9.8px" }}
         />
 
