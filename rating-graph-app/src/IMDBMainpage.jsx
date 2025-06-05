@@ -33,7 +33,6 @@ import Categories from "./imgs/imdb/categories.png";
 import IMDBPro from "./imgs/imdb/imdbpro.png";
 
 import SmallArrowUp from "./imgs/imdb/smallarrowup.png";
-import SmallArrowDown from "./imgs/imdb/smallarrowdown.png";
 
 import MarkedWatched from "./imgs/imdb/markwatched.png";
 
@@ -109,14 +108,6 @@ function SeriesPage() {
     }
   }
 
-  formatVotes(950); // "950"
-  formatVotes(1400); // "1.4K"
-  formatVotes(87500); // "88K" (porque arredondou pra cima)
-  formatVotes(100500); // "101K"
-  formatVotes(1500000); // "1.5M"
-  formatVotes(1000000); // "1M"
-  formatVotes(null); // "N/A"
-
   function renderListWithDotSeparator(list) {
     if (!list) return null;
 
@@ -135,6 +126,34 @@ function SeriesPage() {
       </React.Fragment>
     ));
   }
+
+  function formatNumber(num) {
+    if (!num) return "N/A";
+
+    const cleanNum = Number(num.toString().replace(/[, ]+/g, ""));
+    if (isNaN(cleanNum)) return "N/A";
+
+    if (cleanNum >= 1_000_000) {
+      const millions = Math.floor((cleanNum / 1_000_000) * 10) / 10;
+      return millions.toString().replace(/\.0$/, "") + "M";
+    }
+
+    if (cleanNum >= 100_000) {
+      // Corte seco para evitar 100.1K, exibir como 100K
+      const thousands = Math.floor(cleanNum / 1_000);
+      return thousands + "K";
+    }
+
+    if (cleanNum >= 1_000) {
+      // Aqui sim mantemos uma casa decimal
+      const thousands = Math.floor((cleanNum / 1_000) * 10) / 10;
+      return thousands.toString().replace(/\.0$/, "") + "K";
+    }
+
+    return cleanNum.toString();
+  }
+
+
 
   return (
     <>
@@ -155,6 +174,7 @@ function SeriesPage() {
               top: "-8px",
             }}
           >
+            <a href="/episodepage">
             <div style={{ display: "flex", alignItems: "center" }}>
               <p
                 style={{
@@ -180,6 +200,7 @@ function SeriesPage() {
                 <ChevronRight size={20} style={{ color: "white" }} />
               </div>
             </div>
+            </a>
             <img src={UpInfo} alt="" style={{ height: 48, marginTop: 1 }} />
           </div>
 
@@ -695,15 +716,17 @@ function SeriesPage() {
             <div
               style={{
                 width: "358.617px",
-                height: "maxHeight",
+                height: "204px",
                 display: "grid",
                 alignItems: "center",
                 justifyContent: "flex-start",
                 position: "relative",
+                top: "38px",
                 left: "-24px",
                 alignContent: "center",
               }}
             >
+              {data.NextEpisode && (
               <div
                 style={{
                   position: "relative",
@@ -720,47 +743,147 @@ function SeriesPage() {
                     maxHeight: 36,
                   }}
                 />
-                <div>
+                
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "0.71rem",
+                        letterSpacing: "2px",
+                        WebkitTextStroke: "0.5px white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      NEXT EPISODE
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        letterSpacing: "1px",
+                        position: "relative",
+                        color: "white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      {data.NextEpisode}
+                    </p>
+                  </div>
+                
+              </div>
+              )}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  minWidth: "310.617px",
+                  maxHeight: "48px",
+                  backgroundColor: "#F5C518",
+                  borderRadius: 50,
+                  marginTop: 16,
+                }}
+              >
+                <div
+                  style={{
+                    paddingRight: 10,
+                    paddingLeft: 10,
+                    color: "black",
+                    fontSize: 24,
+                  }}
+                >
+                  <p>+</p>
+                </div>
+                <div
+                  style={{
+                    minWidth: "275px",
+                    minHeight: "48px",
+                    borderRight: "2px solid #AB8A11",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
                   <p
                     style={{
-                      fontSize: "0.71rem",
-                      letterSpacing: "2px",
-                      WebkitTextStroke: "0.5px white",
-                      paddingLeft: 8,
                       margin: 0,
+                      color: "black",
+                      fontWeight: 700,
+                      fontFamily: "Arial, sans-serif",
+                      fontSize: 14,
+                      letterSpacing: 0.2,
+                      marginBottom: -1.5,
                     }}
                   >
-                    NEXT EPISODE
+                    Add to watchlist
                   </p>
                   <p
                     style={{
-                      fontSize: "14px",
-                      letterSpacing: "1px",
-                      position: "relative",
-                      color: "white",
-                      paddingLeft: 8,
                       margin: 0,
+                      color: "black",
+                      fontSize: 12,
+                      letterSpacing: 0.2,
                     }}
                   >
-                    {data.NextEpisode}
+                    Added by {formatNumber(data.WatchlistNumber)} users
                   </p>
                 </div>
-              </div>
-              <div style={{display: "flex", alignItems: "center"}}>
-                <div style={{minWidth: "310.617px", minHeight: "48px"}}>
-                  <p>Add to watchlist</p>
-                  <p>Added by {data.WatchlistNumber} users</p>
+                <div
+                  style={{
+                    margin: "0 auto",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ChevronDown
+                    size={20}
+                    style={{ color: "black", WebkitTextStroke: "0.9px black" }}
+                  />
                 </div>
-                <div>
-                  <ChevronDown size={20} style={{ color: "white" }} />
-                </div>
               </div>
-              <div style={{minWidth: "48px",}}>
+              <div style={{ minWidth: "48px", marginTop: 8 }}>
                 <img src={MarkedWatched} alt="" />
               </div>
-              <div style={{display: "flex", gap: "10px"}}>
-                <p>{data.UserReviews} <span>User reviews</span></p>
-                <p>{data.CriticReviews} <span>Critic reviews</span></p>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "20px",
+                  color: "#5799EF",
+                  marginTop: 9,
+                }}
+              >
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
+                >
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      fontFamily: "Arial, sans-serif",
+                      textAlign: "right", // alinha o número à direita nessa largura
+                      display: "inline-block",
+                      fontSize: 16,
+                    }}
+                  >
+                    {formatNumber(data.UserReviews)}
+                  </span>
+                  <span style={{ fontSize: "14px" }}>User reviews</span>
+                </div>
+
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
+                >
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      fontFamily: "Arial, sans-serif",
+
+                      textAlign: "right",
+                      display: "inline-block",
+                    }}
+                  >
+                    {formatNumber(data.CriticReviews)}
+                  </span>
+                  <span style={{ fontSize: "14px" }}>Critic reviews</span>
+                </div>
               </div>
             </div>
           </section>
