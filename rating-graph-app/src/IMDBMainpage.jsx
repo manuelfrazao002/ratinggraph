@@ -464,6 +464,7 @@ function SeriesPage() {
                   objectFit: "cover",
                   borderRadius: 12,
                   display: "block",
+                  objectPosition: "center",
                 }}
               />
               <div
