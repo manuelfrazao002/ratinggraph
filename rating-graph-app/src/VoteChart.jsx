@@ -67,7 +67,7 @@ export default function VotesChart() {
             episodeNum: row["Number"],
             episodeLabel: row["Episode"],
             votes,
-            title: row["Title"],
+            title: row["TitleName"],
             year: row["Year"],
             trend: parseInt(row["Trend"].replace(/,/g, ""), 10) || 0,
             rating: parseFloat(row["Average Rating"]),

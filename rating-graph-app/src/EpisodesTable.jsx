@@ -178,7 +178,7 @@ function EpisodesTable() {
                   textAlign: "left",
                 }}
               >
-                {ep.Title}
+                {ep.TitleName}
               </td>
               <td
                 style={{

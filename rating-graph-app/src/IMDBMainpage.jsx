@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Papa from "papaparse";
 import { createGlobalStyle } from "styled-components";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -38,6 +38,7 @@ import MarkedWatched from "./imgs/imdb/markwatched.png";
 
 function SeriesPage() {
   const [data, setData] = useState(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     fetch(
@@ -134,8 +135,8 @@ function SeriesPage() {
     if (isNaN(cleanNum)) return "N/A";
 
     if (cleanNum >= 1_000_000) {
-      const millions = Math.floor((cleanNum / 1_000_000) * 10) / 10;
-      return millions.toString().replace(/\.0$/, "") + "M";
+      const millions = Math.ceil((cleanNum / 100_000)) / 10;
+      return millions % 1 === 0 ? `${millions.toFixed(1)}M` : `${millions.toFixed(1)}M`;
     }
 
     if (cleanNum >= 100_000) {
@@ -174,33 +175,42 @@ function SeriesPage() {
               top: "-8px",
             }}
           >
-            <a href="/episodepage">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <p
-                style={{
-                  marginRight: "12px",
-                  alignItems: "center",
-                  display: "flex",
-                }}
-              >
-                <img src={EpisodeGuide} alt="" />
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginLeft: -2,
-                }}
-              >
-                <p
-                  style={{ fontSize: 14, color: "#C0C0C0", marginRight: "6px" }}
-                >
-                  {data.Episodes}
-                </p>
-                <ChevronRight size={20} style={{ color: "white" }} />
-              </div>
-            </div>
-            </a>
+                <a
+      href="/episodepage">
+      <div       onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)} style={{ display: "flex", alignItems: "center",textDecoration: "none",
+        transition: "background-color 0.2s ease",}}>
+        <p
+          style={{
+            marginRight: "12px",
+            alignItems: "center",
+            display: "flex",
+          }}
+        >
+          <img src={EpisodeGuide} alt="" />
+        </p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginLeft: -2,
+          }}
+        >
+          <p
+            style={{ fontSize: 14, color: "#C0C0C0", marginRight: "6px" }}
+          >
+            {data.Episodes}
+          </p>
+          <ChevronRight
+            size={20}
+            style={{
+              color: isHovered ? "#F5C518" : "white",
+              transition: "color 0.2s ease",
+            }}
+          />
+        </div>
+      </div>
+    </a>
             <img src={UpInfo} alt="" style={{ height: 48, marginTop: 1 }} />
           </div>
 
@@ -348,7 +358,7 @@ function SeriesPage() {
                 </div>
               </div>
               <div style={{ marginRight: "5px" }}>
-                <img src={Popularity} alt="" />
+                <img src={Popularity} alt="" style={{display: "flex",margin: "0 auto", paddingBottom: "8px", alignContent: "center", position: "relative", top: "1px"}}/>
                 <div
                   style={{
                     display: "flex",
@@ -367,7 +377,7 @@ function SeriesPage() {
                         : ArrowStay
                     }
                     alt=""
-                    style={{ marginRight: "4px" }}
+                    style={{ marginRight: "4px"}}
                   />
 
                   {/* Popularidade sempre visível */}
@@ -606,7 +616,7 @@ function SeriesPage() {
                     WebkitTextStroke: "0.5px white",
                   }}
                 >
-                  {data.Videos} VIDEOS
+                  {data.Videos}
                 </p>
               </button>
               <button
@@ -727,52 +737,52 @@ function SeriesPage() {
                 alignContent: "center",
               }}
             >
-              {data.NextEpisode && (
-              <div
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  paddingRight: 24,
-                }}
-              >
-                <div
-                  style={{
-                    width: "4px",
-                    height: "36px",
-                    borderRadius: "12px",
-                    backgroundColor: "#F5C518",
-                    maxHeight: 36,
-                  }}
-                />
-                
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "0.71rem",
-                        letterSpacing: "2px",
-                        WebkitTextStroke: "0.5px white",
-                        paddingLeft: 8,
-                        margin: 0,
-                      }}
-                    >
-                      NEXT EPISODE
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        letterSpacing: "1px",
-                        position: "relative",
-                        color: "white",
-                        paddingLeft: 8,
-                        margin: 0,
-                      }}
-                    >
-                      {data.NextEpisode}
-                    </p>
-                  </div>
-                
-              </div>
-              )}
+             {data.NextEpisode?.trim() && (
+  <div
+    style={{
+      position: "relative",
+      display: "flex",
+      paddingRight: 24,
+    }}
+  >
+    <div
+      style={{
+        width: "4px",
+        height: "36px",
+        borderRadius: "12px",
+        backgroundColor: "#F5C518",
+        maxHeight: 36,
+      }}
+    />
+    
+    <div>
+      <p
+        style={{
+          fontSize: "0.71rem",
+          letterSpacing: "2px",
+          WebkitTextStroke: "0.5px white",
+          paddingLeft: 8,
+          margin: 0,
+        }}
+      >
+        NEXT EPISODE
+      </p>
+      <p
+        style={{
+          fontSize: "14px",
+          letterSpacing: "1px",
+          position: "relative",
+          color: "white",
+          paddingLeft: 8,
+          margin: 0,
+        }}
+      >
+        {data.NextEpisode}
+      </p>
+    </div>
+  </div>
+)}
+
               <div
                 style={{
                   display: "flex",

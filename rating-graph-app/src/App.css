@@ -52,6 +52,56 @@ body{
   border-color: #ccc transparent transparent transparent;
 }
 
+.tab-button {
+  position: relative;
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  font-size: 14px;
+  color: black;
+  cursor: pointer;
+  padding: 0 24px;
+  height: 48px;
+  line-height: 48px;
+  letter-spacing: 0.5px;
+  border-radius: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow: hidden;
+}
+
+.tab-button::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  width: 0;
+  background-color: #0E63BE;
+  transition: width 0.3s ease, left 0.3s ease, right 0.3s ease;
+}
+
+.tab-button.active::after {
+  width: 100%;
+  left: 0;
+  right: auto;
+}
+
+/* Desaparecer para a esquerda */
+.tab-button.closing-left::after {
+  width: 0;
+  left: 100%;
+  right: auto;
+}
+
+/* Desaparecer para a direita */
+.tab-button.closing-right::after {
+  width: 0;
+  right: 100%;
+  left: auto;
+}
+
+.tab-button:hover {
+  background-color: #E6E6E6;
+}
 
 @keyframes logo-spin {
   from {

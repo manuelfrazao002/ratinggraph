@@ -65,7 +65,7 @@ export default function RatingChart() {
             episodeNum: row["Number"],
             episodeLabel: row["Episode"],
             rating: parseFloat(row["Average Rating"]),
-            title: row["Title"],
+            title: row["TitleName"],
             votes: parseInt(row["Votes"].replace(/,/g, "")) || 0,
             year: row["Year"],
             trend: parseInt(row["Trend"].replace(/,/g, "")) || 0,
