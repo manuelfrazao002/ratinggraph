@@ -127,7 +127,7 @@ export default function Episodes() {
 
             results.data.forEach((ep) => {
               // Remove vírgulas e converte para número, se possível
-              ep.Votes = ep.Votes ? ep.Votes.replace(/,/g, "") : "0";
+              ep.Votes2 = ep.Votes2 ? ep.Votes2.replace(/,/g, "") : "0";
               ep.Trend = ep.Trend ? ep.Trend.replace(/,/g, "") : "0";
               ep["Average Rating"] = ep["Average Rating"] || "0";
             });
@@ -238,7 +238,7 @@ export default function Episodes() {
   // Componente para renderizar item do episódio (utilizado em Seasons e Years)
   function EpisodeItem({ episode, index }) {
     const rating = parseFloat(episode["Average Rating"]);
-    const votes = parseInt(episode.Votes || "0", 10);
+    const votes = parseInt(episode.Votes2 || "0", 10);
     const hasRating = !isNaN(rating) && !isNaN(votes) && votes > 0;
     const hasSynopsis = episode.Synopsis && episode.Synopsis.trim() !== "";
     const showWatchOptions = hasRating || hasSynopsis;
