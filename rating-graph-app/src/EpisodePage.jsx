@@ -1129,11 +1129,13 @@ export default function Episodes() {
                   )}
                 </div>
               )}
-              <div style={{ marginTop: 20 }}>
+              <div style={{position: "relative", left: "-20px"}}>
+              <div style={{ marginTop: 29 }}>
                 <img src={Contribute} alt="" />
               </div>
-              <div style={{ marginTop: 20 }}>
+              <div style={{ marginTop: 1 }}>
                 <img src={MoreTitle} alt="" />
+              </div>
               </div>
             </section>
             <section></section>
