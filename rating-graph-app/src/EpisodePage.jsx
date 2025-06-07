@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import Papa from "papaparse";
 import TopRated from "./imgs/imdb/toprated.png";
-import ShowCover from "./imgs/covers/toe_cover.png";
 import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import images from "./imageLoader.jsx";
+import { movieMap } from "./data/MovieMap";
+import { useParams } from "react-router-dom";
+import { showCoverSrc, EpisodeTitle } from "./ShowImageSrc";
+import { Link } from "react-router-dom";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
 import UpInfo from "./imgs/imdb/upinfo.png";
-import ShowPoster from "./imgs/covers/toe_cover.png";
 import MostRecent from "./imgs/imdb/mostrecent.png";
 import AddBtn from "./imgs/imdb/addbtn.png";
 import RateEp from "./imgs/imdb/rateep.png";
@@ -22,13 +23,13 @@ import AddPlot from "./imgs/imdb/addaplot.png";
 import AddPlot2 from "./imgs/imdb/addplot2.png";
 
 import AsideContent from "./imgs/imdb/asidecontent.png";
-import TitleShow from "./imgs/imdb/titleshow.png";
 
 import MoreTitle from "./imgs/imdb/moretitle.png";
 import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
 
 export default function Episodes() {
+  const { movieId } = useParams();
   const [episodesBySeason, setEpisodesBySeason] = useState({});
   const [seasonList, setSeasonList] = useState([]);
   const [currentSeasonIndex, setCurrentSeasonIndex] = useState(0);
@@ -85,9 +86,13 @@ export default function Episodes() {
   }, []);
 
   useEffect(() => {
-    fetch(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=1334662158&single=true&output=csv"
-    )
+    if (!movieId || !movieMap[movieId]) {
+      console.error("movieId inválido");
+      return;
+    }
+
+    const urls = movieMap[movieId];
+    fetch(urls[0])
       .then((res) => res.text())
       .then((csv) => {
         Papa.parse(csv, {
@@ -108,12 +113,17 @@ export default function Episodes() {
           error: (err) => console.error("Erro ao carregar CSV", err),
         });
       });
-  }, []);
+  }, [movieId]);
 
   useEffect(() => {
-    fetch(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=190829179&single=true&output=csv"
-    )
+    if (!movieId || !movieMap[movieId]) {
+      console.error("movieId inválido");
+      return;
+    }
+
+    const urls = movieMap[movieId];
+
+    fetch(urls[1])
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.text();
@@ -129,7 +139,7 @@ export default function Episodes() {
               // Remove vírgulas e converte para número, se possível
               ep.Votes2 = ep.Votes2 ? ep.Votes2.replace(/,/g, "") : "0";
               ep.Trend = ep.Trend ? ep.Trend.replace(/,/g, "") : "0";
-              ep["Average Rating"] = ep["Average Rating"] || "0";
+              ep["Average Rating 2"] = ep["Average Rating 2"] || "0";
             });
 
             const grouped = {};
@@ -165,13 +175,13 @@ export default function Episodes() {
             const top10 = allEpisodes
               .filter(
                 (ep) =>
-                  ep["Average Rating"] &&
-                  !isNaN(parseFloat(ep["Average Rating"]))
+                  ep["Average Rating 2"] &&
+                  !isNaN(parseFloat(ep["Average Rating 2"]))
               )
               .sort((a, b) => {
                 const ratingDiff =
-                  parseFloat(b["Average Rating"]) -
-                  parseFloat(a["Average Rating"]);
+                  parseFloat(b["Average Rating 2"]) -
+                  parseFloat(a["Average Rating 2"]);
                 if (ratingDiff !== 0) return ratingDiff;
                 return parseInt(b.Votes || "0") - parseInt(a.Votes || "0");
               })
@@ -198,7 +208,10 @@ export default function Episodes() {
         console.error("Erro fetch:", err);
         setLoading(false);
       });
-  }, []);
+  }, [movieId]);
+
+  if (!movieId) return <p>Filme não especificado.</p>;
+  if (!movieMap[movieId]) return <p>Filme não encontrado.</p>;
 
   useEffect(() => {
     if (!allEpisodes || allEpisodes.length === 0) return;
@@ -236,11 +249,12 @@ export default function Episodes() {
   const currentEpisodes = episodesBySeason[currentSeason] || [];
 
   // Componente para renderizar item do episódio (utilizado em Seasons e Years)
-  function EpisodeItem({ episode, index }) {
-    const rating = parseFloat(episode["Average Rating"]);
+  function EpisodeItem({ episode, index, isLast }) {
+    const rating = parseFloat(episode["Average Rating 2"]);
     const votes = parseInt(episode.Votes2 || "0", 10);
     const hasRating = !isNaN(rating) && !isNaN(votes) && votes > 0;
-    const hasSynopsis = episode.Synopsis && episode.Synopsis.trim() !== "";
+    const hasSynopsis =
+      typeof episode.Synopsis === "string" && episode.Synopsis.trim() !== "";
     const showWatchOptions = hasRating || hasSynopsis;
     // Estilos da imagem do cover
     const coverStyle = {
@@ -258,7 +272,7 @@ export default function Episodes() {
     const seasonNum = match ? `s${match[1]}` : "s1"; // s1, s2 etc
     const episodeNum = match ? match[2] : "1";
 
-    const imagePath = `/imgs/show/toe/${seasonNum}/ep${episodeNum}.png`;
+    const imagePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}.png`;
 
     function formatVotes(votes) {
       if (!votes) return "0";
@@ -280,22 +294,20 @@ export default function Episodes() {
     const sanitizeTitle = (title) =>
       title.toLowerCase().replace(/[^a-z0-9]/gi, "-");
 
+const episodeList = activeTab === "Top-rated" ? topEpisodes : currentEpisodes;
+const isLastEpisode = episodeList.length === 1 || index === episodeList.length - 1;
+
+
     return (
       <div
-        className="episode-item flex items-start gap-4 p-4 border-b"
+        className="episode-item flex items-start gap-4 p-4"
         style={{
           display: "flex",
           alignItems: "flex-start",
           gap: "12px",
           marginLeft: "4px",
           marginBottom: "9px",
-          borderBottom:
-            index ===
-            (activeTab === "Top-rated"
-              ? topEpisodes.length - 1
-              : currentEpisodes.length - 1)
-              ? "none"
-              : "1px solid #E0E0E0",
+          borderBottom: isLast ? "none" : "1px solid #E0E0E0",
           marginTop: activeTab === "Top-rated" ? "18px" : "0",
         }}
       >
@@ -306,7 +318,7 @@ export default function Episodes() {
               ? episode.Image && episode.Image.startsWith("http")
                 ? episode.Image
                 : imagePath
-              : ShowCover
+              : showCoverSrc[movieId]
           }
           alt=""
           style={{
@@ -321,21 +333,22 @@ export default function Episodes() {
             marginBottom: 7,
           }}
           onError={(e) => {
-            e.currentTarget.src = ShowCover; // fallback para imagem padrão
+            e.currentTarget.src = showCoverSrc[movieId]; // fallback para imagem padrão
           }}
         />
 
         <div>
           <div>
             {activeTab !== "Top-rated" &&
-              topEpisodesSet.has(`${episode.Season}-${episode.Title}`) && (
+              topEpisodesSet.has(`${episode.Season}-${episode.Title}`) &&
+              (hasRating || hasSynopsis || Number(votes) > 0) && (
                 <img
                   src={TopRated}
                   alt="TopRated"
                   style={{
                     width: "152px",
                     position: "relative",
-                    left: -2, // top-rated
+                    left: -2,
                     top: -2,
                   }}
                 />
@@ -379,7 +392,9 @@ export default function Episodes() {
                   top: "1px",
                 }}
               >
-                {episode.Title}
+                {activeTab === "Top-rated"
+                  ? `#${episode.positionNumber} · ${episode.Title}`
+                  : episode.Title}
               </h3>
 
               <div>
@@ -491,9 +506,9 @@ export default function Episodes() {
   return (
     <div>
       <GlobalStyle />
-      <a href="/">
+      <Link to={`/ratinggraph/${movieId}`}>
         <img src={IMDBNavbar} alt="" />
-      </a>
+      </Link>
       <div
         style={{
           maxHeight: "224.967px",
@@ -530,7 +545,7 @@ export default function Episodes() {
               }}
             >
               <a
-                href="/imdb"
+                href={`/imdb/${movieId}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -576,7 +591,7 @@ export default function Episodes() {
           >
             <div style={{ paddingLeft: 23, position: "relative", top: "-1px" }}>
               <img
-                src={ShowPoster}
+                src={showCoverSrc[movieId]}
                 alt=""
                 loading="lazy"
                 style={{
@@ -588,16 +603,29 @@ export default function Episodes() {
                 }}
               />
             </div>
-            <div style={{position: "relative", top: "27px", left: "3px"}}>
-              <img src={TitleShow} alt=""  style={{position: "relative", top: "6px"}}/>
-              <p style={{ color: "white", fontSize: "42px", margin: 0, letterSpacing: 0.2}}>Episode list</p>
+            <div style={{ position: "relative", top: "27px", left: "3px" }}>
+              <img
+                src={EpisodeTitle[movieId]}
+                alt=""
+                style={{ position: "relative", top: "6px" }}
+              />
+              <p
+                style={{
+                  color: "white",
+                  fontSize: "42px",
+                  margin: 0,
+                  letterSpacing: 0.2,
+                }}
+              >
+                Episode list
+              </p>
             </div>
           </div>
         </section>
       </div>
 
       <div className="break-point" style={{ width: "100%", height: "31px" }} />
-      <div style={{display: "flex", margin: "0 auto", width: "1280px"}}>
+      <div style={{ display: "flex", margin: "0 auto", width: "1280px" }}>
         <div>
           {/* Next Episode */}
           <div>
@@ -623,7 +651,7 @@ export default function Episodes() {
                     src={
                       nextEpisode.Image?.startsWith("http")
                         ? nextEpisode.Image
-                        : ShowCover
+                        : showCoverSrc[movieId]
                     }
                     alt="Next Episode"
                     style={{
@@ -722,16 +750,17 @@ export default function Episodes() {
                     const allEpisodes = Object.values(episodesByYear).flat();
 
                     const validEpisodes = allEpisodes.filter((ep) => {
-                      const rating = parseFloat(ep["Average Rating"]);
+                      const rating = parseFloat(ep["Average Rating 2"]);
                       const votes = parseInt(ep.Votes);
+                      const hasSynopsis =
+                        ep.Synopsis && ep.Synopsis.trim() !== "";
+                      const hasRating = !isNaN(rating) && rating > 0;
+                      const hasVotes = !isNaN(votes) && votes > 0;
+
                       return (
                         ep.Date &&
                         !isNaN(new Date(ep.Date)) &&
-                        ep.Synopsis &&
-                        ep.Synopsis.trim() !== "" &&
-                        !isNaN(rating) &&
-                        !isNaN(votes) &&
-                        votes > 0
+                        (hasSynopsis || hasRating || hasVotes) // aqui OR
                       );
                     });
 
@@ -740,13 +769,14 @@ export default function Episodes() {
                       .filter((ep) => new Date(ep.Date) >= daysAgo30)
                       .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
 
+                    // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
                     const topRatedEpisodes = validEpisodes
+                      .filter((ep) => ep !== recentEpisode) // evitar duplicata
                       .sort(
                         (a, b) =>
-                          parseFloat(b["Average Rating"]) -
-                          parseFloat(a["Average Rating"])
+                          parseFloat(b["Average Rating 2"]) -
+                          parseFloat(a["Average Rating 2"])
                       )
-                      .filter((ep) => ep !== recentEpisode) // evita duplicar
                       .slice(0, 2);
 
                     let episodesToShow = [];
@@ -756,15 +786,19 @@ export default function Episodes() {
                         ...recentEpisode,
                         isTopRated: false,
                       });
-                      episodesToShow.push({
-                        ...topRatedEpisodes[0],
-                        isTopRated: true,
-                      });
+                      if (topRatedEpisodes[0]) {
+                        episodesToShow.push({
+                          ...topRatedEpisodes[0],
+                          isTopRated: true,
+                        });
+                      }
                     } else {
-                      episodesToShow = topRatedEpisodes.map((ep) => ({
-                        ...ep,
-                        isTopRated: true,
-                      }));
+                      episodesToShow = topRatedEpisodes
+                        .filter((ep) => ep) // garante que não tenha undefined
+                        .map((ep) => ({
+                          ...ep,
+                          isTopRated: true,
+                        }));
                     }
 
                     return episodesToShow.map((episode, index) => (
@@ -855,9 +889,11 @@ export default function Episodes() {
                                 letterSpacing: 0.5,
                               }}
                             >
-                              {episode.Synopsis.length > 80
-                                ? episode.Synopsis.slice(0, 80) + "..."
-                                : episode.Synopsis}
+                              {episode?.Synopsis
+                                ? episode.Synopsis.length > 80
+                                  ? `${episode.Synopsis.slice(0, 80)}...`
+                                  : episode.Synopsis
+                                : "No synopsis available."}
                             </p>
                           </div>
                         </section>
@@ -901,7 +937,7 @@ export default function Episodes() {
                               <p
                                 style={{ color: "#757575", fontWeight: "bold" }}
                               >
-                                {parseFloat(episode["Average Rating"]).toFixed(
+                                {parseFloat(episode["Average Rating 2"]).toFixed(
                                   1
                                 )}
                               </p>
@@ -971,18 +1007,34 @@ export default function Episodes() {
                   );
                 })}
               </div>
+
               {activeTab === "Top-rated" && (
                 <div>
                   {topEpisodes.length === 0 ? (
                     <p>Nenhum episódio top-rated encontrado.</p>
                   ) : (
-                    topEpisodes.map((episode, index) => (
-                      <EpisodeItem
-                        key={index}
-                        episode={episode}
-                        index={index}
-                      />
-                    ))
+                    topEpisodes
+                      .filter((ep) => {
+                        const hasSynopsis =
+                          ep.Synopsis && ep.Synopsis.trim() !== "";
+                        const rating = parseFloat(ep["Average Rating 2"]);
+                        const votes = parseInt(ep.Votes);
+                        const hasRatingOrVotes =
+                          (!isNaN(rating) && rating > 0) ||
+                          (!isNaN(votes) && votes > 0);
+                        return hasSynopsis || hasRatingOrVotes;
+                      })
+                      .map((episode, index, filteredEpisodes) => (
+                        <EpisodeItem
+                          key={`${episode.Season}-${episode.Title}-${index}`}
+                          episode={{
+                            ...episode,
+                            positionNumber: index + 1,
+                          }}
+                          index={index}
+                          isLast={index === filteredEpisodes.length - 1} // Passa isLast aqui, direto como prop!
+                        />
+                      ))
                   )}
                 </div>
               )}
@@ -1053,6 +1105,7 @@ export default function Episodes() {
                       key={`${episode.Season}-${episode.Episode}`}
                       episode={episode}
                       index={index}
+                      isLast={index === currentEpisodes.length - 1}
                     />
                   ))}
                 </div>
@@ -1124,30 +1177,33 @@ export default function Episodes() {
                         key={`${episode.Season}-${episode.Title}`}
                         episode={episode}
                         index={index}
+                        isLast={index === currentEpisodes.length - 1}
                       />
                     )
                   )}
                 </div>
               )}
-              <div style={{position: "relative", left: "-20px"}}>
-              <div style={{ marginTop: 29 }}>
-                <img src={Contribute} alt="" />
-              </div>
-              <div style={{ marginTop: 1 }}>
-                <img src={MoreTitle} alt="" />
-              </div>
+
+
+              <div style={{ position: "relative", left: "-20px" }}>
+                <div style={{ marginTop: 29 }}>
+                  <img src={Contribute} alt="" />
+                </div>
+                <div style={{ marginTop: 1 }}>
+                  <img src={MoreTitle} alt="" />
+                </div>
               </div>
             </section>
             <section></section>
           </div>
-          </div>
-          <div style={{position: "relative", top: "-7px", left: "-4px"}}>
-            <img src={AsideContent} alt="" />
-          </div>
+        </div>
+        <div style={{ position: "relative", top: "-7px", left: "-4px" }}>
+          <img src={AsideContent} alt="" />
+        </div>
       </div>
-      <div style={{backgroundColor: "black", marginTop: 313}}>
-        <img src={Footer1} alt="" style={{position: "relative"}}/>
-        <img src={Footer2} alt=""/>
+      <div style={{ backgroundColor: "black", marginTop: 313 }}>
+        <img src={Footer1} alt="" style={{ position: "relative" }} />
+        <img src={Footer2} alt="" />
       </div>
     </div>
   );

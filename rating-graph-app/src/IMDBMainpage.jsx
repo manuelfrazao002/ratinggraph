@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import Papa from "papaparse";
 import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { showCoverSrc, imgTrailerSrc, MainTitle, EpisodeTitle } from "./ShowImageSrc";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -9,11 +12,6 @@ import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
 //Top
 import UpInfo from "./imgs/imdb/upinfo.png";
 import EpisodeGuide from "./imgs/imdb/episodeguide.png";
-
-//Poster
-import ShowTitle from "./imgs/imdb/showtitle.png";
-import ShowPoster from "./imgs/covers/toe_cover.png";
-import ImgTrailer from "./imgs/imdb/imgTrailer.jpg";
 
 import VideoImg from "./imgs/imdb/videoimg.png";
 import ImgsSquares from "./imgs/imdb/imgsquares.png";
@@ -36,14 +34,20 @@ import SmallArrowUp from "./imgs/imdb/smallarrowup.png";
 
 import MarkedWatched from "./imgs/imdb/markwatched.png";
 
+import { movieMap } from "./data/MovieMap";
+
 function SeriesPage() {
+  const { movieId } = useParams();
   const [data, setData] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [movies, setMovie] = useState([]);
+
+  const urls = movieMap[movieId];
 
   useEffect(() => {
-    fetch(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=1334662158&single=true&output=csv"
-    )
+    if (!urls || urls.length === 0) return;
+
+    fetch(urls[0])
       .then((res) => res.text())
       .then((csv) => {
         Papa.parse(csv, {
@@ -54,7 +58,16 @@ function SeriesPage() {
           error: (err) => console.error("Erro ao carregar CSV", err),
         });
       });
-  }, []);
+  }, [movieId]);
+
+  console.log("movieId da URL:", movieId);
+  console.log(
+    "Filmes disponíveis:",
+    movies.map((m) => m.id)
+  );
+
+  if (!urls) return <p>Filme não encontrado</p>;
+  if (!data) return <p>Carregando dados do filme...</p>;
 
   const renderListWithLimit = (listStr, limit = 3) => {
     if (!listStr) return null;
@@ -78,8 +91,6 @@ function SeriesPage() {
     );
   };
 
-  if (!data) return <p>Carregando...</p>;
-
   const GlobalStyle = createGlobalStyle`
   #root {
     padding: 0 !important;
@@ -88,26 +99,32 @@ function SeriesPage() {
   }
 `;
 
-  function formatVotes(votes) {
-    if (!votes) return "N/A";
+function formatVotes(votes) {
+  if (!votes) return "N/A";
 
-    // Remove vírgulas e espaços, converte para número
-    const num = Number(votes.toString().replace(/[, ]+/g, ""));
+  const num = Number(votes.toString().replace(/[, ]+/g, ""));
 
-    if (isNaN(num)) return "N/A";
+  if (isNaN(num)) return "N/A";
 
-    if (num < 1000) {
-      return num.toString();
-    } else if (num < 1_000_000) {
-      // Milhares: arredonda pra cima na metade, divide por 1000, uma casa decimal só se necessário
-      const k = Math.ceil(num / 100) / 10;
-      return k % 1 === 0 ? `${k.toFixed(0)}K` : `${k.toFixed(0)}K`;
-    } else {
-      // Milhões: arredonda pra cima na metade, divide por 1_000_000, uma casa decimal só se necessário
-      const m = Math.ceil(num / 100_000) / 10;
-      return m % 1 === 0 ? `${m.toFixed(0)}M` : `${m.toFixed(1)}M`;
-    }
+  if (num < 1000) {
+    return num.toString();
+  } else if (num < 10_000) {
+    // De 1.000 a 9.999: uma casa decimal
+    const k = num / 1000;
+    return `${k.toFixed(1)}K`;
+  } else if (num < 1_000_000) {
+    // De 10.000 até 999.999: arredonda pra cima
+    const k = Math.ceil(num / 1000);
+    return `${k}K`;
+  } else {
+    // Milhões
+    const m = num / 1_000_000;
+    return m % 1 === 0 ? `${m.toFixed(0)}M` : `${m.toFixed(1)}M`;
   }
+}
+
+
+
 
   function renderListWithDotSeparator(list) {
     if (!list) return null;
@@ -135,18 +152,18 @@ function SeriesPage() {
     if (isNaN(cleanNum)) return "N/A";
 
     if (cleanNum >= 1_000_000) {
-      const millions = Math.ceil((cleanNum / 100_000)) / 10;
-      return millions % 1 === 0 ? `${millions.toFixed(1)}M` : `${millions.toFixed(1)}M`;
+      const millions = Math.ceil(cleanNum / 100_000) / 10;
+      return millions.toFixed(1) + "M";
     }
 
     if (cleanNum >= 100_000) {
-      // Corte seco para evitar 100.1K, exibir como 100K
-      const thousands = Math.floor(cleanNum / 1_000);
+      // Agora arredondamos para o inteiro mais próximo, não só para cima
+      const thousands = Math.round(cleanNum / 1_000);
       return thousands + "K";
     }
 
     if (cleanNum >= 1_000) {
-      // Aqui sim mantemos uma casa decimal
+      // Aqui mantemos uma casa decimal, arredondando para baixo (floor)
       const thousands = Math.floor((cleanNum / 1_000) * 10) / 10;
       return thousands.toString().replace(/\.0$/, "") + "K";
     }
@@ -154,15 +171,13 @@ function SeriesPage() {
     return cleanNum.toString();
   }
 
-
-
   return (
     <>
       <GlobalStyle />
       <div>
-        <a href="/">
-          <img src={IMDBNavbar} alt="" />
-        </a>
+        <Link to={`/`}>
+          <img src={IMDBNavbar} alt="Rating Graph" />
+        </Link>
 
         <main style={{ width: "1280px", margin: "0 auto" }}>
           <div
@@ -175,42 +190,52 @@ function SeriesPage() {
               top: "-8px",
             }}
           >
-                <a
-      href="/episodepage">
-      <div       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)} style={{ display: "flex", alignItems: "center",textDecoration: "none",
-        transition: "background-color 0.2s ease",}}>
-        <p
-          style={{
-            marginRight: "12px",
-            alignItems: "center",
-            display: "flex",
-          }}
-        >
-          <img src={EpisodeGuide} alt="" />
-        </p>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginLeft: -2,
-          }}
-        >
-          <p
-            style={{ fontSize: 14, color: "#C0C0C0", marginRight: "6px" }}
-          >
-            {data.Episodes}
-          </p>
-          <ChevronRight
-            size={20}
-            style={{
-              color: isHovered ? "#F5C518" : "white",
-              transition: "color 0.2s ease",
-            }}
-          />
-        </div>
-      </div>
-    </a>
+            <Link to={`/episodepage/${movieId}`}>
+              <div
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  textDecoration: "none",
+                  transition: "background-color 0.2s ease",
+                }}
+              >
+                <p
+                  style={{
+                    marginRight: "12px",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <img src={EpisodeGuide} alt="" />
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginLeft: -2,
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 14,
+                      color: "#C0C0C0",
+                      marginRight: "6px",
+                    }}
+                  >
+                    {data.Episodes}
+                  </p>
+                  <ChevronRight
+                    size={20}
+                    style={{
+                      color: isHovered ? "#F5C518" : "white",
+                      transition: "color 0.2s ease",
+                    }}
+                  />
+                </div>
+              </div>
+            </Link>
             <img src={UpInfo} alt="" style={{ height: 48, marginTop: 1 }} />
           </div>
 
@@ -233,7 +258,7 @@ function SeriesPage() {
                   height: 58,
                 }}
               >
-                <img src={ShowTitle} alt="" />
+                <img src={MainTitle[movieId]} alt="" />
               </h1>
               <div
                 style={{
@@ -249,7 +274,7 @@ function SeriesPage() {
               >
                 {data.Type}
                 <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
-                {data.BeginingYear}−{data.EndingYear || "..."}
+                {data.BeginingYear}−{data.EndingYear || ""}
                 <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
                 {data.AgeRating}
                 <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
@@ -358,7 +383,18 @@ function SeriesPage() {
                 </div>
               </div>
               <div style={{ marginRight: "5px" }}>
-                <img src={Popularity} alt="" style={{display: "flex",margin: "0 auto", paddingBottom: "8px", alignContent: "center", position: "relative", top: "1px"}}/>
+                <img
+                  src={Popularity}
+                  alt=""
+                  style={{
+                    display: "flex",
+                    margin: "0 auto",
+                    paddingBottom: "8px",
+                    alignContent: "center",
+                    position: "relative",
+                    top: "1px",
+                  }}
+                />
                 <div
                   style={{
                     display: "flex",
@@ -377,7 +413,7 @@ function SeriesPage() {
                         : ArrowStay
                     }
                     alt=""
-                    style={{ marginRight: "4px"}}
+                    style={{ marginRight: "4px" }}
                   />
 
                   {/* Popularidade sempre visível */}
@@ -453,7 +489,7 @@ function SeriesPage() {
           >
             <div>
               <img
-                src={ShowPoster}
+                src={showCoverSrc[movieId]}
                 alt={`${data.Title} Poster`}
                 loading="lazy"
                 style={{
@@ -466,7 +502,7 @@ function SeriesPage() {
             </div>
             <div style={{ margin: "0 auto", position: "relative" }}>
               <img
-                src={ImgTrailer}
+                src={imgTrailerSrc[movieId]}
                 alt=""
                 style={{
                   width: "737.2px",
@@ -474,7 +510,7 @@ function SeriesPage() {
                   objectFit: "cover",
                   borderRadius: 12,
                   display: "block",
-                  objectPosition: "center",
+                  objectPosition: "12% 12%",
                 }}
               />
               <div
@@ -658,7 +694,7 @@ function SeriesPage() {
             </div>
           </section>
 
-          <section style={{ display: "flex", justifyContent: "space-between" }}>
+          <section style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", alignItems: "center"}}>
             <div
               style={{
                 width: "813.25px",
@@ -732,56 +768,56 @@ function SeriesPage() {
                 alignItems: "center",
                 justifyContent: "flex-start",
                 position: "relative",
-                top: "38px",
                 left: "-24px",
                 alignContent: "center",
               }}
             >
-             {data.NextEpisode?.trim() && (
-  <div
-    style={{
-      position: "relative",
-      display: "flex",
-      paddingRight: 24,
-    }}
-  >
-    <div
-      style={{
-        width: "4px",
-        height: "36px",
-        borderRadius: "12px",
-        backgroundColor: "#F5C518",
-        maxHeight: 36,
-      }}
-    />
-    
-    <div>
-      <p
-        style={{
-          fontSize: "0.71rem",
-          letterSpacing: "2px",
-          WebkitTextStroke: "0.5px white",
-          paddingLeft: 8,
-          margin: 0,
-        }}
-      >
-        NEXT EPISODE
-      </p>
-      <p
-        style={{
-          fontSize: "14px",
-          letterSpacing: "1px",
-          position: "relative",
-          color: "white",
-          paddingLeft: 8,
-          margin: 0,
-        }}
-      >
-        {data.NextEpisode}
-      </p>
-    </div>
-  </div>
-)}
+              {data.NextEpisode?.trim() && (
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    paddingRight: 24,
+                    marginBottom: 16
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "4px",
+                      height: "36px",
+                      borderRadius: "12px",
+                      backgroundColor: "#F5C518",
+                      maxHeight: 36,
+                    }}
+                  />
+
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "0.71rem",
+                        letterSpacing: "2px",
+                        WebkitTextStroke: "0.5px white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      NEXT EPISODE
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        letterSpacing: "1px",
+                        position: "relative",
+                        color: "white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      {data.NextEpisode}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div
                 style={{
@@ -791,7 +827,6 @@ function SeriesPage() {
                   maxHeight: "48px",
                   backgroundColor: "#F5C518",
                   borderRadius: 50,
-                  marginTop: 16,
                 }}
               >
                 <div
@@ -859,7 +894,7 @@ function SeriesPage() {
                   display: "flex",
                   gap: "20px",
                   color: "#5799EF",
-                  marginTop: 9,
+                  marginTop: 12,
                 }}
               >
                 <div

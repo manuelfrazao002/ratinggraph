@@ -22,8 +22,9 @@ ChartJS.register(
   Filler
 );
 
-const sheetUrl =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=190829179&single=true&output=csv";
+import { useParams } from 'react-router-dom';
+import { movieMap } from "./data/MovieMap";
+import { Link } from "react-router-dom";
 
 const seasonColors = [
   "#0074D9",
@@ -39,13 +40,20 @@ const seasonColors = [
 ];
 
 export default function VotesChart() {
+  const { movieId } = useParams();
   const [labels, setLabels] = useState([]);
   const [titles, setTitles] = useState([]);
   const [seasonData, setSeasonData] = useState({});
   const [parsedData, setParsedData] = useState([]);
 
   useEffect(() => {
-    fetch(sheetUrl)
+        if (!movieId || !movieMap[movieId]) {
+              console.error("movieId inválido");
+              return;
+            }
+        
+            const urls = movieMap[movieId];
+    fetch(urls[1])
       .then((res) => res.text())
       .then((csvText) => {
         const parsed = Papa.parse(csvText, { header: true });

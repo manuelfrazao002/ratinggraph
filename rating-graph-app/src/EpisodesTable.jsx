@@ -1,17 +1,24 @@
 import React, { useEffect, useState, useRef } from "react";
 import Papa from "papaparse";
-
-const SHEETS_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=190829179&single=true&output=csv";
+import { useParams } from 'react-router-dom';
+import { movieMap } from "./data/MovieMap";
+import { Link } from "react-router-dom";
 
 function EpisodesTable() {
+  const { movieId } = useParams();
   const [episodes, setEpisodes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const tbodyRef = useRef(null);
 
   useEffect(() => {
-    fetch(SHEETS_CSV_URL)
+        if (!movieId || !movieMap[movieId]) {
+              console.error("movieId inválido");
+              return;
+            }
+        
+            const urls = movieMap[movieId];
+    fetch(urls[1])
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {

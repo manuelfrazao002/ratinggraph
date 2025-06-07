@@ -8,7 +8,8 @@ import "../src/App.css";
 import Navbar from "./imgs/navbar.png";
 import UpInfo from "./imgs/up_info.png";
 import TV from "./imgs/tv_ratinggraph.png";
-import ShowImage from "./imgs/covers/toe_cover.png";
+import { createGlobalStyle } from "styled-components";
+
 import Description from "./imgs/description.png";
 import Directors from "./imgs/directors.png";
 import Writers from "./imgs/writers.png";
@@ -35,12 +36,24 @@ import toggleseasons from "./imgs/btns/toggleseasons.png";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Papa from "papaparse";
 
+import { useParams } from 'react-router-dom';
+import { movieMap } from "./data/MovieMap";
+import { Link } from "react-router-dom";
+
+import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
+
 function App() {
+  const { movieId } = useParams();
   const [seriesData, setSeriesData] = useState([]);
+
   useEffect(() => {
-    fetch(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=1942396010&single=true&output=csv"
-    )
+        if (!movieId || !movieMap[movieId]) {
+          console.error("movieId inválido");
+          return;
+        }
+    
+        const urls = movieMap[movieId];
+    fetch(urls[2])
       .then((response) => response.text())
       .then((csvText) => {
         Papa.parse(csvText, {
@@ -53,14 +66,23 @@ function App() {
           },
         });
       });
-  }, []);
+  }, [movieId]);
 
   const labelStyle = {
     marginBottom: "3px",
   };
 
+  const GlobalStyle = createGlobalStyle`
+    #root {
+      padding: 0 !important;
+      background-color: #FFD040;
+      width: 100%;
+    }
+  `;
+
   return (
     <div>
+      <GlobalStyle/>
       <div
         style={{
           backgroundColor: "#FFC000",
@@ -79,7 +101,7 @@ function App() {
             width: "1110px",
           }}
         >
-          <a href="/imdb">
+          <Link to={`/`}>
             <img
               src={Navbar}
               alt=""
@@ -89,7 +111,7 @@ function App() {
                 paddingBottom: "9.8px",
               }}
             />
-          </a>
+          </Link>
           <section style={{ backgroundColor: "white" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <img
@@ -105,13 +127,13 @@ function App() {
               <h1
                 style={{
                   fontSize: "18px",
-                  marginLeft: "3px",
+                  marginLeft: "6px",
                   marginTop: "9px",
                   fontWeight: "bold",
                   color: "black",
                 }}
               >
-                The Outside Explorers ratings (TV show, 2015-2025)
+                {seriesData[0]?.Title} {" ratings "} ({seriesData[0]?.Type}, {""} {seriesData[0]?.StartYear}-{seriesData[0]?.EndYear})
               </h1>
             </div>
             <img
@@ -128,7 +150,7 @@ function App() {
               }}
             >
               <img
-                src={ShowImage}
+                src={showCoverSrc[movieId]}
                 alt="Imagem da Série"
                 style={{
                   width: "132px",

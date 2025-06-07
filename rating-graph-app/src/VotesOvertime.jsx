@@ -11,14 +11,23 @@ import {
 } from "recharts";
 import Papa from "papaparse";
 
+import { useParams } from 'react-router-dom';
+import { movieMap } from "./data/MovieMap";
+import { Link } from "react-router-dom";
+
 const VotesOverTime = () => {
+  const { movieId } = useParams();
   const [data, setData] = useState([]);
 
   useEffect(() => {
+        if (!movieId || !movieMap[movieId]) {
+              console.error("movieId inválido");
+              return;
+            }
+        
+            const urls = movieMap[movieId];
     const fetchCSV = async () => {
-      const response = await fetch(
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=1140739200&single=true&output=csv"
-      );
+      const response = await fetch(urls[3]);
       const rawCsv = await response.text();
       const cleanCsv = rawCsv.split("\n").slice(1).join("\n");
 
@@ -50,7 +59,7 @@ const VotesOverTime = () => {
     };
 
     fetchCSV();
-  }, []);
+  }, [movieId]);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload?.length) {
