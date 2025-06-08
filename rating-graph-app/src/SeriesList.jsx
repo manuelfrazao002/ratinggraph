@@ -362,8 +362,8 @@ function formatVotes(votes) {
                                 (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
+                                  width="22"
+                                  height="22"
                                   className="ipc-icon ipc-icon--arrow-drop-down ipc-icon--inline sc-ee671986-0 cgemQz base down arrow"
                                   viewBox="0 0 24 24"
                                   fill="currentColor"
@@ -385,8 +385,8 @@ function formatVotes(votes) {
                                 (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
+                                  width="12"
+                                  height="12"
                                   className="ipc-icon ipc-icon--dash ipc-icon--inline sc-ee671986-0 cgemQz base flat arrow"
                                   viewBox="0 0 24 24"
                                   fill="currentColor"
@@ -394,7 +394,6 @@ function formatVotes(votes) {
                                   style={{
                                     verticalAlign: "middle",
                                     color: "#757575",
-                                    margin: "0 -4.48px 0 -4.48px",
                                   }}
                                 >
                                   <path d="M21 14.5a.5.5 0 0 1-.5.5h-17a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5h17a.5.5 0 0 1 .5.5v3z"></path>
