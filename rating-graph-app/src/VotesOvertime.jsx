@@ -20,42 +20,46 @@ const VotesOverTime = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-        if (!movieId || !movieMap[movieId]) {
-              console.error("movieId inválido");
-              return;
-            }
-        
-            const urls = movieMap[movieId];
+    if (!movieId || !movieMap[movieId]) {
+      console.error("movieId inválido");
+      return;
+    }
+
+    const urls = movieMap[movieId];
+
     const fetchCSV = async () => {
-      const response = await fetch(urls[3]);
-      const rawCsv = await response.text();
-      const cleanCsv = rawCsv.split("\n").slice(1).join("\n");
+      try {
+        const response = await fetch(urls[3]);
+        const rawCsv = await response.text();
+        const cleanCsv = rawCsv.split("\n").slice(1).join("\n");
 
-      const parsed = Papa.parse(cleanCsv, {
-        header: true,
-        skipEmptyLines: true,
-      });
+        const parsed = Papa.parse(cleanCsv, {
+          header: true,
+          skipEmptyLines: true,
+        });
 
-      const formatted = parsed.data
-        .filter(
-          (row) =>
+        const formatted = parsed.data
+          .filter(row =>
             row["Date2"] &&
             row["Seasons"] &&
             row["Episodes"] &&
             row["Total Votes"] &&
             row["Average Votes"] &&
             row["Average Rating"]
-        )
-        .map((row) => ({
-          date: row["Date2"],
-          seasons: row["Seasons"],
-          episodes: row["Episodes"],
-          totalVotes: parseInt(row["Total Votes"].replace(/,/g, ""), 10),
-          averageVotes: parseFloat(row["Average Votes"].replace(/,/g, "")),
-          averageRating: parseFloat(row["Average Rating"]),
-        }));
+          )
+          .map(row => ({
+            date: row["Date2"],
+            seasons: row["Seasons"],
+            episodes: row["Episodes"],
+            totalVotes: parseInt(row["Total Votes"].replace(/,/g, ""), 10),
+            averageVotes: parseFloat(row["Average Votes"].replace(/,/g, "")),
+            averageRating: parseFloat(row["Average Rating"]),
+          }));
 
-      setData(formatted);
+        setData(formatted);
+      } catch (error) {
+        console.error("Erro ao carregar CSV:", error);
+      }
     };
 
     fetchCSV();
@@ -65,85 +69,50 @@ const VotesOverTime = () => {
     if (active && payload?.length) {
       const entry = payload[0].payload;
       return (
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            padding: "12px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            fontSize: "13px",
-            lineHeight: "1.5",
-            color: "black",
-          }}
-        >
-          <div>
-            <strong>{entry.date}</strong>{" "}
-          </div>
+        <div style={{
+          background: "#fff",
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          fontSize: "13px",
+          lineHeight: "1.5",
+          color: "black",
+        }}>
+          <div><strong>{entry.date}</strong></div>
           <br />
-          <div>
-            Seasons: <strong>{entry.seasons}</strong>
-          </div>
-          <div>
-            Episodes: <strong>{entry.episodes}</strong>{" "}
-          </div>
-          <div>
-            Total Votes: <strong>{entry.totalVotes.toLocaleString()}</strong>{" "}
-          </div>
-          <div>
-            Avg. Votes: <strong>{entry.averageVotes.toLocaleString()}</strong>{" "}
-          </div>
-          <div>
-            Avg. Rating: <strong>{entry.averageRating.toFixed(1)}</strong>{" "}
-          </div>
+          <div>Seasons: <strong>{entry.seasons}</strong></div>
+          <div>Episodes: <strong>{entry.episodes}</strong></div>
+          <div>Total Votes: <strong>{entry.totalVotes.toLocaleString()}</strong></div>
+          <div>Avg. Votes: <strong>{entry.averageVotes.toLocaleString()}</strong></div>
+          <div>Avg. Rating: <strong>{entry.averageRating.toFixed(1)}</strong></div>
         </div>
       );
     }
     return null;
   };
 
-  const generateTicks = (min, max, step) => {
-    const ticks = [];
-    for (let val = min; val <= max; val += step) {
-      ticks.push(Number(val.toFixed(2)));
-    }
-    return ticks;
-  };
-
-  const leftDomain = [500000, 1900000]; // exemplo
-  const rightDomain = [8.8, 9.5];
-
-  const leftStep = 200000;
-  const rightStep = 0.1; // passo 0.1 para eixo da direita
-
-  const leftTicks = generateTicks(leftDomain[0], leftDomain[1], leftStep);
-  const rightTicks = generateTicks(rightDomain[0], rightDomain[1], rightStep);
+ if (data.length === 0) return null;
 
   const desiredTicks = 10;
   const interval =
     data.length > desiredTicks ? Math.floor(data.length / desiredTicks) : 0;
 
   return (
-    <div
-      style={{
-        width: 1100,
-        height: 560,
-        backgroundColor: "white",
-      }}
-    >
+    <div style={{ width: 1100, height:560, backgroundColor: "white" }}>
       <ResponsiveContainer width={1100} height={560}>
         <LineChart
           data={data}
           margin={{ top: 0, right: 11, left: 20, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} stroke="#E6E6E6" />
+          <CartesianGrid vertical={true} stroke="#E6E6E6" />
           <XAxis
             dataKey="date"
             tickFormatter={(dateStr, index) => {
               if (index === 0) return "";
               const date = new Date(dateStr);
-              const month = date.toLocaleString("en-US", { month: "short" }); // "Jul"
-              const year = date.getFullYear().toString().slice(-2); // "20"
+              const month = date.toLocaleString("en-US", { month: "short" });
+              const year = date.getFullYear().toString().slice(-2);
               return `${month} '${year}`;
             }}
             label={{
@@ -168,9 +137,8 @@ const VotesOverTime = () => {
               offset: 0,
               style: { fill: "#555", fontSize: 12 },
             }}
-            domain={leftDomain}
-            ticks={leftTicks}
-            tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`} // mostra 100k, 200k...
+  tickCount={5}
+            tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
             stroke="#555"
             width={50}
             fontSize={11}
@@ -187,8 +155,7 @@ const VotesOverTime = () => {
               offset: 0,
               style: { fill: "#555", fontSize: 12 },
             }}
-            domain={rightDomain}
-            ticks={rightTicks}
+  tickCount={5}
             tickFormatter={(val) => val.toFixed(1)}
             stroke="#555"
             width={45}
