@@ -248,6 +248,14 @@ export default function Episodes() {
   const currentSeason = seasonList[currentSeasonIndex];
   const currentEpisodes = episodesBySeason[currentSeason] || [];
 
+  function formatRating(rating) {
+  if (rating === 10) {
+    return '10';
+  } else {
+    return rating.toFixed(1);
+  }
+}
+
   // Componente para renderizar item do episódio (utilizado em Seasons e Years)
   function EpisodeItem({ episode, index, isLast }) {
     const rating = parseFloat(episode["Average Rating 2"]);
@@ -472,7 +480,7 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                 >
                   <div style={{ display: "flex", marginRight: 4 }}>
                     <p style={{ color: "#757575", fontWeight: "" }}>
-                      {rating.toFixed(1)}
+                      {formatRating(rating)}
                     </p>
                     <p style={{ color: "#757575" }}>/10</p>
                   </div>
@@ -933,9 +941,11 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                               <p
                                 style={{ color: "#757575", fontWeight: "" }}
                               >
-                                {parseFloat(episode["Average Rating 2"]).toFixed(
-                                  1
-                                )}
+                                {
+  parseFloat(episode["Average Rating 2"]) === 10
+    ? '10'
+    : parseFloat(episode["Average Rating 2"]).toFixed(1)
+}
                               </p>
                               <p style={{ color: "#757575" }}>/10</p>
                             </div>
