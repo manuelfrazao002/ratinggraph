@@ -381,7 +381,7 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
               <h3
                 style={{
                   color: "#212121",
-                  fontWeight: "bold",
+                  fontWeight: "",
                   margin: 0,
                   paddingBottom: 0,
                   letterSpacing: 0.1,
@@ -471,7 +471,7 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                   }}
                 >
                   <div style={{ display: "flex", marginRight: 4 }}>
-                    <p style={{ color: "#757575", fontWeight: "bold" }}>
+                    <p style={{ color: "#757575", fontWeight: "" }}>
                       {rating.toFixed(1)}
                     </p>
                     <p style={{ color: "#757575" }}>/10</p>
@@ -701,8 +701,6 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                             paddingTop: 1,
                             paddingBottom: 2.5,
                             letterSpacing: 0.7,
-                            fontFamily:
-                              '"Helvetica Neue", Helvetica, Arial, sans-serif',
                             fontSize: "0.95rem",
                             position: "relative",
                             left: "-1px",
@@ -869,8 +867,6 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                                 paddingTop: 1,
                                 paddingBottom: 2.5,
                                 letterSpacing: 0.7,
-                                fontFamily:
-                                  '"Helvetica Neue", Helvetica, Arial, sans-serif',
                                 fontSize: "0.97rem",
                                 position: "relative",
                                 left: "-1px",
@@ -884,7 +880,7 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                             <p
                               style={{
                                 color: "#757575",
-                                fontWeight: "bold",
+                                fontWeight: "",
                                 margin: 0,
                                 letterSpacing: 0.5,
                               }}
@@ -935,7 +931,7 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                               }}
                             >
                               <p
-                                style={{ color: "#757575", fontWeight: "bold" }}
+                                style={{ color: "#757575", fontWeight: "" }}
                               >
                                 {parseFloat(episode["Average Rating 2"]).toFixed(
                                   1
@@ -1085,8 +1081,6 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                             fontWeight: "bold",
                             userSelect: "none",
                             letterSpacing: 0.7,
-                            fontFamily:
-                              '"Helvetica Neue", Helvetica, Arial, sans-serif',
                             fontSize: "0.9rem",
                           }}
                           title={`Temporada ${season}`}
@@ -1157,8 +1151,6 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                             color: "black",
                             fontWeight: "bold",
                             userSelect: "none",
-                            fontFamily:
-                              '"Helvetica Neue", Helvetica, Arial, sans-serif',
                             fontSize: "0.9rem",
                             transition: "background-color 0.2s ease",
                           }}

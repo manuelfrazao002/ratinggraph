@@ -327,12 +327,11 @@ function formatVotes(votes) {
                         style={{
                           fontSize: "18.5px",
                           color: "white",
-                          WebkitTextStroke: "1px white",
-                          fontFamily: "Roboto",
-                          letterSpacing: "1.5px",
+                          letterSpacing: "0.5px",
                           position: "relative",
                           top: "1px",
                           left: "-1px",
+                          fontWeight: "bold"
                         }}
                       >
                         {data.Rating}
@@ -342,7 +341,7 @@ function formatVotes(votes) {
                           color: "#BCBCBC",
                           fontSize: 15,
                           WebkitTextStroke: "0.1px #BCBCBC",
-                          letterSpacing: "1.5px",
+                          letterSpacing: "0.5px",
                         }}
                       >
                         /10
@@ -413,7 +412,7 @@ function formatVotes(votes) {
                         : ArrowStay
                     }
                     alt=""
-                    style={{ marginRight: "4px" }}
+                    style={{ marginRight: "4px"}}
                   />
 
                   {/* Popularidade sempre visível */}
@@ -421,11 +420,11 @@ function formatVotes(votes) {
                     style={{
                       marginRight: "10px",
                       fontSize: "19px",
-                      WebkitTextStroke: "1px white",
-                      fontFamily: "Roboto",
                       letterSpacing: "1.5px",
                       position: "relative",
                       top: "1px",
+                      fontWeight: "bold",
+                      color: "white"
                     }}
                   >
                     {data.Popularity}
@@ -463,9 +462,8 @@ function formatVotes(votes) {
                     <span
                       style={{
                         color: "#A4AAB5",
-                        WebkitTextStroke: "0.2px #A4AAB5",
-                        fontFamily: "Roboto",
-                        letterSpacing: "1.5px",
+                        WebkitTextStroke: "0.18px #A4AAB5",
+                        letterSpacing: "0.5px",
                         position: "relative",
                         top: "2px",
                       }}
@@ -628,7 +626,7 @@ function formatVotes(votes) {
                   background: "#f5c518",
                   border: "none",
                   color: "white",
-                  fontWeight: "bold",
+                  fontWeight: "",
                   cursor: "pointer",
                   borderRadius: "12px",
                   backgroundColor: "#313131",
@@ -664,7 +662,7 @@ function formatVotes(votes) {
                   background: "#f5c518",
                   border: "none",
                   color: "white",
-                  fontWeight: "bold",
+                  fontWeight: "",
                   cursor: "pointer",
                   borderRadius: "12px",
                   backgroundColor: "#313131",
@@ -726,7 +724,6 @@ function formatVotes(votes) {
                   style={{
                     fontWeight: "bold",
                     color: "white",
-                    WebkitTextStroke: "0.4px white",
                     letterSpacing: "0.2px",
                   }}
                 >
@@ -747,7 +744,6 @@ function formatVotes(votes) {
                   style={{
                     fontWeight: "bold",
                     color: "white",
-                    WebkitTextStroke: "0.4px white",
                     letterSpacing: "0.2px",
                   }}
                 >
