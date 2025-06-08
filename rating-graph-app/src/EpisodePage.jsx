@@ -249,12 +249,12 @@ export default function Episodes() {
   const currentEpisodes = episodesBySeason[currentSeason] || [];
 
   function formatRating(rating) {
-  if (rating === 10) {
-    return '10';
-  } else {
-    return rating.toFixed(1);
+    if (rating === 10) {
+      return "10";
+    } else {
+      return rating.toFixed(1);
+    }
   }
-}
 
   // Componente para renderizar item do episódio (utilizado em Seasons e Years)
   function EpisodeItem({ episode, index, isLast }) {
@@ -302,9 +302,10 @@ export default function Episodes() {
     const sanitizeTitle = (title) =>
       title.toLowerCase().replace(/[^a-z0-9]/gi, "-");
 
-const episodeList = activeTab === "Top-rated" ? topEpisodes : currentEpisodes;
-const isLastEpisode = episodeList.length === 1 || index === episodeList.length - 1;
-
+    const episodeList =
+      activeTab === "Top-rated" ? topEpisodes : currentEpisodes;
+    const isLastEpisode =
+      episodeList.length === 1 || index === episodeList.length - 1;
 
     return (
       <div
@@ -938,14 +939,12 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                                 top: "1px",
                               }}
                             >
-                              <p
-                                style={{ color: "#757575", fontWeight: "" }}
-                              >
-                                {
-  parseFloat(episode["Average Rating 2"]) === 10
-    ? '10'
-    : parseFloat(episode["Average Rating 2"]).toFixed(1)
-}
+                              <p style={{ color: "#757575", fontWeight: "" }}>
+                                {parseFloat(episode["Average Rating 2"]) === 10
+                                  ? "10"
+                                  : parseFloat(
+                                      episode["Average Rating 2"]
+                                    ).toFixed(1)}
                               </p>
                               <p style={{ color: "#757575" }}>/10</p>
                             </div>
@@ -1185,7 +1184,6 @@ const isLastEpisode = episodeList.length === 1 || index === episodeList.length -
                   )}
                 </div>
               )}
-
 
               <div style={{ position: "relative", left: "-20px" }}>
                 <div style={{ marginTop: 29 }}>

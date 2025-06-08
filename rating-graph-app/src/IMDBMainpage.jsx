@@ -4,7 +4,12 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { showCoverSrc, imgTrailerSrc, MainTitle, EpisodeTitle } from "./ShowImageSrc";
+import {
+  showCoverSrc,
+  imgTrailerSrc,
+  MainTitle,
+  EpisodeTitle,
+} from "./ShowImageSrc";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -99,32 +104,27 @@ function SeriesPage() {
   }
 `;
 
-function formatVotes(votes) {
-  if (!votes) return "N/A";
+  function formatVotes(votes) {
+    if (!votes) return "N/A";
 
-  const num = Number(votes.toString().replace(/[, ]+/g, ""));
+    const num = Number(votes.toString().replace(/[, ]+/g, ""));
 
-  if (isNaN(num)) return "N/A";
+    if (isNaN(num)) return "N/A";
 
-  if (num < 1000) {
-    return num.toString();
-  } else if (num < 10_000) {
-    // De 1.000 a 9.999: uma casa decimal
-    const k = num / 1000;
-    return `${k.toFixed(1)}K`;
-  } else if (num < 1_000_000) {
-    // De 10.000 até 999.999: arredonda pra cima
-    const k = Math.ceil(num / 1000);
-    return `${k}K`;
-  } else {
-    // Milhões
-    const m = num / 1_000_000;
-    return m % 1 === 0 ? `${m.toFixed(0)}M` : `${m.toFixed(1)}M`;
+    if (num < 1000) {
+      return num.toString();
+    } else if (num < 10_000) {
+      // De 1.000 a 9.999: uma casa decimal
+      return `${(num / 1000).toFixed(1)}K`;
+    } else if (num < 1_000_000) {
+      // De 10.000 a 999.999: arredonda normal (para cima se >= .5)
+      return `${Math.round(num / 1000)}K`;
+    } else {
+      // Milhões
+      const m = num / 1_000_000;
+      return m % 1 === 0 ? `${m.toFixed(0)}M` : `${m.toFixed(1)}M`;
+    }
   }
-}
-
-
-
 
   function renderListWithDotSeparator(list) {
     if (!list) return null;
@@ -331,7 +331,7 @@ function formatVotes(votes) {
                           position: "relative",
                           top: "1px",
                           left: "-1px",
-                          fontWeight: "bold"
+                          fontWeight: "bold",
                         }}
                       >
                         {data.Rating}
@@ -412,7 +412,7 @@ function formatVotes(votes) {
                         : ArrowStay
                     }
                     alt=""
-                    style={{ marginRight: "4px"}}
+                    style={{ marginRight: "4px" }}
                   />
 
                   {/* Popularidade sempre visível */}
@@ -424,7 +424,7 @@ function formatVotes(votes) {
                       position: "relative",
                       top: "1px",
                       fontWeight: "bold",
-                      color: "white"
+                      color: "white",
                     }}
                   >
                     {data.Popularity}
@@ -548,7 +548,7 @@ function formatVotes(votes) {
                       justifyContent: "center",
                       alignItems: "center",
                       gap: 12,
-                      top: "5px",
+                      top: "4px",
                       left: "-4px",
                     }}
                   >
@@ -565,16 +565,21 @@ function formatVotes(votes) {
                         alignItems: "center",
                         filter: "drop-shadow(0 0 4px rgba(0,0,0,0.7))",
                         transition: "background-color 0.3s ease",
+                        position: "relative",
+                        top: "-1px",
                       }}
                     >
                       <svg
-                        width="34"
-                        height="34"
-                        viewBox="0 0 24 24"
-                        fill="white"
                         xmlns="http://www.w3.org/2000/svg"
+                        width="150"
+                        height="150"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        role="presentation"
+                        style={{ transform: "rotate(-90deg)" }}
                       >
-                        <path d="M8 5v14l11-7z" />
+                        <path fill="none" d="M0 0h24v24H0V0z"></path>
+                        <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
                       </svg>
                     </div>
 
@@ -583,7 +588,6 @@ function formatVotes(votes) {
                       style={{
                         color: "white",
                         fontSize: 24,
-                        fontWeight: "600",
                         userSelect: "none",
                         textShadow: "0 0 5px rgba(0,0,0,0.7)",
                         position: "relative",
@@ -692,7 +696,14 @@ function formatVotes(votes) {
             </div>
           </section>
 
-          <section style={{ display: "flex", justifyContent: "space-between", flexDirection: "row", alignItems: "center"}}>
+          <section
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
             <div
               style={{
                 width: "813.25px",
@@ -774,7 +785,7 @@ function formatVotes(votes) {
                     position: "relative",
                     display: "flex",
                     paddingRight: 24,
-                    marginBottom: 16
+                    marginBottom: 16,
                   }}
                 >
                   <div

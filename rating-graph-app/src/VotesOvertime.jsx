@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import { useParams } from "react-router-dom";
 import Papa from "papaparse";
-
-import { useParams } from 'react-router-dom';
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+  TimeScale,
+} from "chart.js";
+import "chartjs-adapter-date-fns";
 import { movieMap } from "./data/MovieMap";
-import { Link } from "react-router-dom";
+
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+  TimeScale
+);
 
 const VotesOverTime = () => {
   const { movieId } = useParams();
-  const [data, setData] = useState([]);
+  const [chartData, setChartData] = useState(null);
+  const [y2Min, setY2Min] = useState(null);
+  const [y2Max, setY2Max] = useState(null);
 
   useEffect(() => {
     if (!movieId || !movieMap[movieId]) {
       console.error("movieId inválido");
       return;
     }
-
     const urls = movieMap[movieId];
 
     const fetchCSV = async () => {
@@ -32,23 +43,23 @@ const VotesOverTime = () => {
         const response = await fetch(urls[3]);
         const rawCsv = await response.text();
         const cleanCsv = rawCsv.split("\n").slice(1).join("\n");
-
         const parsed = Papa.parse(cleanCsv, {
           header: true,
           skipEmptyLines: true,
         });
 
-        const formatted = parsed.data
-          .filter(row =>
-            row["Date2"] &&
-            row["Seasons"] &&
-            row["Episodes"] &&
-            row["Total Votes"] &&
-            row["Average Votes"] &&
-            row["Average Rating"]
+        const formattedData = parsed.data
+          .filter(
+            (row) =>
+              row["Date2"] &&
+              row["Seasons"] &&
+              row["Episodes"] &&
+              row["Total Votes"] &&
+              row["Average Votes"] &&
+              row["Average Rating"]
           )
-          .map(row => ({
-            date: row["Date2"],
+          .map((row) => ({
+            dateISO: new Date(row["Date2"]).toISOString().split("T")[0],
             seasons: row["Seasons"],
             episodes: row["Episodes"],
             totalVotes: parseInt(row["Total Votes"].replace(/,/g, ""), 10),
@@ -56,140 +67,199 @@ const VotesOverTime = () => {
             averageRating: parseFloat(row["Average Rating"]),
           }));
 
-        setData(formatted);
+        const ratings = formattedData.map((d) => d.averageRating);
+        const minRating = Math.min(...ratings);
+        const maxRating = Math.max(...ratings);
+        setY2Min(Math.floor(minRating - 1));
+        setY2Max(Math.ceil(maxRating + 1));
+
+        const totalPoints = formattedData.length;
+        const maxRadius = 6;
+        const minRadius = 0; // evita ponto invisível
+        // Quanto mais dados, menor o ponto
+        const calculatedRadius = Math.max(minRadius, maxRadius - totalPoints / 50);
+
+        const maxBorderWidth = 3;
+const minBorderWidth = 2;
+const borderWidth = Math.max(
+  minBorderWidth,
+  maxBorderWidth - totalPoints / 50
+);
+const calculatedBorderWidth = Math.max(minBorderWidth, maxBorderWidth - totalPoints / 50);
+
+        setChartData({
+          labels: formattedData.map((d) => d.dateISO),
+          datasets: [
+            {
+              label: "Total Votes",
+              data: formattedData.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
+              yAxisID: "y1",
+              borderColor: "#F7A35C",
+              fill: false,
+              pointRadius: calculatedRadius,
+              pointHoverRadius: calculatedRadius + 5,
+              borderWidth: calculatedBorderWidth,
+              cubicInterpolationMode: 'monotone',
+              tension: 0.7,
+            },
+            {
+              label: "Average Rating",
+              data: formattedData.map((d) => ({ x: d.dateISO, y: d.averageRating })),
+              yAxisID: "y2",
+              borderColor: "#F15C80",
+              fill: false,
+              pointRadius: calculatedRadius,
+              pointHoverRadius: calculatedRadius + 5,
+              borderWidth: calculatedBorderWidth,
+              cubicInterpolationMode: 'monotone',
+              tension: 0.7,
+            },
+          ],
+          tooltipsMap: formattedData,
+        });
       } catch (error) {
         console.error("Erro ao carregar CSV:", error);
       }
     };
-
     fetchCSV();
   }, [movieId]);
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload?.length) {
-      const entry = payload[0].payload;
-      return (
-        <div style={{
-          background: "#fff",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          padding: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          fontSize: "13px",
-          lineHeight: "1.5",
-          color: "black",
-        }}>
-          <div><strong>{entry.date}</strong></div>
-          <br />
-          <div>Seasons: <strong>{entry.seasons}</strong></div>
-          <div>Episodes: <strong>{entry.episodes}</strong></div>
-          <div>Total Votes: <strong>{entry.totalVotes.toLocaleString()}</strong></div>
-          <div>Avg. Votes: <strong>{entry.averageVotes.toLocaleString()}</strong></div>
-          <div>Avg. Rating: <strong>{entry.averageRating.toFixed(1)}</strong></div>
-        </div>
-      );
-    }
-    return null;
-  };
+  if (!chartData) return null;
 
- if (data.length === 0) return null;
+  const totalPoints = chartData.labels.length;
+  const maxRadius = 6;
+  const minRadius = 0;
+  const calculatedRadius = Math.max(minRadius, maxRadius - totalPoints / 50);
 
-  const desiredTicks = 10;
-  const interval =
-    data.length > desiredTicks ? Math.floor(data.length / desiredTicks) : 0;
+  const options = {
+  elements: {
+  },
+  scales: {
+    x: {
+      type: "time",
+      time: {
+        tooltipFormat: "MM/dd/yyyy",
+      },
+      ticks: {
+        maxRotation: 45,
+        autoSkip: true,
+        callback: function (value, index, ticks) {
+          const total = ticks.length;
+          const labelDate = this.getLabelForValue(value);
+          const date = new Date(labelDate);
+          if (isNaN(date)) return labelDate;
+          if (total <= 20) {
+            return date.toLocaleDateString("en-US", {
+              day: "2-digit",
+              month: "short",
+            });
+          } else if (total <= 50) {
+            return date.toLocaleDateString("en-US", {
+              month: "short",
+              year: "2-digit",
+            });
+          } else {
+            return date.getFullYear();
+          }
+        },
+      },
+      grid: {
+        color: "#E6E6E6",
+        drawOnChartArea: false,
+      },
+    },
+    y1: {
+      position: "left",
+      alignToPixels: true,
+      ticks: {
+        count: 5,
+        callback: (val) => `${(val / 1000).toFixed(0)}k`,
+      },
+      grid: {
+        drawOnChartArea: true,
+      },
+      border: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: "Votes", // Label do eixo Y esquerdo
+        color: "#666666",
+        font: {
+          size: 12,
+        },
+        padding: { top: 10, bottom: 10 },
+      },
+    },
+    y2: {
+      position: "right",
+      alignToPixels: true,
+      alignTicks: true,
+      min: y2Min ?? 0,
+      max: y2Max ?? 10,
+      ticks: {
+        count: 5,
+        callback: (val) => val.toFixed(1),
+      },
+      grid: {
+        drawOnChartArea: false,
+      },
+      border: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: "Rating", // Label do eixo Y direito
+        color: "#666666",
+        font: {
+          size: 12,
+        },
+        padding: { top: 10, bottom: 10 },
+      },
+    },
+  },
+  plugins: {
+    tooltip: {
+      mode: "index",
+      intersect: false,
+      callbacks: {
+        title: (context) => {
+          if (context.length > 0) {
+            const date = new Date(context[0].parsed.x);
+            return date.toLocaleDateString("en-US", {
+              month: "numeric",
+              day: "numeric",
+              year: "numeric",
+            });
+          }
+          return "";
+        },
+        afterTitle: (context) => {
+          const index = context[0].dataIndex;
+          const d = chartData.tooltipsMap[index];
+          return [
+            "",
+            `Seasons: ${d.seasons}`,
+            `Episodes: ${d.episodes}`,
+            `Total Votes: ${d.totalVotes.toLocaleString()}`,
+            `Average Votes: ${d.averageVotes.toLocaleString()}`,
+            `Average Rating: ${d.averageRating.toFixed(1)}`,
+          ];
+        },
+        label: () => null,
+      },
+    },
+    legend: {
+      display: true,
+      position: "bottom",
+    },
+  },
+};
+
 
   return (
-    <div style={{ width: 1100, height:560, backgroundColor: "white" }}>
-      <ResponsiveContainer width={1100} height={560}>
-        <LineChart
-          data={data}
-          margin={{ top: 0, right: 11, left: 20, bottom: 0 }}
-        >
-          <CartesianGrid vertical={true} stroke="#E6E6E6" />
-          <XAxis
-            dataKey="date"
-            tickFormatter={(dateStr, index) => {
-              if (index === 0) return "";
-              const date = new Date(dateStr);
-              const month = date.toLocaleString("en-US", { month: "short" });
-              const year = date.getFullYear().toString().slice(-2);
-              return `${month} '${year}`;
-            }}
-            label={{
-              value: "Date",
-              position: "center",
-              offset: 0,
-              style: { fill: "#555", fontSize: 12 },
-            }}
-            tick={{ fontSize: 11 }}
-            textAnchor="middle"
-            height={70}
-            interval={interval}
-          />
-          <YAxis
-            yAxisId="left"
-            axisLine={false}
-            tickLine={false}
-            label={{
-              value: "Votes",
-              angle: -90,
-              position: "insideLeft",
-              offset: 0,
-              style: { fill: "#555", fontSize: 12 },
-            }}
-  tickCount={5}
-            tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
-            stroke="#555"
-            width={50}
-            fontSize={11}
-          />
-          <YAxis
-            yAxisId="right"
-            axisLine={false}
-            tickLine={false}
-            orientation="right"
-            label={{
-              value: "Rating",
-              angle: 90,
-              position: "insideRight",
-              offset: 0,
-              style: { fill: "#555", fontSize: 12 },
-            }}
-  tickCount={5}
-            tickFormatter={(val) => val.toFixed(1)}
-            stroke="#555"
-            width={45}
-            fontSize={11}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            height={40}
-            wrapperStyle={{ fontSize: 13 }}
-          />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="totalVotes"
-            stroke="#F7A35C"
-            name="Total Votes"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 6 }}
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="averageRating"
-            stroke="#F15C80"
-            name="Average Rating"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 6 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <div style={{ width: 1100, height: 560, backgroundColor: "white" }}>
+      <Line key={movieId} data={chartData} options={options} />
     </div>
   );
 };
