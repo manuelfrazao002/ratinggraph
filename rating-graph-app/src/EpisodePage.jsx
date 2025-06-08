@@ -674,11 +674,10 @@ export default function Episodes() {
                     <div style={{}}>
                       <h2
                         style={{
-                          fontSize: "0.705rem",
+                          fontSize: "0.73rem",
                           marginBottom: "0px",
                           color: "#000000",
-                          letterSpacing: "2.5px",
-                          WebkitTextStroke: "0.65px #000000",
+                          letterSpacing: "2.2px",
                           marginTop: 0,
                         }}
                       >
@@ -712,8 +711,8 @@ export default function Episodes() {
                             letterSpacing: 0.7,
                             fontSize: "0.95rem",
                             position: "relative",
-                            left: "-1px",
-                            top: "1px",
+                            left: "0px",
+                            top: "0px",
                           }}
                         >
                           {nextEpisode.Title}
@@ -730,7 +729,7 @@ export default function Episodes() {
                         </p>
                       </div>
                     </div>
-                    <div style={{ marginTop: 8 }}>
+                    <div style={{ marginTop: 8, position:"relative", top: -1}}>
                       <img src={AddPlot2} alt="" />
                     </div>
                   </div>
@@ -777,21 +776,21 @@ export default function Episodes() {
                       .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
 
                     // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
-const topRatedEpisodes = validEpisodes
-  .filter((ep) => ep !== recentEpisode) // evitar duplicata
-  .sort((a, b) => {
-    const ratingA = parseFloat(a["Average Rating 2"]);
-    const votesA = parseInt(a.Votes);
+                    const topRatedEpisodes = validEpisodes
+                      .filter((ep) => ep !== recentEpisode) // evitar duplicata
+                      .sort((a, b) => {
+                        const ratingA = parseFloat(a["Average Rating 2"]);
+                        const votesA = parseInt(a.Votes);
 
-    const ratingB = parseFloat(b["Average Rating 2"]);
-    const votesB = parseInt(b.Votes);
+                        const ratingB = parseFloat(b["Average Rating 2"]);
+                        const votesB = parseInt(b.Votes);
 
-    const scoreA = ratingA * Math.log(votesA + 1);
-    const scoreB = ratingB * Math.log(votesB + 1);
+                        const scoreA = ratingA * Math.log(votesA + 1);
+                        const scoreB = ratingB * Math.log(votesB + 1);
 
-    return scoreB - scoreA;
-  })
-  .slice(0, 2);
+                        return scoreB - scoreA;
+                      })
+                      .slice(0, 2);
 
                     let episodesToShow = [];
 
