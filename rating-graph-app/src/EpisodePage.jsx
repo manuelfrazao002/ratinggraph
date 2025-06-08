@@ -777,14 +777,21 @@ export default function Episodes() {
                       .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
 
                     // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
-                    const topRatedEpisodes = validEpisodes
-                      .filter((ep) => ep !== recentEpisode) // evitar duplicata
-                      .sort(
-                        (a, b) =>
-                          parseFloat(b["Average Rating 2"]) -
-                          parseFloat(a["Average Rating 2"])
-                      )
-                      .slice(0, 2);
+const topRatedEpisodes = validEpisodes
+  .filter((ep) => ep !== recentEpisode) // evitar duplicata
+  .sort((a, b) => {
+    const ratingA = parseFloat(a["Average Rating 2"]);
+    const votesA = parseInt(a.Votes);
+
+    const ratingB = parseFloat(b["Average Rating 2"]);
+    const votesB = parseInt(b.Votes);
+
+    const scoreA = ratingA * Math.log(votesA + 1);
+    const scoreB = ratingB * Math.log(votesB + 1);
+
+    return scoreB - scoreA;
+  })
+  .slice(0, 2);
 
                     let episodesToShow = [];
 
