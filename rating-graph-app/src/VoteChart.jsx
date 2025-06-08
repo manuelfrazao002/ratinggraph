@@ -367,6 +367,7 @@ export default function VotesChart() {
         },
       },
       x: {
+        max: 47,
         type: "linear",
         title: {
           display: true,

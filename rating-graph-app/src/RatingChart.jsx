@@ -353,6 +353,7 @@ export default function RatingChart() {
         },
       },
       x: {
+        max: 47,
         title: {
           display: true,
           text: "Episodes",
