@@ -227,6 +227,15 @@ export default function VotesChart() {
     ...(globalTrendDataset ? [globalTrendDataset] : []),
   ];
 
+  let maxVal;
+  let minVal;
+if (labels.length === 1) {
+  maxVal = labels.length + 1; // ou 1 mesmo
+  minVal = 0;
+} else {
+  maxVal = labels.length + 1; // para folga
+}
+
   const options = {
     responsive: true,
     plugins: {
@@ -367,7 +376,8 @@ export default function VotesChart() {
         },
       },
       x: {
-        max: 47,
+        max: maxVal,
+        min: minVal,
         type: "linear",
         title: {
           display: true,
