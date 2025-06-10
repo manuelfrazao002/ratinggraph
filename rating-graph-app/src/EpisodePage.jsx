@@ -183,7 +183,7 @@ export default function Episodes() {
                   parseFloat(b["Average Rating 2"]) -
                   parseFloat(a["Average Rating 2"]);
                 if (ratingDiff !== 0) return ratingDiff;
-                return parseInt(b.Votes || "0") - parseInt(a.Votes || "0");
+                return parseInt(b.Votes2 || "0") - parseInt(a.Votes2 || "0");
               })
               .slice(0, 10);
 
@@ -757,7 +757,7 @@ export default function Episodes() {
 
                     const validEpisodes = allEpisodes.filter((ep) => {
                       const rating = parseFloat(ep["Average Rating 2"]);
-                      const votes = parseInt(ep.Votes);
+                      const votes = parseInt(ep.Votes2);
                       const hasSynopsis =
                         ep.Synopsis && ep.Synopsis.trim() !== "";
                       const hasRating = !isNaN(rating) && rating > 0;
@@ -780,10 +780,10 @@ export default function Episodes() {
                       .filter((ep) => ep !== recentEpisode) // evitar duplicata
                       .sort((a, b) => {
                         const ratingA = parseFloat(a["Average Rating 2"]);
-                        const votesA = parseInt(a.Votes);
+                        const votesA = parseInt(a.Votes2);
 
                         const ratingB = parseFloat(b["Average Rating 2"]);
-                        const votesB = parseInt(b.Votes);
+                        const votesB = parseInt(b.Votes2);
 
                         const scoreA = ratingA * Math.log(votesA + 1);
                         const scoreB = ratingB * Math.log(votesB + 1);
@@ -1029,7 +1029,7 @@ export default function Episodes() {
                         const hasSynopsis =
                           ep.Synopsis && ep.Synopsis.trim() !== "";
                         const rating = parseFloat(ep["Average Rating 2"]);
-                        const votes = parseInt(ep.Votes);
+                        const votes = parseInt(ep.Votes2);
                         const hasRatingOrVotes =
                           (!isNaN(rating) && rating > 0) ||
                           (!isNaN(votes) && votes > 0);
