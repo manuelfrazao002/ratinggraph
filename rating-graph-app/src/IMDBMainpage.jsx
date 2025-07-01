@@ -925,51 +925,51 @@ function SeriesPage() {
                   marginTop: 12,
                 }}
               >
-                {hasVotes && (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontFamily: "Arial, sans-serif",
-                        textAlign: "right", // alinha o número à direita nessa largura
-                        display: "inline-block",
-                        fontSize: 16,
-                      }}
-                    >
-                      {formatNumber(data.UserReviews)}
-                    </span>
-                    <span style={{ fontSize: "14px" }}>User reviews</span>
-                  </div>
-                )}
+                {hasVotes && data.UserReviews > 0 && (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+    }}
+  >
+    <span
+      style={{
+        fontWeight: 700,
+        fontFamily: "Arial, sans-serif",
+        textAlign: "right",
+        display: "inline-block",
+        fontSize: 16,
+      }}
+    >
+      {formatNumber(data.UserReviews)}
+    </span>
+    <span style={{ fontSize: "14px" }}>User reviews</span>
+  </div>
+)}
 
-                {hasVotes && (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontFamily: "Arial, sans-serif",
+{hasVotes && data.CriticReviews > 0 && (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+    }}
+  >
+    <span
+      style={{
+        fontWeight: 700,
+        fontFamily: "Arial, sans-serif",
+        textAlign: "right",
+        display: "inline-block",
+      }}
+    >
+      {formatNumber(data.CriticReviews)}
+    </span>
+    <span style={{ fontSize: "14px" }}>Critic reviews</span>
+  </div>
+)}
 
-                        textAlign: "right",
-                        display: "inline-block",
-                      }}
-                    >
-                      {formatNumber(data.CriticReviews)}
-                    </span>
-                    <span style={{ fontSize: "14px" }}>Critic reviews</span>
-                  </div>
-                )}
               </div>
             </div>
           </section>
