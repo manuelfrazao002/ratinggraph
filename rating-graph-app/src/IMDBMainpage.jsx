@@ -74,6 +74,9 @@ function SeriesPage() {
   if (!urls) return <p>Filme não encontrado</p>;
   if (!data) return <p>Carregando dados do filme...</p>;
 
+  const votesNumber = Number(data.Votes?.toString().replace(/[,]+/g, "")) || 0;
+  const hasVotes = votesNumber > 0;
+
   const renderListWithLimit = (listStr, limit = 3) => {
     if (!listStr) return null;
     const items = listStr
@@ -270,6 +273,7 @@ function SeriesPage() {
                   position: "relative",
                   top: "1px",
                   WebkitTextStroke: "0.1px #C0C0C0",
+                  display: "flex",
                 }}
               >
                 {data.Type}
@@ -277,8 +281,14 @@ function SeriesPage() {
                 {data.BeginingYear}−{data.EndingYear || ""}
                 <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
                 {data.AgeRating}
-                <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
-                {data.EpDuration}
+                {hasVotes && (
+                  <div>
+                    <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                      ·
+                    </span>
+                    {data.EpDuration}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -293,94 +303,99 @@ function SeriesPage() {
                 top: "-7px",
               }}
             >
-              <div style={{ paddingRight: 25, margin: "0 auto" }}>
-                <img src={IMDBRating} alt="" />
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <img
-                    src={StarImdb}
-                    alt=""
-                    width={32}
-                    height={32}
-                    style={{
-                      marginRight: "0.2rem",
-                      position: "relative",
-                      top: "-1px",
-                      left: "-1.3px",
-                    }}
-                  />
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      position: "relative",
-                      top: "-5px",
-                    }}
-                  >
+              {hasVotes && (
+                <div style={{ paddingRight: 25, margin: "0 auto" }}>
+                  <img src={IMDBRating} alt="" />
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <img
+                      src={StarImdb}
+                      alt=""
+                      width={32}
+                      height={32}
+                      style={{
+                        marginRight: "0.2rem",
+                        position: "relative",
+                        top: "-1px",
+                        left: "-1.3px",
+                      }}
+                    />
                     <div
                       style={{
                         display: "flex",
-                        justifyContent: "center",
-                        alignItems: "baseline",
+                        flexDirection: "column",
+                        position: "relative",
+                        top: "-5px",
                       }}
                     >
-                      <span
+                      <div
                         style={{
-                          fontSize: "18.5px",
-                          color: "white",
-                          letterSpacing: "0.5px",
-                          position: "relative",
-                          top: "1px",
-                          left: "-1px",
-                          fontWeight: "bold",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "baseline",
                         }}
                       >
-                        {data.Rating}
-                      </span>
+                        <span
+                          style={{
+                            fontSize: "18.5px",
+                            color: "white",
+                            letterSpacing: "0.5px",
+                            position: "relative",
+                            top: "1px",
+                            left: "-1px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {data.Rating}
+                        </span>
+                        <span
+                          style={{
+                            color: "#BCBCBC",
+                            fontSize: 15,
+                            WebkitTextStroke: "0.1px #BCBCBC",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          /10
+                        </span>
+                      </div>
+
                       <span
                         style={{
+                          fontSize: "0.72rem",
                           color: "#BCBCBC",
-                          fontSize: 15,
+                          position: "relative",
+                          top: "-4px",
+                          left: "-1px",
+                          letterSpacing: "0.8px",
                           WebkitTextStroke: "0.1px #BCBCBC",
-                          letterSpacing: "0.5px",
                         }}
                       >
-                        /10
+                        {formatVotes(data.Votes) || "N/A"}
                       </span>
                     </div>
-
-                    <span
-                      style={{
-                        fontSize: "0.72rem",
-                        color: "#BCBCBC",
-                        position: "relative",
-                        top: "-4px",
-                        left: "-1px",
-                        letterSpacing: "0.8px",
-                        WebkitTextStroke: "0.1px #BCBCBC",
-                      }}
-                    >
-                      {formatVotes(data.Votes) || "N/A"}
-                    </span>
                   </div>
                 </div>
-              </div>
-              <div style={{ paddingRight: 18 }}>
-                <img src={YourRating} alt="" />
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    position: "relative",
-                    top: "-2px",
-                  }}
-                >
-                  <img
-                    src={RateIMDB}
-                    alt=""
-                    style={{ position: "relative", left: "-1px" }}
-                  />
+              )}
+              {hasVotes && (
+                <div style={{ paddingRight: 18 }}>
+                  <img src={YourRating} alt="" />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      position: "relative",
+                      top: "-2px",
+                    }}
+                  >
+                    <img
+                      src={RateIMDB}
+                      alt=""
+                      style={{ position: "relative", left: "-1px" }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
+
               <div style={{ marginRight: "5px" }}>
                 <img
                   src={Popularity}
@@ -605,7 +620,7 @@ function SeriesPage() {
                         left: "-7px",
                       }}
                     >
-                      2:41
+                      {data.trailerDuration}
                     </span>
                   </div>
                 </div>
@@ -780,51 +795,57 @@ function SeriesPage() {
               }}
             >
               {data.NextEpisode?.trim() && (
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    paddingRight: 24,
-                    marginBottom: 16,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "4px",
-                      height: "36px",
-                      borderRadius: "12px",
-                      backgroundColor: "#F5C518",
-                      maxHeight: 36,
-                    }}
-                  />
+  <div
+    style={{
+      position: "relative",
+      display: "flex",
+      paddingRight: 24,
+      marginBottom: 16,
+    }}
+  >
+    <div
+      style={{
+        width: "4px",
+        height: "36px",
+        borderRadius: "12px",
+        backgroundColor: "#F5C518",
+        maxHeight: 36,
+      }}
+    />
 
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "0.71rem",
-                        letterSpacing: "2px",
-                        WebkitTextStroke: "0.5px white",
-                        paddingLeft: 8,
-                        margin: 0,
-                      }}
-                    >
-                      NEXT EPISODE
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        letterSpacing: "1px",
-                        position: "relative",
-                        color: "white",
-                        paddingLeft: 8,
-                        margin: 0,
-                      }}
-                    >
-                      {data.NextEpisode}
-                    </p>
-                  </div>
-                </div>
-              )}
+    <div>
+      <p
+        style={{
+          fontSize: "0.71rem",
+          letterSpacing: "2px",
+          WebkitTextStroke: "0.5px white",
+          paddingLeft: 8,
+          margin: 0,
+        }}
+      >
+        {Number(data.NextEpisodeSeason) === 1 &&
+        Number(data.NextEpisodeNumber) === 1
+          ? "SERIES PREMIERE"
+          : Number(data.NextEpisodeNumber) === 1
+          ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
+          : "NEXT EPISODE"}
+      </p>
+      <p
+        style={{
+          fontSize: "14px",
+          letterSpacing: "1px",
+          position: "relative",
+          color: "white",
+          paddingLeft: 8,
+          margin: 0,
+        }}
+      >
+        {data.NextEpisode}
+      </p>
+    </div>
+  </div>
+)}
+
 
               <div
                 style={{
@@ -904,39 +925,51 @@ function SeriesPage() {
                   marginTop: 12,
                 }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
-                >
-                  <span
+                {hasVotes && (
+                  <div
                     style={{
-                      fontWeight: 700,
-                      fontFamily: "Arial, sans-serif",
-                      textAlign: "right", // alinha o número à direita nessa largura
-                      display: "inline-block",
-                      fontSize: 16,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
                     }}
                   >
-                    {formatNumber(data.UserReviews)}
-                  </span>
-                  <span style={{ fontSize: "14px" }}>User reviews</span>
-                </div>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontFamily: "Arial, sans-serif",
+                        textAlign: "right", // alinha o número à direita nessa largura
+                        display: "inline-block",
+                        fontSize: 16,
+                      }}
+                    >
+                      {formatNumber(data.UserReviews)}
+                    </span>
+                    <span style={{ fontSize: "14px" }}>User reviews</span>
+                  </div>
+                )}
 
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
-                >
-                  <span
+                {hasVotes && (
+                  <div
                     style={{
-                      fontWeight: 700,
-                      fontFamily: "Arial, sans-serif",
-
-                      textAlign: "right",
-                      display: "inline-block",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
                     }}
                   >
-                    {formatNumber(data.CriticReviews)}
-                  </span>
-                  <span style={{ fontSize: "14px" }}>Critic reviews</span>
-                </div>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontFamily: "Arial, sans-serif",
+
+                        textAlign: "right",
+                        display: "inline-block",
+                      }}
+                    >
+                      {formatNumber(data.CriticReviews)}
+                    </span>
+                    <span style={{ fontSize: "14px" }}>Critic reviews</span>
+                  </div>
+                )}
               </div>
             </div>
           </section>

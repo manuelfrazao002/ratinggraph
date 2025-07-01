@@ -218,17 +218,19 @@ export default function Episodes() {
 
     const parseCustomDate = (dateStr) => {
       if (!dateStr) return null;
-      return new Date(dateStr);
+      const d = new Date(dateStr);
+      return isNaN(d) ? null : d;
     };
 
     const now = new Date();
 
     const futureEpisodes = allEpisodes
-      .filter((ep) => {
-        const parsedDate = parseCustomDate(ep.Date);
-        return parsedDate && parsedDate > now;
-      })
-      .sort((a, b) => parseCustomDate(a.Date) - parseCustomDate(b.Date));
+      .map((ep) => ({
+        ...ep,
+        parsedDate: parseCustomDate(ep.Date),
+      }))
+      .filter((ep) => ep.parsedDate && ep.parsedDate > now)
+      .sort((a, b) => a.parsedDate - b.parsedDate);
 
     if (futureEpisodes.length > 0) {
       setNextEpisode(futureEpisodes[0]);
@@ -681,9 +683,11 @@ export default function Episodes() {
                           marginTop: 0,
                         }}
                       >
-                        {nextEpisode && nextEpisode.season
-                          ? `SEASON ${nextEpisode.season} PREMIERE`
-                          : "NEXT EPISODE"}
+                                  {Number(nextEpisode.season) === 1 && Number(nextEpisode.number) === 1
+            ? "SERIES PREMIERE"
+            : Number(nextEpisode.number) === 1
+            ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
+            : "NEXT EPISODE"}
                       </h2>
                     </div>
                     <div style={{ display: "flex", marginTop: 10 }}>
@@ -729,7 +733,9 @@ export default function Episodes() {
                         </p>
                       </div>
                     </div>
-                    <div style={{ marginTop: 8, position:"relative", top: -1}}>
+                    <div
+                      style={{ marginTop: 8, position: "relative", top: -1 }}
+                    >
                       <img src={AddPlot2} alt="" />
                     </div>
                   </div>
