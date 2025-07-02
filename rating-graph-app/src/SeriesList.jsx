@@ -135,15 +135,13 @@ function formatVotes(votes) {
   if (num < 1000) {
     return num.toString();
   } else if (num < 10_000) {
-    // De 1.000 a 9.999: uma casa decimal
-    return `${(num / 1000).toFixed(1)}K`;
+    const k = (num / 1000).toFixed(1);
+    return k.endsWith('.0') ? `${parseInt(k)}K` : `${k}K`;
   } else if (num < 1_000_000) {
-    // De 10.000 a 999.999: arredonda normal (para cima se >= .5)
     return `${Math.round(num / 1000)}K`;
   } else {
-    // Milhões
-    const m = num / 1_000_000;
-    return m % 1 === 0 ? `${m.toFixed(0)}M` : `${m.toFixed(1)}M`;
+    const m = (num / 1_000_000).toFixed(1);
+    return m.endsWith('.0') ? `${parseInt(m)}M` : `${m}M`;
   }
 }
   return (
