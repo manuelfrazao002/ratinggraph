@@ -108,6 +108,20 @@ export default function VotesChart() {
       });
   }, []);
 
+  const ratingValues = parsedData
+  .map((e) => e.rating)
+  .filter((r) => typeof r === 'number' && !isNaN(r));
+
+const minValue = Math.min(...ratingValues);
+const maxValue = Math.max(...ratingValues);
+
+let dynamicMin = Math.floor(minValue);
+let dynamicMax = Math.ceil(maxValue);
+
+// Only pad if the value is exactly on an integer
+if (minValue === dynamicMin) dynamicMin -= 1;
+if (maxValue === dynamicMax) dynamicMax += 1;
+
   function linearRegression(data) {
     const filteredData = data
       .map((y, x) => (y !== null ? { x, y } : null))
@@ -204,12 +218,11 @@ export default function VotesChart() {
 
   const lrGlobal = linearRegression(allVotes);
 
-  const globalTrendData = lrGlobal
-    ? labels.map((_, i) => lrGlobal.a * i + lrGlobal.b)
-    : [];
+const globalTrendData = (lrGlobal && Object.keys(seasonData).length >= 2) ? 
+    labels.map((_, i) => lrGlobal.a * i + lrGlobal.b) : 
+    [];
 
-  const globalTrendDataset = lrGlobal
-    ? {
+const globalTrendDataset = (Object.keys(seasonData).length >= 2 && globalTrendData.length > 0) ? {
         label: "Seasons Trendline",
         data: globalTrendData,
         borderColor: "#FF0000",
@@ -227,13 +240,27 @@ export default function VotesChart() {
     ...(globalTrendDataset ? [globalTrendDataset] : []),
   ];
 
-  let maxVal;
-  let minVal;
-if (labels.length === 1) {
-  maxVal = labels.length + 1; // ou 1 mesmo
-  minVal = 0;
+let episodeCount = labels.length;
+let minVal, maxVal;
+
+if (episodeCount === 1) {
+  minVal = 0.5;
+  maxVal = 1.5; // give breathing room for single point
 } else {
-  maxVal = labels.length + 1; // para folga
+  minVal = 1;
+  maxVal = episodeCount >= 10 ? episodeCount + 1 : episodeCount;
+}
+
+// Determine step size based on episode count
+let stepSize;
+if (episodeCount >= 90) {
+  stepSize = 10;
+} else if (episodeCount >= 40) {
+  stepSize = 5;
+} else if (episodeCount >= 18) {
+  stepSize = 2;
+} else {
+  stepSize = 1;
 }
 
   const options = {
@@ -248,6 +275,7 @@ if (labels.length === 1) {
             weight: "bold", // negrito
             size: 13, // tamanho da fonte (opcional)
           },
+          clip: false,
           usePointStyle: true,
           boxWidth: 16, // largura do ícone
           boxHeight: 8,
@@ -376,40 +404,34 @@ if (labels.length === 1) {
         },
       },
       x: {
-        max: maxVal,
-        min: minVal,
-        type: "linear",
-        title: {
-          display: true,
-          text: "Episodes",
-          color: "#555",
-          font: {
-            size: 12,
-          },
-          padding: { top: 5 },
-        },
-        grid: {
-          display: true, // Habilita as linhas de grade
-          drawOnChartArea: false, // Não desenha as linhas de grade na área do gráfico
-          drawTicks: true, // Desenha os ticks
-          tickLength: 6, // Comprimento dos ticks
-          color: "#CCD6EB", // Cor dos ticks
-          lineWidth: 1, // Largura das linhas dos ticks
-        },
-        ticks: {
-          min: 5,
-          stepSize: 5,
-          callback: function (value) {
-            if (value === 0) return ""; // esconde o 0
-            return value % 5 === 0 ? value : "";
-          },
-          padding: 5,
-          color: "#555",
-          font: { size: 11 },
-          autoSkip: true,
-          maxTicksLimit: 10,
-        },
-      },
+  min: minVal,
+  max: maxVal,
+  type: "linear",
+  offset: true, // offsets tick labels and data slightly
+  title: {
+    display: true,
+    text: "Episodes",
+    color: "#555",
+    font: { size: 12 },
+    padding: { top: 5 },
+  },
+  grid: {
+    display: true,
+    drawOnChartArea: false,
+    drawTicks: true,
+    tickLength: 6,
+    color: "#CCD6EB",
+    lineWidth: 1,
+  },
+  ticks: {
+    stepSize: stepSize,
+    autoSkip: false,
+    callback: function (value) {
+      return value % stepSize === 0 ? value : "";
+    },
+    font: { size: 11 },
+  },
+}
     },
   };
 
