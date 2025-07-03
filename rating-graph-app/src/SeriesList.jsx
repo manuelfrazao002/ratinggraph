@@ -39,8 +39,8 @@ const movies = [
 
 function MovieList() {
   const [data, setData] = useState([]);
-  const [sortKey, setSortKey] = useState("Title");
-  const [sortOrder, setSortOrder] = useState("asc"); // ou "desc"
+  const [sortKey, setSortKey] = useState("Votes");
+  const [sortOrder, setSortOrder] = useState("desc"); // ou "desc"
   const [hoveredId, setHoveredId] = React.useState(null);
 
   useEffect(() => {
@@ -144,6 +144,31 @@ function formatVotes(votes) {
     return m.endsWith('.0') ? `${parseInt(m)}M` : `${m}M`;
   }
 }
+
+const measureTextWidth = (text, fontSize = "15px", fontFamily = "Roboto, Helvetica, Arial, sans-serif") => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.font = `${fontSize} ${fontFamily}`;
+    return context.measureText(text).width;
+  };
+
+  const selectRef = useRef(null);
+  const [selectWidth, setSelectWidth] = useState("auto");
+
+  useEffect(() => {
+    if (selectRef.current) {
+      const selectedOption = selectRef.current.options[selectRef.current.selectedIndex];
+      const textWidth = measureTextWidth(selectedOption.text);
+      setSelectWidth(`${textWidth + 40}px`);
+    }
+  }, [sortKey]);
+
+  const shouldShowRating = (rating, votes) => {
+  const ratingNum = Number(rating);
+  const votesNum = Number(votes.toString().replace(/[,]+/g, ""));
+  return !isNaN(ratingNum) && !isNaN(votesNum) && ratingNum > 0 && votesNum > 0;
+};
+
   return (
     <div style={{ padding: 0, margin: 0 }}>
       <GlobalStyle />
@@ -233,23 +258,27 @@ function formatVotes(votes) {
                     Sort by
                   </label>
                   <select
-                    id="sort"
-                    value={sortKey}
-                    onChange={(e) => setSortKey(e.target.value)}
-                    style={{
-                      backgroundColor: "transparent",
-                      border: "none",
-                      color: "#0e63be",
-                      textAlign: "right",
-                      fontSize: "15px",
-                      height: "30px", // use um valor numérico válido para fontWeight
-                      letterSpacing: "0.5px",
-                      width: "auto", // largura automática
-                      minWidth: "87px", // largura mínima, para não ficar muito pequeno
-                      // máximo 100% do container
-                      display: "inline-block",
-                    }}
-                  >
+      id="sort"
+      ref={selectRef}
+      value={sortKey}
+      onChange={(e) => {
+        setSortKey(e.target.value);
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const textWidth = measureTextWidth(selectedOption.text);
+        setSelectWidth(`${textWidth}px`);
+      }}
+      style={{
+        backgroundColor: "transparent",
+        border: "none",
+        color: "#0e63be",
+        textAlign: "right",
+        fontSize: "15px",
+        height: "30px",
+        letterSpacing: "0.5px",
+        width: selectWidth,
+        display: "inline-block",
+      }}
+    >
                     <option value="Popularity">Ranking</option>
                     <option value="Rating">IMDB rating</option>
                     <option value="BeginingYear">Release date</option>
@@ -443,52 +472,17 @@ function formatVotes(votes) {
                             {movie.Type}
                           </p>
                         </div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            height: "36px",
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: "fit-content",
-                              display: "flex",
-                              alignItems: "center",
-                              height: "36px",
-                            }}
-                          >
-                            <svg
-                              width="14px"
-                              height="11.2px"
-                              xmlns="http://www.w3.org/2000/svg"
-                              class="ipc-icon ipc-icon--star-inline"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                              style={{
-                                color: "#f5c518",
-                                marginRight: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            >
-                              <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path>
-                            </svg>
-                            <div
-                              style={{
-                                color: "#757575",
-                                display: "flex",
-                                fontSize: "14px",
-                              }}
-                            >
-                              <p style={{ margin: "0 4px 0 0" }}>
-                                {movie.Rating}
-                              </p>
-                              <p style={{ margin: "0 10px 0 0" }}>
-                                ({formatVotes(movie.Votes) || "N/A"})
-                              </p>
-                              <div
+{shouldShowRating(movie.Rating, movie.Votes) ? (
+                        <div style={{ display: "flex", alignItems: "center", height: "36px" }}>
+  
+    <div style={{ width: "fit-content", display: "flex", alignItems: "center", height: "36px" }}>
+      <svg width="14px" height="11.2px" xmlns="http://www.w3.org/2000/svg" className="ipc-icon ipc-icon--star-inline" viewBox="0 0 24 24" fill="currentColor" role="presentation" style={{ color: "#f5c518", marginRight: "2px", verticalAlign: "middle" }}>
+        <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.656 5.53-6.774.602c-1.234.102-1.739 1.718-.799 2.566l5.147 4.666-1.542 6.926c-.28 1.262.023 2.262 1.09 1.585L12 20.099z"></path>
+      </svg>
+      <div style={{ color: "#757575", display: "flex", fontSize: "14px" }}>
+        <p style={{ margin: "0 4px 0 0" }}>{movie.Rating}</p>
+        <p style={{ margin: "0 10px 0 0" }}>({formatVotes(movie.Votes) || "N/A"})</p>
+        <div
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
@@ -522,11 +516,12 @@ function formatVotes(votes) {
                                   Rate
                                 </p>
                               </div>
-                            </div>
-                          </div>
+      </div>
+    </div>
 
-                          <img src={MarkAsWatched} alt="" />
-                        </div>
+  <img src={MarkAsWatched} alt="" />
+</div>
+  ) : null}
                       </div>
                     </li>
                     <div>
