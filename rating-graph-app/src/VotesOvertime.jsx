@@ -77,7 +77,7 @@ const VotesOverTime = () => {
         const maxRadius = 6;
         const minRadius = 0; // evita ponto invisível
         // Quanto mais dados, menor o ponto
-        const calculatedRadius = totalPoints <= 5 ? 5 : Math.max(minRadius, maxRadius - totalPoints / 50);
+        const calculatedRadius = Math.max(minRadius, maxRadius - totalPoints / 50);
 
         const maxBorderWidth = 3;
 const minBorderWidth = 2;
@@ -87,17 +87,12 @@ const borderWidth = Math.max(
 );
 const calculatedBorderWidth = Math.max(minBorderWidth, maxBorderWidth - totalPoints / 50);
 
-const samplingRate = formattedData.length > 200 ? 10 : formattedData.length > 100 ? 5 : 1;
-const sampledData = formattedData.filter((_, index) => index % samplingRate === 0);
-
-
-
         setChartData({
           labels: formattedData.map((d) => d.dateISO),
           datasets: [
             {
       label: "TotalVotes",
-      data: sampledData.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
+      data: formattedData.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
       yAxisID: "y1",
       borderColor: "#F7A35C",
       pointBackgroundColor: "#F7A35C", // <-- Fill color of points
@@ -107,12 +102,12 @@ const sampledData = formattedData.filter((_, index) => index % samplingRate === 
       pointHoverRadius: calculatedRadius + 5,
       borderWidth: calculatedBorderWidth,
       cubicInterpolationMode: 'monotone',
-      tension: 0,
+      tension: 1,
       spanGaps: true
             },
             {
       label: "AverageRating",
-      data: sampledData.map((d) => ({ x: d.dateISO, y: d.averageRating })),
+      data: formattedData.map((d) => ({ x: d.dateISO, y: d.averageRating })),
       yAxisID: "y2",
       borderColor: "#F15C80",
       pointBackgroundColor: "#F15C80", // <-- Fill color of points
@@ -122,7 +117,7 @@ const sampledData = formattedData.filter((_, index) => index % samplingRate === 
       pointHoverRadius: calculatedRadius + 5,
       borderWidth: calculatedBorderWidth,
       cubicInterpolationMode: 'monotone',
-      tension: 0,
+      tension: 1,
       spanGaps: true
             },
           ],
@@ -143,8 +138,6 @@ const sampledData = formattedData.filter((_, index) => index % samplingRate === 
   const calculatedRadius = Math.max(minRadius, maxRadius - totalPoints / 50);
 
   const options = {
-    // parsing: false,
-    animation: false,
   elements: {
   },
   scales: {
