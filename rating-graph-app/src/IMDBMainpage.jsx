@@ -171,6 +171,9 @@ function SeriesPage() {
     return cleanNum.toString();
   }
 
+  const userReviewsNumber = Number(data.UserReviews?.toString().replace(/[,]+/g, "")) || 0;
+const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/g, "")) || 0;
+
   return (
     <>
       <GlobalStyle />
@@ -925,46 +928,30 @@ function SeriesPage() {
                   marginTop: 12,
                 }}
               >
-                {hasVotes && data.UserReviews > 0 && (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-    }}
-  >
-    <span
-      style={{
+                {hasVotes && userReviewsNumber > 0 && (
+  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+    <span style={{
         fontWeight: 700,
         fontFamily: "Arial, sans-serif",
         textAlign: "right",
         display: "inline-block",
         fontSize: 16,
-      }}
-    >
-      {formatNumber(data.UserReviews)}
+      }}>
+      {formatNumber(userReviewsNumber)}
     </span>
     <span style={{ fontSize: "14px" }}>User reviews</span>
   </div>
 )}
 
-{hasVotes && data.CriticReviews > 0 && (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-    }}
-  >
-    <span
-      style={{
+{hasVotes && criticReviewsNumber > 0 && (
+  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+    <span style={{
         fontWeight: 700,
         fontFamily: "Arial, sans-serif",
         textAlign: "right",
         display: "inline-block",
-      }}
-    >
-      {formatNumber(data.CriticReviews)}
+      }}>
+      {formatNumber(criticReviewsNumber)}
     </span>
     <span style={{ fontSize: "14px" }}>Critic reviews</span>
   </div>
