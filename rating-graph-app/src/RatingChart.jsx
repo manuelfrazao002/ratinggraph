@@ -241,7 +241,7 @@ if (episodeCount === 1) {
   maxVal = 1.5; // give breathing room for single point
 } else {
   minVal = 1;
-  maxVal = episodeCount >= 10 ? episodeCount + 1 : episodeCount;
+  maxVal = episodeCount >= 10 ? episodeCount : episodeCount;
 }
 
 // Determine step size based on episode count
