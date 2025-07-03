@@ -41,8 +41,8 @@ const movies = [
 
 function MovieList() {
   const [data, setData] = useState([]);
-  const [sortKey, setSortKey] = useState("Votes");
-  const [sortOrder, setSortOrder] = useState("desc"); // ou "desc"
+  const [sortKey, setSortKey] = useState("Popularity");
+  const [sortOrder, setSortOrder] = useState("asc"); // ou "desc"
   const [hoveredId, setHoveredId] = React.useState(null);
 
   useEffect(() => {
