@@ -6,8 +6,6 @@ import { createGlobalStyle } from "styled-components";
 import {
   showCoverSrc,
   imgTrailerSrc,
-  MainTitle,
-  EpisodeTitle,
 } from "./ShowImageSrc";
 import { movieMap } from "./data/MovieMap";
 import ListBiggerText from "./imgs/imdb/listpage/listbiggertext.png";
@@ -35,6 +33,10 @@ const movies = [
     id: "spacemetro",
     title: "Space Metro",
   },
+    {
+    id: "goodfriends",
+    title: "Good Friends",
+  },
 ];
 
 function MovieList() {
@@ -45,7 +47,11 @@ function MovieList() {
 
   useEffect(() => {
     // URLs dos CSVs que quer carregar (exemplo pegando o primeiro CSV de cada)
-    const urls = [movieMap["toe"][0], movieMap["spacemetro"][0]];
+    const urls = [
+      movieMap["toe"][0],
+      movieMap["spacemetro"][0],
+      movieMap["goodfriends"][0],
+    ];
 
     Promise.all(
       urls.map((url) =>

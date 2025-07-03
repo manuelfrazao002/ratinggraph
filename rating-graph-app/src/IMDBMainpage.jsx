@@ -7,8 +7,6 @@ import { Link } from "react-router-dom";
 import {
   showCoverSrc,
   imgTrailerSrc,
-  MainTitle,
-  EpisodeTitle,
 } from "./ShowImageSrc";
 
 //Navbar
@@ -253,14 +251,17 @@ function SeriesPage() {
               <h1
                 style={{
                   color: "white",
-                  fontWeight: "0",
+                  fontWeight: "normal",
                   fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                   marginTop: -13,
                   marginBottom: 0,
                   height: 58,
+                  fontSize: "48px",
+                  position: "relative",
+                  top:"3px"
                 }}
               >
-                <img src={MainTitle[movieId]} alt="" />
+                {data.Title}
               </h1>
               <div
                 style={{

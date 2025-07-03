@@ -5,7 +5,7 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { movieMap } from "./data/MovieMap";
 import { useParams } from "react-router-dom";
-import { showCoverSrc, EpisodeTitle } from "./ShowImageSrc";
+import { showCoverSrc } from "./ShowImageSrc";
 import { Link } from "react-router-dom";
 
 //Navbar
@@ -615,11 +615,7 @@ export default function Episodes() {
               />
             </div>
             <div style={{ position: "relative", top: "27px", left: "3px" }}>
-              <img
-                src={EpisodeTitle[movieId]}
-                alt=""
-                style={{ position: "relative", top: "6px" }}
-              />
+              <p style={{color: "#BCBCBC", fontWeight: "bold", marginTop: "0", marginBottom: "0", fontSize: "20px", position:"relative", top:"3px"}}>{firstRow.Title}</p>
               <p
                 style={{
                   color: "white",
