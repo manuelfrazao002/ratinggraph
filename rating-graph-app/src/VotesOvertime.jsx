@@ -179,7 +179,7 @@ const calculatedBorderWidth = Math.max(minBorderWidth, maxBorderWidth - totalPoi
       alignToPixels: true,
       ticks: {
         count: 5,
-        callback: (val) => `${(val / 1000).toFixed(0)}k`,
+        callback: (val) => val === 0 ? "0" : `${(val / 1000).toFixed(0)}k`,
       },
       grid: {
         drawOnChartArea: true,
