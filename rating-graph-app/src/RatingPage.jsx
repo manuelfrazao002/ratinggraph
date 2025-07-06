@@ -68,8 +68,11 @@ function App() {
       });
   }, [movieId]);
 
+  const isMovie = seriesData[0]?.Type === "Movie";
+const isTVShow = seriesData[0]?.Type === "TV show";
+
   const labelStyle = {
-    marginBottom: "3px",
+    marginBottom: isMovie ? "12px" : "3px",
   };
 
   const GlobalStyle = createGlobalStyle`
@@ -79,6 +82,8 @@ function App() {
       width: 100%;
     }
   `;
+
+
 
   return (
     <div>
@@ -192,10 +197,10 @@ function App() {
                       <div style={labelStyle}>Rank</div>
                       <div style={labelStyle}>Trend</div>
                       <div style={labelStyle}>Genres</div>
-                      <div style={labelStyle}>Seasons</div>
-                      <div style={labelStyle}>Episodes</div>
+                      {!isMovie && <div style={labelStyle}>Seasons</div>}
+                      {!isMovie && <div style={labelStyle}>Episodes</div>}
                       <div style={labelStyle}>Total votes</div>
-                      <div style={labelStyle}>Average votes</div>
+                      {!isMovie && <div style={labelStyle}>Average votes</div>}
                       <div style={labelStyle}>Average rating</div>
                     </div>
 
@@ -216,12 +221,12 @@ function App() {
                       </div>
                       <div style={labelStyle}>{seriesData[0]?.Trend}</div>
                       <div style={labelStyle}>{seriesData[0]?.Genres}</div>
-                      <div style={labelStyle}>{seriesData[0]?.Seasons}</div>
-                      <div style={labelStyle}>{seriesData[0]?.Episodes}</div>
+                      {!isMovie && <div style={labelStyle}>{seriesData[0]?.Seasons}</div>}
+                      {!isMovie && <div style={labelStyle}>{seriesData[0]?.Episodes}</div>}
                       <div style={labelStyle}>{seriesData[0]?.TotalVotes}</div>
-                      <div style={labelStyle}>
+                      {!isMovie && <div style={labelStyle}>
                         {seriesData[0]?.AverageVotes}
-                      </div>
+                      </div>}
                       <div style={labelStyle}>
                         {seriesData[0]?.AverageRating}{" "}
                         <span style={{ color: "#804000" }}>/ 10</span>
@@ -264,12 +269,17 @@ function App() {
               <img src={SearchTrailer} alt="" />
               <img src={SearchGoogle} alt="" />
             </div>
+            {!isMovie && 
             <img
               src={MainNote}
               alt=""
               style={{ position: "relative", top: -16 }}
             />
+            }
+            {!isTVShow && 
+            <div style={{height: "10px"}}></div>}
             <div style={{ position: "relative", top: -23 }}>
+              {!isMovie && 
               <section>
                 <img src={EpRating} alt="" />
                 <div
@@ -288,13 +298,15 @@ function App() {
                 </div>
                 <RatingChart />
               </section>
-
+              }
+              {!isMovie && 
               <img
                 src={NoteRating}
                 alt=""
                 style={{ position: "relative", top: "6px" }}
               />
-
+              }
+              {!isMovie && 
               <section>
                 <img src={EpVotes} alt="" />
                 <div
@@ -312,14 +324,16 @@ function App() {
                 </div>
                 <VotingChart />
               </section>
-
+              }
+              {!isMovie && 
               <img
                 src={NoteRating}
                 alt=""
                 style={{ position: "relative", top: "7px" }}
               />
+              }
 
-              <section>
+              <section style={{borderTop: isMovie ? "1px solid #D5B273" : "none"}}>
                 <img src={EpHistory} alt="" />
                 <div
                   style={{
@@ -340,10 +354,11 @@ function App() {
                   style={{ position: "relative", top: "7px" }}
                 />
               </section>
-
+                
+              {!isMovie && 
               <section>
                 <EpisodesTable />
-              </section>
+              </section>}
 
               <img
                 src={RelatedTVShows}

@@ -4,10 +4,7 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import {
-  showCoverSrc,
-  imgTrailerSrc,
-} from "./ShowImageSrc";
+import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -106,25 +103,24 @@ function SeriesPage() {
 `;
 
   function formatVotes(votes) {
-  if (!votes) return "N/A";
+    if (!votes) return "N/A";
 
-  const num = Number(votes.toString().replace(/[, ]+/g, ""));
+    const num = Number(votes.toString().replace(/[, ]+/g, ""));
 
-  if (isNaN(num)) return "N/A";
+    if (isNaN(num)) return "N/A";
 
-  if (num < 1000) {
-    return num.toString();
-  } else if (num < 10_000) {
-    const k = (num / 1000).toFixed(1);
-    return k.endsWith('.0') ? `${parseInt(k)}K` : `${k}K`;
-  } else if (num < 1_000_000) {
-    return `${Math.round(num / 1000)}K`;
-  } else {
-    const m = (num / 1_000_000).toFixed(1);
-    return m.endsWith('.0') ? `${parseInt(m)}M` : `${m}M`;
+    if (num < 1000) {
+      return num.toString();
+    } else if (num < 10_000) {
+      const k = (num / 1000).toFixed(1);
+      return k.endsWith(".0") ? `${parseInt(k)}K` : `${k}K`;
+    } else if (num < 1_000_000) {
+      return `${Math.round(num / 1000)}K`;
+    } else {
+      const m = (num / 1_000_000).toFixed(1);
+      return m.endsWith(".0") ? `${parseInt(m)}M` : `${m}M`;
+    }
   }
-}
-
 
   function renderListWithDotSeparator(list) {
     if (!list) return null;
@@ -171,17 +167,29 @@ function SeriesPage() {
     return cleanNum.toString();
   }
 
-  const userReviewsNumber = Number(data.UserReviews?.toString().replace(/[,]+/g, "")) || 0;
-const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/g, "")) || 0;
+  const userReviewsNumber =
+    Number(data.UserReviews?.toString().replace(/[,]+/g, "")) || 0;
+  const criticReviewsNumber =
+    Number(data.CriticReviews?.toString().replace(/[,]+/g, "")) || 0;
+  const metascoreReviewsNumber =
+    Number(data.Metascore?.toString().replace(/[,]+/g, "")) || 0;
+  const isMovie = data.Type === "Movie";
+  const isTVShow = data.Type === "TV Series";
 
   return (
     <>
       <GlobalStyle />
       <div>
+        {isTVShow && 
         <Link to={`/`}>
           <img src={IMDBNavbar} alt="Rating Graph" />
         </Link>
-
+        }
+        {isMovie && 
+        <Link to={`/ratinggraph/${movieId}`}>
+          <img src={IMDBNavbar} alt="Rating Graph" />
+        </Link>
+        }
         <main style={{ width: "1280px", margin: "0 auto" }}>
           <div
             style={{
@@ -193,54 +201,70 @@ const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/
               top: "-8px",
             }}
           >
-            <Link to={`/episodepage/${movieId}`}>
-              <div
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  textDecoration: "none",
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <p
-                  style={{
-                    marginRight: "12px",
-                    alignItems: "center",
-                    display: "flex",
-                  }}
-                >
-                  <img src={EpisodeGuide} alt="" />
-                </p>
+            {/* Only show the Episode Guide link for TV Series */}
+            {data.Type === "TV Series" && (
+              <Link to={`/episodepage/${movieId}`}>
                 <div
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    marginLeft: -2,
+                    textDecoration: "none",
+                    transition: "background-color 0.2s ease",
                   }}
                 >
                   <p
                     style={{
-                      fontSize: 14,
-                      color: "#C0C0C0",
-                      marginRight: "6px",
+                      marginRight: "12px",
+                      alignItems: "center",
+                      display: "flex",
                     }}
                   >
-                    {data.Episodes}
+                    <img src={EpisodeGuide} alt="" />
                   </p>
-                  <ChevronRight
-                    size={20}
+                  <div
                     style={{
-                      color: isHovered ? "#F5C518" : "white",
-                      transition: "color 0.2s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      marginLeft: -2,
                     }}
-                  />
+                  >
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: "#C0C0C0",
+                        marginRight: "6px",
+                      }}
+                    >
+                      {data.Episodes}
+                    </p>
+                    <ChevronRight
+                      size={20}
+                      style={{
+                        color: isHovered ? "#F5C518" : "white",
+                        transition: "color 0.2s ease",
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </Link>
-            <img src={UpInfo} alt="" style={{ height: 48, marginTop: 1 }} />
+              </Link>
+            )}
+
+            {/* The UpInfo image always shows, regardless of type */}
+            <img
+              src={UpInfo}
+              alt="Up Info"
+              style={{
+                height: 48,
+                marginLeft: "auto", // Ensures it stays right-aligned
+                marginTop: 1,
+              }}
+            />
           </div>
+          {data.Type === "Movie" && (
+            <div style={{ width: "12px", height: "2px" }}></div>
+          )}
 
           <div
             style={{
@@ -261,7 +285,7 @@ const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/
                   height: 58,
                   fontSize: "48px",
                   position: "relative",
-                  top:"3px"
+                  top: "3px",
                 }}
               >
                 {data.Title}
@@ -279,18 +303,39 @@ const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/
                   display: "flex",
                 }}
               >
-                {data.Type}
-                <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
-                {data.BeginingYear}−{data.EndingYear || ""}
-                <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
-                {data.AgeRating}
-                {hasVotes && (
-                  <div>
+                {!isMovie && (
+                  <>
+                    {data.Type}
                     <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                       ·
                     </span>
-                    {data.EpDuration}
-                  </div>
+                  </>
+                )}
+                {data.BeginingYear}
+                {data.Type !== "Movie" && `—${data.EndingYear || ""}`}
+                <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
+                {data.AgeRating}
+                {!isMovie && (
+                  <>
+                    {hasVotes && (
+                      <div>
+                        <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                          ·
+                        </span>
+                        {data.EpDuration}
+                      </div>
+                    )}
+                  </>
+                )}
+                {!isTVShow && (
+                  <>
+                    <div>
+                      <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                        ·
+                      </span>
+                      {data.MovieDuration}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -760,6 +805,28 @@ const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/
                 </p>
                 <p style={{}}>{renderListWithDotSeparator(data.Creators)}</p>
               </div>
+              {!isTVShow && (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 14,
+                    alignItems: "center",
+                    borderBottom: "1px solid #4B4B4B",
+                    lineHeight: "1",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontWeight: "bold",
+                      color: "white",
+                      letterSpacing: "0.2px",
+                    }}
+                  >
+                    Writers
+                  </p>
+                  <p style={{}}>{renderListWithDotSeparator(data.Writers)}</p>
+                </div>
+              )}
               <div
                 style={{
                   display: "flex",
@@ -797,59 +864,100 @@ const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/
                 alignContent: "center",
               }}
             >
-              {data.NextEpisode?.trim() && (
-  <div
-    style={{
-      position: "relative",
-      display: "flex",
-      paddingRight: 24,
-      marginBottom: 16,
-    }}
-  >
-    <div
-      style={{
-        width: "4px",
-        height: "36px",
-        borderRadius: "12px",
-        backgroundColor: "#F5C518",
-        maxHeight: 36,
-      }}
-    />
-
-    <div>
-      <p
-        style={{
-          fontSize: "0.71rem",
-          letterSpacing: "2px",
-          WebkitTextStroke: "0.5px white",
-          paddingLeft: 8,
-          margin: 0,
-        }}
-      >
-        {Number(data.NextEpisodeSeason) === 1 &&
-        Number(data.NextEpisodeNumber) === 1
-          ? "SERIES PREMIERE"
-          : Number(data.NextEpisodeNumber) === 1
-          ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
-          : "NEXT EPISODE"}
-      </p>
-      <p
-        style={{
-          fontSize: "14px",
-          letterSpacing: "1px",
-          position: "relative",
-          color: "white",
-          paddingLeft: 8,
-          margin: 0,
-        }}
-      >
-        {data.NextEpisode}
-      </p>
-    </div>
-  </div>
-)}
-
-
+              {data.Type === "TV Series" && data.NextEpisode?.trim() ? (
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    paddingRight: 24,
+                    marginBottom: 16,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "4px",
+                      height: "36px",
+                      borderRadius: "12px",
+                      backgroundColor: "#F5C518",
+                      maxHeight: 36,
+                    }}
+                  />
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "0.71rem",
+                        letterSpacing: "2px",
+                        WebkitTextStroke: "0.5px white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      {Number(data.NextEpisodeSeason) === 1 &&
+                      Number(data.NextEpisodeNumber) === 1
+                        ? "SERIES PREMIERE"
+                        : Number(data.NextEpisodeNumber) === 1
+                        ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
+                        : "NEXT EPISODE"}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        letterSpacing: "1px",
+                        position: "relative",
+                        color: "white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      {data.NextEpisode}
+                    </p>
+                  </div>
+                </div>
+              ) : data.Type === "Movie" && data.NextEpisode ? (
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    paddingRight: 24,
+                    marginBottom: 16,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "4px",
+                      height: "36px",
+                      borderRadius: "12px",
+                      backgroundColor: "#F5C518",
+                      maxHeight: 36,
+                    }}
+                  />
+                  <div>
+                    <p
+                      style={{
+                        fontSize: "0.71rem",
+                        letterSpacing: "2px",
+                        WebkitTextStroke: "0.5px white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      COMING SOON
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        letterSpacing: "1px",
+                        position: "relative",
+                        color: "white",
+                        paddingLeft: 8,
+                        margin: 0,
+                      }}
+                    >
+                      Releases {data.NextEpisode}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
               <div
                 style={{
                   display: "flex",
@@ -926,37 +1034,92 @@ const criticReviewsNumber = Number(data.CriticReviews?.toString().replace(/[,]+/
                   gap: "20px",
                   color: "#5799EF",
                   marginTop: 12,
+                  flexWrap: "wrap",
                 }}
               >
                 {hasVotes && userReviewsNumber > 0 && (
-  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-    <span style={{
-        fontWeight: 700,
-        fontFamily: "Arial, sans-serif",
-        textAlign: "right",
-        display: "inline-block",
-        fontSize: 16,
-      }}>
-      {formatNumber(userReviewsNumber)}
-    </span>
-    <span style={{ fontSize: "14px" }}>User reviews</span>
-  </div>
-)}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontFamily: "Arial, sans-serif",
+                        textAlign: "right",
+                        display: "inline-block",
+                        fontSize: 16,
+                      }}
+                    >
+                      {formatNumber(userReviewsNumber)}
+                    </span>
+                    <span style={{ fontSize: "14px" }}>User reviews</span>
+                  </div>
+                )}
 
-{hasVotes && criticReviewsNumber > 0 && (
-  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-    <span style={{
-        fontWeight: 700,
-        fontFamily: "Arial, sans-serif",
-        textAlign: "right",
-        display: "inline-block",
-      }}>
-      {formatNumber(criticReviewsNumber)}
-    </span>
-    <span style={{ fontSize: "14px" }}>Critic reviews</span>
-  </div>
-)}
+                {hasVotes && criticReviewsNumber > 0 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontFamily: "Arial, sans-serif",
+                        textAlign: "right",
+                        display: "inline-block",
+                      }}
+                    >
+                      {formatNumber(criticReviewsNumber)}
+                    </span>
+                    <span style={{ fontSize: "14px" }}>Critic reviews</span>
+                  </div>
+                )}
 
+                {!isTVShow && (
+                  <>
+                    {hasVotes && criticReviewsNumber > 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            backgroundColor:
+                              Number(data.Metascore) >= 61
+                                ? "#54A72A"
+                                : Number(data.Metascore) >= 40
+                                ? "#ffcc33"
+                                : "#ff0000",
+                            color: "white",
+                            padding: "2px 2px",
+                            width: "18.1px",
+                            height: "20px",
+                            fontWeight: 700,
+                            fontFamily: "Arial, sans-serif",
+                            textAlign: "center",
+                            display: "flex", // Changed to flex
+                            alignItems: "center", // Vertical centering
+                            justifyContent: "center", // Horizontal centering
+                            lineHeight: 1,
+                          }}
+                        >
+                          {formatNumber(metascoreReviewsNumber)}
+                        </span>
+                        <span style={{ fontSize: "14px" }}>Metascore</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </section>
