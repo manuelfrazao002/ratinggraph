@@ -282,7 +282,26 @@ export default function Episodes() {
     const seasonNum = match ? `s${match[1]}` : "s1"; // s1, s2 etc
     const episodeNum = match ? match[2] : "1";
 
-    const imagePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}.png`;
+  const [imagePath, setImagePath] = useState("");
+
+  useEffect(() => {
+    const basePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}`;
+    const formats = [".png", ".jpg", ".webp"]; // Order of preference
+
+    let found = false;
+
+    formats.forEach((ext) => {
+      const img = new Image();
+      img.src = basePath + ext;
+
+      img.onload = () => {
+        if (!found) {
+          setImagePath(img.src);
+          found = true;
+        }
+      };
+    });
+  }, [movieId, seasonNum, episodeNum]);
 
     function formatVotes(votes) {
       if (!votes) return "0";
