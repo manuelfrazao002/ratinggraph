@@ -1,0 +1,87 @@
+<div>
+                            <p
+                              style={{
+                                color: "black",
+                                margin: 0,
+                                fontSize: "14px",
+                                height: "16px",
+                                marginTop: "8px",
+                              }}
+                            >
+                              {movie.Popularity}{" "}
+                              {/* Aqui o ícone + movie.PopUp entre parênteses */}
+                              {movie.PopStatus === "up" && (
+                                <>
+                                  (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="22"
+                                    height="22"
+                                    className="ipc-icon ipc-icon--arrow-drop-up ipc-icon--inline sc-ee671986-0 cgemQz base up arrow"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      verticalAlign: "middle",
+                                      color: "#008a00",
+                                      margin: "0 -4.48px 0 -4.48px",
+                                    }}
+                                  >
+                                    <path
+                                      fill="none"
+                                      d="M0 0h24v24H0V0z"
+                                    ></path>
+                                    <path d="M8.71 12.29L11.3 9.7a.996.996 0 0 1 1.41 0l2.59 2.59c.63.63.18 1.71-.71 1.71H9.41c-.89 0-1.33-1.08-.7-1.71z"></path>
+                                  </svg>
+                                  {movie.PopUp})
+                                </>
+                              )}
+                              {movie.PopStatus === "down" && (
+                                <>
+                                  (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="22"
+                                    height="22"
+                                    className="ipc-icon ipc-icon--arrow-drop-down ipc-icon--inline sc-ee671986-0 cgemQz base down arrow"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      verticalAlign: "middle",
+                                      color: "#bd2404",
+                                      margin: "0 -4.48px 0 -4.48px",
+                                    }}
+                                  >
+                                    <path
+                                      fill="none"
+                                      d="M0 0h24v24H0V0z"
+                                    ></path>
+                                    <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
+                                  </svg>
+                                  {movie.PopUp})
+                                </>
+                              )}
+                              {movie.PopStatus === "stay" && (
+                                <>
+                                  (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="12"
+                                    height="12"
+                                    className="ipc-icon ipc-icon--dash ipc-icon--inline sc-ee671986-0 cgemQz base flat arrow"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      verticalAlign: "middle",
+                                      color: "#757575",
+                                    }}
+                                  >
+                                    <path d="M21 14.5a.5.5 0 0 1-.5.5h-17a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5h17a.5.5 0 0 1 .5.5v3z"></path>
+                                  </svg>
+                                  )
+                                </>
+                              )}
+                            </p>
+                          </div>

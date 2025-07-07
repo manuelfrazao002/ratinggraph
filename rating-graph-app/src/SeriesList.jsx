@@ -89,23 +89,42 @@ function MovieList() {
   }
 `;
 
+function parseVoteCount(voteStr) {
+  if (!voteStr) return 0;
+  voteStr = voteStr.replace(",", "").toUpperCase();
+
+  if (voteStr.includes("K")) {
+    return parseFloat(voteStr.replace("K", "")) * 1000;
+  } else if (voteStr.includes("M")) {
+    return parseFloat(voteStr.replace("M", "")) * 1000000;
+  } else {
+    return parseFloat(voteStr);
+  }
+}
+
+
   const sortedData = [...data].sort((a, b) => {
-    const valueA = a[sortKey];
-    const valueB = b[sortKey];
+  let valueA = a[sortKey];
+  let valueB = b[sortKey];
 
-    // Comparação numérica
-    const isNumeric = !isNaN(valueA) && !isNaN(valueB);
-    if (isNumeric) {
-      return sortOrder === "asc"
-        ? Number(valueA) - Number(valueB)
-        : Number(valueB) - Number(valueA);
-    }
+  // Special handling for formatted "Votes"
+  if (sortKey === "Votes") {
+    valueA = parseVoteCount(valueA);
+    valueB = parseVoteCount(valueB);
+  }
 
-    // Comparação textual
+  const isNumeric = !isNaN(valueA) && !isNaN(valueB);
+
+  if (isNumeric) {
     return sortOrder === "asc"
-      ? String(valueA).localeCompare(String(valueB))
-      : String(valueB).localeCompare(String(valueA));
-  });
+      ? Number(valueA) - Number(valueB)
+      : Number(valueB) - Number(valueA);
+  }
+
+  return sortOrder === "asc"
+    ? String(valueA).localeCompare(String(valueB))
+    : String(valueB).localeCompare(String(valueA));
+});
 
   const ArrowUpIcon = () => (
     <svg
@@ -336,303 +355,261 @@ function MovieList() {
                   const isTVShow = movie.Type === "TV Series";
                   return (
                     <div
-                      key={index}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "2px 0 2px 0",
                         borderBottom:
                           index === sortedData.length - 1
                             ? "none"
                             : "1px solid #E0E0E0",
-                        justifyContent: "space-between",
+                        padding: "6px 0 6px 0",
                       }}
                     >
-                      <li
+                      <div
+                        key={index}
                         style={{
-                          padding: "4px 0 4px 0",
                           display: "flex",
-                          gap: "8px",
+                          alignItems: "center",
+
+                          justifyContent: "space-between",
                         }}
                       >
-                        <div style={{ verticalAlign: "center" }}>
-                          <img
-                            src={showCoverSrc[movie.movieId]} // movieId vem do CSV? Use esta chave para pegar a imagem
-                            alt={movie.Title}
-                            style={{
-                              width: "72px",
-                              height: "106.55px",
-                              objectFit: "cover",
-                              borderRadius: "12px",
-                            }}
-                          />
-                        </div>
-                        <div>
+                        <li
+                          style={{
+                            padding: "4px 0 4px 0",
+                            display: "flex",
+                            gap: "8px",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div style={{ verticalAlign: "center" }}>
+                            <img
+                              src={showCoverSrc[movie.movieId]} // movieId vem do CSV? Use esta chave para pegar a imagem
+                              alt={movie.Title}
+                              style={{
+                                width: "72px",
+                                height: "106.55px",
+                                objectFit: "cover",
+                                borderRadius: "12px",
+                              }}
+                            />
+                          </div>
                           <div>
-                            <p
-                              style={{
-                                color: "black",
-                                margin: 0,
-                                fontSize: "14px",
-                                height: "16px",
-                                marginTop: "8px",
-                              }}
+                            <Link
+                              key={movie.movieId}
+                              to={`/imdb/${movie.movieId}`}
                             >
-                              {movie.Popularity}{" "}
-                              {/* Aqui o ícone + movie.PopUp entre parênteses */}
-                              {movie.PopStatus === "up" && (
-                                <>
-                                  (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    className="ipc-icon ipc-icon--arrow-drop-up ipc-icon--inline sc-ee671986-0 cgemQz base up arrow"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="presentation"
-                                    style={{
-                                      verticalAlign: "middle",
-                                      color: "#008a00",
-                                      margin: "0 -4.48px 0 -4.48px",
-                                    }}
-                                  >
-                                    <path
-                                      fill="none"
-                                      d="M0 0h24v24H0V0z"
-                                    ></path>
-                                    <path d="M8.71 12.29L11.3 9.7a.996.996 0 0 1 1.41 0l2.59 2.59c.63.63.18 1.71-.71 1.71H9.41c-.89 0-1.33-1.08-.7-1.71z"></path>
-                                  </svg>
-                                  {movie.PopUp})
-                                </>
-                              )}
-                              {movie.PopStatus === "down" && (
-                                <>
-                                  (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    className="ipc-icon ipc-icon--arrow-drop-down ipc-icon--inline sc-ee671986-0 cgemQz base down arrow"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="presentation"
-                                    style={{
-                                      verticalAlign: "middle",
-                                      color: "#bd2404",
-                                      margin: "0 -4.48px 0 -4.48px",
-                                    }}
-                                  >
-                                    <path
-                                      fill="none"
-                                      d="M0 0h24v24H0V0z"
-                                    ></path>
-                                    <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
-                                  </svg>
-                                  {movie.PopUp})
-                                </>
-                              )}
-                              {movie.PopStatus === "stay" && (
-                                <>
-                                  (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="12"
-                                    height="12"
-                                    className="ipc-icon ipc-icon--dash ipc-icon--inline sc-ee671986-0 cgemQz base flat arrow"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="presentation"
-                                    style={{
-                                      verticalAlign: "middle",
-                                      color: "#757575",
-                                    }}
-                                  >
-                                    <path d="M21 14.5a.5.5 0 0 1-.5.5h-17a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5h17a.5.5 0 0 1 .5.5v3z"></path>
-                                  </svg>
-                                  )
-                                </>
-                              )}
-                            </p>
-                          </div>
+                              <h2
+                                onMouseEnter={() => setHoveredId(movie.movieId)}
+                                onMouseLeave={() => setHoveredId(null)}
+                                style={{
+                                  color:
+                                    hoveredId === movie.movieId
+                                      ? "#666"
+                                      : "black",
+                                  fontWeight: "bold",
+                                  fontSize: "16px",
+                                  letterSpacing: 0.2,
+                                  margin: "8px 0 0 0",
+                                  height: "fit-content",
+                                  transition: "color 0.1s ease", // suaviza a troca de cor
+                                  cursor: "pointer", // indica que é clicável
+                                }}
+                              >
+                                {index + 1}. {movie.Title}
+                              </h2>
+                            </Link>
 
-                          <Link
-                            key={movie.movieId}
-                            to={`/imdb/${movie.movieId}`}
-                          >
-                            <h2
-                              onMouseEnter={() => setHoveredId(movie.movieId)}
-                              onMouseLeave={() => setHoveredId(null)}
-                              style={{
-                                color:
-                                  hoveredId === movie.movieId
-                                    ? "#666"
-                                    : "black",
-                                fontWeight: "bold",
-                                fontSize: "16px",
-                                letterSpacing: 0.2,
-                                margin: "8px 0 0 0",
-                                height: "fit-content",
-                                transition: "color 0.1s ease", // suaviza a troca de cor
-                                cursor: "pointer", // indica que é clicável
-                              }}
-                            >
-                              {movie.Title}
-                            </h2>
-                          </Link>
-
-                          <div
-                            style={{
-                              color: "#757575",
-                              fontSize: "14px",
-                              display: "flex",
-                              height: "16px",
-                              marginTop: "8px",
-                              alignItems: "center",
-                            }}
-                          >
-                            <p style={{ margin: "0 0.75rem 0 0" }}>
-                              {movie.BeginingYear}
-                              {movie.Type !== "Movie" && `—${movie.EndingYear}`}
-                            </p>
-                            {!isMovie && (
-                              <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {movie.Episodes} eps
-                              </p>
-                            )}
-                            {!isTVShow && (
-                              <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {movie.MovieDuration}
-                              </p>
-                            )}
-                            <p style={{ margin: "0 0.75rem 0 0" }}>TV-MA</p>
-                            <p style={{ margin: "0 0.75rem 0 0" }}>
-                              {movie.Type === "Movie" &&
-                              movie.Metascore &&
-                              movie.Metascore !== "N/A" ? (
-                                <>
-                                  <span
-                                    style={{
-                                      backgroundColor:
-                                        Number(movie.Metascore) >= 61
-                                          ? "#54A72A"
-                                          : Number(movie.Metascore) >= 40
-                                          ? "#ffcc33"
-                                          : "#ff0000",
-                                      color: "white",
-                                      padding: "2px 3px",
-                                      fontSize: "0.85rem",
-                                      width: "16.233px",
-                                      height: "16px",
-                                      textAlign: "center",
-                                      marginRight: "4px",
-                                    }}
-                                  >
-                                    {movie.Metascore}
-                                  </span>
-                                  <span
-                                    style={{
-                                      color: "#555",
-                                      fontSize: "0.85rem",
-                                    }}
-                                  >
-                                    Metascore
-                                  </span>
-                                </>
-                              ) : (
-                                movie.Type
-                              )}
-                            </p>
-                          </div>
-                          {shouldShowRating(movie.Rating, movie.Votes) ? (
                             <div
                               style={{
+                                color: "#757575",
+                                fontSize: "14px",
                                 display: "flex",
+                                height: "16px",
+                                marginTop: "8px",
                                 alignItems: "center",
-                                height: "36px",
                               }}
                             >
+                              <p style={{ margin: "0 0.75rem 0 0" }}>
+                                {movie.BeginingYear}
+                                {movie.Type !== "Movie" &&
+                                  `—${movie.EndingYear}`}
+                              </p>
+                              {!isMovie && (
+                                <p style={{ margin: "0 0.75rem 0 0" }}>
+                                  {movie.Episodes} eps
+                                </p>
+                              )}
+                              {!isTVShow && (
+                                <p style={{ margin: "0 0.75rem 0 0" }}>
+                                  {movie.MovieDuration}
+                                </p>
+                              )}
+                              <p style={{ margin: "0 0.75rem 0 0" }}>
+                                {movie.AgeRating}
+                              </p>
+                              <p style={{ margin: "0 0.75rem 0 0" }}>
+                                {movie.Type === "Movie" &&
+                                movie.Metascore &&
+                                movie.Metascore !== "N/A" ? (
+                                  <>
+                                    <span
+                                      style={{
+                                        backgroundColor:
+                                          Number(movie.Metascore) >= 61
+                                            ? "#54A72A"
+                                            : Number(movie.Metascore) >= 40
+                                            ? "#ffcc33"
+                                            : "#ff0000",
+                                        color: "white",
+                                        padding: "2px 3px",
+                                        fontSize: "0.85rem",
+                                        width: "16.233px",
+                                        height: "16px",
+                                        textAlign: "center",
+                                        marginRight: "4px",
+                                      }}
+                                    >
+                                      {movie.Metascore}
+                                    </span>
+                                    <span
+                                      style={{
+                                        fontSize: "0.75rem",
+                                        letterSpacing: "0.3px",
+                                      }}
+                                    >
+                                      Metascore
+                                    </span>
+                                  </>
+                                ) : (
+                                  movie.Type
+                                )}
+                              </p>
+                            </div>
+                            {shouldShowRating(movie.Rating, movie.Votes) ? (
                               <div
                                 style={{
-                                  width: "fit-content",
                                   display: "flex",
                                   alignItems: "center",
                                   height: "36px",
                                 }}
-                              >
-                                <svg
-                                  width="14px"
-                                  height="11.2px"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="ipc-icon ipc-icon--star-inline"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  role="presentation"
-                                  style={{
-                                    color: "#f5c518",
-                                    marginRight: "2px",
-                                    verticalAlign: "middle",
-                                  }}
-                                >
-                                  <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.656 5.53-6.774.602c-1.234.102-1.739 1.718-.799 2.566l5.147 4.666-1.542 6.926c-.28 1.262.023 2.262 1.09 1.585L12 20.099z"></path>
-                                </svg>
-                                <div
-                                  style={{
-                                    color: "#757575",
-                                    display: "flex",
-                                    fontSize: "14px",
-                                  }}
-                                >
-                                  <p style={{ margin: "0 4px 0 0" }}>
-                                    {movie.Rating}
-                                  </p>
-                                  <p style={{ margin: "0 10px 0 0" }}>
-                                    ({formatVotes(movie.Votes) || "N/A"})
-                                  </p>
+                              >                                 
                                   <div
                                     style={{
+                                      color: "#757575",
                                       display: "flex",
+                                      fontSize: "14px",
                                       alignItems: "center",
-                                      padding: "0 12px 0 12px",
-                                      margin: 0,
                                     }}
                                   >
                                     <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="14px"
-                                      height="11.2px"
-                                      class="ipc-icon ipc-icon--star-border-inline"
-                                      viewBox="0 0 24 24"
-                                      fill="currentColor"
-                                      role="presentation"
-                                      style={{
-                                        color: "#0e63be",
-                                        margin: "0 2px 0 0",
-                                        verticalAlign: "middle",
-                                      }}
-                                    >
-                                      <path d="M22.724 8.217l-6.786-.587-2.65-6.22c-.477-1.133-2.103-1.133-2.58 0l-2.65 6.234-6.772.573c-1.234.098-1.739 1.636-.8 2.446l5.146 4.446-1.542 6.598c-.28 1.202 1.023 2.153 2.09 1.51l5.818-3.495 5.819 3.509c1.065.643 2.37-.308 2.089-1.51l-1.542-6.612 5.145-4.446c.94-.81.45-2.348-.785-2.446zm-10.726 8.89l-5.272 3.174 1.402-5.983-4.655-4.026 6.141-.531 2.384-5.634 2.398 5.648 6.14.531-4.654 4.026 1.402 5.983-5.286-3.187z"></path>
-                                    </svg>
-                                    <p
-                                      style={{
-                                        color: "#0e63be",
-                                        fontSize: "14px",
-                                        margin: 0,
-                                      }}
-                                    >
-                                      Rate
+                                    width="14px"
+                                    height="11.2px"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="ipc-icon ipc-icon--star-inline"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      color: "#f5c518",
+                                      marginRight: "2px",
+                                      verticalAlign: "middle",
+                                    }}
+                                  >
+                                    <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.656 5.53-6.774.602c-1.234.102-1.739 1.718-.799 2.566l5.147 4.666-1.542 6.926c-.28 1.262.023 2.262 1.09 1.585L12 20.099z"></path>
+                                  </svg>
+                                    <p style={{ margin: "0 4px 0 0" }}>
+                                      {movie.Rating}
                                     </p>
+                                    <p style={{ margin: "0 10px 0 0" }}>
+                                      ({formatVotes(movie.Votes) || "N/A"})
+                                    </p>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: "0 12px 0 12px",
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="14px"
+                                    height="11.2px"
+                                        class="ipc-icon ipc-icon--star-border-inline"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        role="presentation"
+                                        style={{
+                                          color: "#0e63be",
+                                          paddingRight: 2,
+                                        }}
+                                      >
+                                        <path d="M22.724 8.217l-6.786-.587-2.65-6.22c-.477-1.133-2.103-1.133-2.58 0l-2.65 6.234-6.772.573c-1.234.098-1.739 1.636-.8 2.446l5.146 4.446-1.542 6.598c-.28 1.202 1.023 2.153 2.09 1.51l5.818-3.495 5.819 3.509c1.065.643 2.37-.308 2.089-1.51l-1.542-6.612 5.145-4.446c.94-.81.45-2.348-.785-2.446zm-10.726 8.89l-5.272 3.174 1.402-5.983-4.655-4.026 6.141-.531 2.384-5.634 2.398 5.648 6.14.531-4.654 4.026 1.402 5.983-5.286-3.187z"></path>
+                                      </svg>
+                                      <p
+                                        style={{
+                                          color: "#0e63be",
+                                          margin: 0,
+                                          height: "20px"
+                                        }}
+                                      >
+                                        Rate
+                                      </p>
+                                    </div>
+                                    <div
+                                      style={{
+                                        paddingLeft: 12,
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        className="ipc-icon ipc-icon--visibility ipc-btn__icon ipc-btn__icon--pre watched-button--icon ipc-btn__icon--disable-margin"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        role="presentation"
+                                        style={{
+                                          color: "#0e63be",
+                                          margin: "0 2px 0 0",
+                                          verticalAlign: "middle",
+                                          paddingRight: "2px",
+                                        }}
+                                      >
+                                        <path
+                                          d="M0 0h24v24H0V0z"
+                                          fill="none"
+                                        ></path>
+                                        <path d="M12 6c3.79 0 7.17 2.13 8.82 5.5C19.17 14.87 15.79 17 12 17s-7.17-2.13-8.82-5.5C4.83 8.13 8.21 6 12 6m0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 5c1.38 0 2.5 1.12 2.5 2.5S13.38 14 12 14s-2.5-1.12-2.5-2.5S10.62 9 12 9m0-2c-2.48 0-4.5 2.02-4.5 4.5S9.52 16 12 16s4.5-2.02 4.5-4.5S14.48 7 12 7z"></path>
+                                      </svg>
+                                      <p
+                                        style={{
+                                          color: "#0e63be",
+                                        }}
+                                      >
+                                        Marked as watched
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
                               </div>
-
-                              <img src={MarkAsWatched} alt="" />
-                            </div>
-                          ) : null}
+                            ) : null}
+                          </div>
+                        </li>
+                        <div>
+                          <img src={InforButton} alt="" />
                         </div>
-                      </li>
+                      </div>
                       <div>
-                        <img src={InforButton} alt="" />
+                        <p
+                          style={{
+                            color: "black",
+                            marginTop: 0,
+                            fontSize: "0.9rem",
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {movie.Synopsis}
+                        </p>
                       </div>
                     </div>
                   );

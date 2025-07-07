@@ -167,6 +167,30 @@ function SeriesPage() {
     return cleanNum.toString();
   }
 
+  function formatNumberWatchList(num) {
+    if (!num) return "N/A";
+
+  const cleanNum = Number(num.toString().replace(/[, ]+/g, ""));
+  if (isNaN(cleanNum)) return "N/A";
+
+  if (cleanNum >= 1_000_000) {
+    const millions = Math.floor(cleanNum / 100_000) / 10;
+    return millions.toFixed(1) + "M";
+  }
+
+  if (cleanNum >= 100_000) {
+    const thousands = Math.floor(cleanNum / 1_000);
+    return thousands + "K";
+  }
+
+  if (cleanNum >= 1_000) {
+    const thousands = Math.floor((cleanNum / 100)); // Get 1 decimal without rounding
+    return (thousands / 10).toFixed(1) + "K";
+  }
+
+  return cleanNum.toString();
+}
+
   const userReviewsNumber =
     Number(data.UserReviews?.toString().replace(/[,]+/g, "")) || 0;
   const criticReviewsNumber =
@@ -1009,7 +1033,7 @@ function SeriesPage() {
                       letterSpacing: 0.2,
                     }}
                   >
-                    Added by {formatNumber(data.WatchlistNumber)} users
+                    Added by {formatNumberWatchList(data.WatchlistNumber)} users
                   </p>
                 </div>
                 <div
@@ -1017,6 +1041,7 @@ function SeriesPage() {
                     margin: "0 auto",
                     display: "flex",
                     justifyContent: "center",
+                    width: "48px"
                   }}
                 >
                   <ChevronDown
@@ -1025,9 +1050,10 @@ function SeriesPage() {
                   />
                 </div>
               </div>
+              {hasVotes && (
               <div style={{ minWidth: "48px", marginTop: 8 }}>
                 <img src={MarkedWatched} alt="" />
-              </div>
+              </div> )}
               <div
                 style={{
                   display: "flex",
