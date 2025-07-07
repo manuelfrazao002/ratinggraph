@@ -34,7 +34,11 @@ const movies = [
     id: "goodfriends",
     title: "Good Friends",
   },
-  {
+    {
+    id: "different",
+    title: "Different",
+  },
+      {
     id: "darkcases",
     title: "Dark Cases",
   },
@@ -52,6 +56,7 @@ function MovieList() {
       movieMap["toe"][0],
       movieMap["spacemetro"][0],
       movieMap["goodfriends"][0],
+      movieMap["different"][0],
       movieMap["darkcases"][0],
     ];
 

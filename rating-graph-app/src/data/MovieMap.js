@@ -38,7 +38,7 @@ export const movieMap = {
     //Daily Count
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTvgLiY4pgDCMXJ9VeH5qOQzL1OCp8QPJHjqYV7443gURsAEsEWSXVIZ3ub_KGirFHFuEaR74Szo3Fk/pub?gid=1140739200&single=true&output=csv",
   ],
-  darkcases: [
+  different: [
     //IMDBData
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTV5Irw2LUv8r3bB3mRCtnFVlbTuxnB0W1oDXlRBs4j-w5rJrrLb_FaZtKStPfuyMWOIhJXPoM9oRLe/pub?gid=1334662158&single=true&output=csv",
     //DataBase TVSHOW
@@ -47,5 +47,11 @@ export const movieMap = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTV5Irw2LUv8r3bB3mRCtnFVlbTuxnB0W1oDXlRBs4j-w5rJrrLb_FaZtKStPfuyMWOIhJXPoM9oRLe/pub?gid=1942396010&single=true&output=csv",
     //Daily Count
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTV5Irw2LUv8r3bB3mRCtnFVlbTuxnB0W1oDXlRBs4j-w5rJrrLb_FaZtKStPfuyMWOIhJXPoM9oRLe/pub?gid=1140739200&single=true&output=csv",
+  ],
+  darkcases: [
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=1334662158&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=190829179&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=1942396010&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=1140739200&single=true&output=csv",
   ],
 };
