@@ -198,7 +198,7 @@ function SeriesPage() {
   const metascoreReviewsNumber =
     Number(data.Metascore?.toString().replace(/[,]+/g, "")) || 0;
   const isMovie = data.Type === "Movie";
-  const isTVShow = data.Type === "TVSeries" || data.Type === "TV Mini Series";
+  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
 
   return (
     <>
@@ -226,7 +226,7 @@ function SeriesPage() {
             }}
           >
             {/* Only show the Episode Guide link for TV Series */}
-            {data.Type === "TV Series" && (
+            {isTVShow && (
               <Link to={`/episodepage/${movieId}`}>
                 <div
                   onMouseEnter={() => setIsHovered(true)}
