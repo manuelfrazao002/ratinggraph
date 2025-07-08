@@ -86,7 +86,7 @@ const isTVShow = seriesData[0]?.Type === "TV show";
 
 
   return (
-    <div>
+    <div style={{backgroundColor: "#FFD040"}}>
       <GlobalStyle/>
       <div
         style={{
