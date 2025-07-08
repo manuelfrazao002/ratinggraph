@@ -5,6 +5,7 @@ import RatingsPage from "../src/RatingPage";
 import IMDBMainPage from "./IMDBMainpage";
 import EpisodePage from "./EpisodePage";
 import SeriesList from "./SeriesList";
+import RatingList from "./RatingList";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/ratinggraph/:movieId" element={<RatingsPage />} />
         <Route path="/imdb/:movieId" element={<IMDBMainPage />} />
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
+        <Route path="/ratinggraph/list" element={<RatingList />} />
       </Routes>
     </Router>
   );

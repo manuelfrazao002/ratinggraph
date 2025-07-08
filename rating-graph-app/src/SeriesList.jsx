@@ -212,7 +212,9 @@ function parseVoteCount(voteStr) {
     <div style={{ padding: 0, margin: 0, backgroundColor: "black"}}>
       <GlobalStyle />
       <div>
+        <Link to={`/ratinggraph/list`}>
         <img src={Navbar} alt="" />
+        </Link>
       </div>
       <div
         style={{

@@ -106,7 +106,7 @@ const isTVShow = seriesData[0]?.Type === "TV show";
             width: "1110px",
           }}
         >
-          <Link to={`/`}>
+          <Link to={`/ratinggraph/list`}>
             <img
               src={Navbar}
               alt=""

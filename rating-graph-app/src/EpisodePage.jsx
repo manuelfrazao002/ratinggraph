@@ -536,7 +536,7 @@ export default function Episodes() {
   return (
     <div>
       <GlobalStyle />
-      <Link to={`/ratinggraph/${movieId}`}>
+      <Link to={`/`}>
         <img src={IMDBNavbar} alt="" />
       </Link>
       <div
