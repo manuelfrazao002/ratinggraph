@@ -160,9 +160,11 @@ useEffect(() => {
               <h1
                 style={{
                   fontSize: "18px",
-                  fontWeight: "bold",
                   color: "black",
                   margin: 0,
+                  fontWeight: 700,
+                  textShadow: "1px 1px 0px rgba(0,0,0,.1)",
+                  lineHeight: "22px",
                 }}
               >
                 Search results
@@ -189,7 +191,7 @@ useEffect(() => {
                 display: "flex",
                 alignItems: "center",
                 marginTop: "0",
-                padding: "0px 8px",
+                padding: "0px 4px",
               }}
             >
 
@@ -208,7 +210,7 @@ useEffect(() => {
                                   >
                                     <li
                                       style={{
-                                        padding: "4px 0 4px 0",
+
                                         display: "flex",
                                         gap: "8px",
                                         alignItems: "center",
@@ -222,10 +224,11 @@ useEffect(() => {
                                           src={showCoverSrc[movie.movieId]}
                                           alt={movie.Title}
                                           style={{
-                                            width: "132px",
-                                            height: "194px",
+                                            width: "134px",
+                                            height: "196px",
                                             objectFit: "cover",
-                                          }}
+                                            backgroundColor: "#000",
+                                        }}
                                         />
                                       </div>
                                       </Link>
