@@ -198,7 +198,7 @@ function SeriesPage() {
   const metascoreReviewsNumber =
     Number(data.Metascore?.toString().replace(/[,]+/g, "")) || 0;
   const isMovie = data.Type === "Movie";
-  const isTVShow = data.Type === "TV Series";
+  const isTVShow = data.Type === "TVSeries" || data.Type === "TV Mini Series";
 
   return (
     <>
@@ -336,7 +336,7 @@ function SeriesPage() {
                   </>
                 )}
                 {data.BeginingYear}
-                {data.Type !== "Movie" && `—${data.EndingYear || ""}`}
+                {data.Type === "TVSeries" && `—${data.EndingYear || ""}`}
                 <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
                 {data.AgeRating}
                 {!isMovie && (

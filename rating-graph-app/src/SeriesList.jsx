@@ -357,7 +357,7 @@ function parseVoteCount(voteStr) {
               <div style={{ padding: "12px" }}>
                 {sortedData.map((movie, index) => {
                   const isMovie = movie.Type === "Movie";
-                  const isTVShow = movie.Type === "TV Series";
+                  const isTVShow = data.Type === "TVSeries" || data.Type === "TV Mini Series";
                   return (
                     <div
                       style={{
@@ -435,7 +435,7 @@ function parseVoteCount(voteStr) {
                             >
                               <p style={{ margin: "0 0.75rem 0 0" }}>
                                 {movie.BeginingYear}
-                                {movie.Type !== "Movie" &&
+                                {movie.Type === "TV Series" &&
                                   `—${movie.EndingYear}`}
                               </p>
                               {!isMovie && (
@@ -443,7 +443,7 @@ function parseVoteCount(voteStr) {
                                   {movie.Episodes} eps
                                 </p>
                               )}
-                              {!isTVShow && (
+                              {isMovie && (
                                 <p style={{ margin: "0 0.75rem 0 0" }}>
                                   {movie.MovieDuration}
                                 </p>
