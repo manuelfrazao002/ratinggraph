@@ -282,26 +282,26 @@ export default function Episodes() {
     const seasonNum = match ? `s${match[1]}` : "s1"; // s1, s2 etc
     const episodeNum = match ? match[2] : "1";
 
-  const [imagePath, setImagePath] = useState("");
+    const [imagePath, setImagePath] = useState("");
 
-  useEffect(() => {
-    const basePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}`;
-    const formats = [".png", ".jpg", ".webp"]; // Order of preference
+    useEffect(() => {
+      const basePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}`;
+      const formats = [".png", ".jpg", ".webp"]; // Order of preference
 
-    let found = false;
+      let found = false;
 
-    formats.forEach((ext) => {
-      const img = new Image();
-      img.src = basePath + ext;
+      formats.forEach((ext) => {
+        const img = new Image();
+        img.src = basePath + ext;
 
-      img.onload = () => {
-        if (!found) {
-          setImagePath(img.src);
-          found = true;
-        }
-      };
-    });
-  }, [movieId, seasonNum, episodeNum]);
+        img.onload = () => {
+          if (!found) {
+            setImagePath(img.src);
+            found = true;
+          }
+        };
+      });
+    }, [movieId, seasonNum, episodeNum]);
 
     function formatVotes(votes) {
       if (!votes) return "0";
@@ -634,7 +634,19 @@ export default function Episodes() {
               />
             </div>
             <div style={{ position: "relative", top: "27px", left: "3px" }}>
-              <p style={{color: "#BCBCBC", fontWeight: "bold", marginTop: "0", marginBottom: "0", fontSize: "20px", position:"relative", top:"3px"}}>{firstRow.Title}</p>
+              <p
+                style={{
+                  color: "#BCBCBC",
+                  fontWeight: "bold",
+                  marginTop: "0",
+                  marginBottom: "0",
+                  fontSize: "20px",
+                  position: "relative",
+                  top: "3px",
+                }}
+              >
+                {firstRow.Title}
+              </p>
               <p
                 style={{
                   color: "white",
@@ -698,11 +710,12 @@ export default function Episodes() {
                           marginTop: 0,
                         }}
                       >
-                                  {Number(nextEpisode.season) === 1 && Number(nextEpisode.number) === 1
-            ? "SERIES PREMIERE"
-            : Number(nextEpisode.number) === 1
-            ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
-            : "NEXT EPISODE"}
+                        {Number(nextEpisode.season) === 1 &&
+                        Number(nextEpisode.number) === 1
+                          ? "SERIES PREMIERE"
+                          : Number(nextEpisode.number) === 1
+                          ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
+                          : "NEXT EPISODE"}
                       </h2>
                     </div>
                     <div style={{ display: "flex", marginTop: 10 }}>
@@ -1087,19 +1100,9 @@ export default function Episodes() {
                   >
                     {seasonList.map((season, index) => {
                       const isActive = index === currentSeasonIndex;
-                      const isHovered = index === hoveredSeasonIndex;
-
                       return (
                         <div
-                          className="season-ball"
                           key={season}
-                          onClick={() => setCurrentSeasonIndex(index)}
-                          onMouseEnter={() =>
-                            !isActive && setHoveredSeasonIndex(index)
-                          }
-                          onMouseLeave={() =>
-                            !isActive && setHoveredSeasonIndex(null)
-                          }
                           style={{
                             width: "48.03333px",
                             height: "48px",
@@ -1110,16 +1113,21 @@ export default function Episodes() {
                             cursor: "pointer",
                             backgroundColor: isActive
                               ? "#F5C518"
-                              : isHovered
-                              ? "#EBEBEB"
                               : "transparent",
                             color: "black",
                             fontWeight: "bold",
                             userSelect: "none",
-                            letterSpacing: 0.7,
+                            letterSpacing: "0.7px",
                             fontSize: "0.9rem",
+                            transition:
+                              "background-color 0.3s ease, transform 0.2s ease",
+                            ":hover": {
+                              backgroundColor: isActive ? "#F5C518" : "#EBEBEB",
+                              transform: "scale(1.05)",
+                            },
                           }}
-                          title={`Temporada ${season}`}
+                          onMouseDown={(e) => e.preventDefault()} // Previne flicker no click
+                          onClick={() => setCurrentSeasonIndex(index)}
                         >
                           {season}
                         </div>
