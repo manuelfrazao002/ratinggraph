@@ -209,7 +209,7 @@ function parseVoteCount(voteStr) {
   };
 
   return (
-    <div style={{ padding: 0, margin: 0 }}>
+    <div style={{ padding: 0, margin: 0, backgroundColor: "black"}}>
       <GlobalStyle />
       <div>
         <img src={Navbar} alt="" />

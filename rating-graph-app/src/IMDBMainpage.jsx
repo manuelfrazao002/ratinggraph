@@ -798,7 +798,54 @@ function SeriesPage() {
                 marginTop: "10px",
               }}
             >
-              <img src={Categories} alt="" />
+              <div style={{
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  margin: "0px 0 12px 0"
+}}>
+  {(data?.Genres
+    ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
+      data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
+      .map(genre => genre.trim())
+      .filter(genre => genre)
+    : []).map((genre, index) => (
+      <div 
+        key={index}
+        style={{
+          border: "1px solid #6F6F68",
+          borderRadius: "20px",
+          padding: "3px 12px",
+          margin: "4px 8px 4px 0",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "transparent",
+          transition: "all 0.2s ease",
+          cursor: "pointer",
+          ":hover": {
+            borderColor: "#F5C518",
+            backgroundColor: "rgba(245, 197, 24, 0.1)",
+            boxShadow: "0 0 0 1px #F5C518"
+          }
+        }}
+      >
+        <span style={{
+          color: "white",
+          fontSize: "0.9rem",
+          fontWeight: 400,
+          letterSpacing: "0.03px",
+          whiteSpace: "nowrap",
+          transition: "color 0.2s ease",
+          ":hover": {
+            color: "#F5C518"
+          }
+        }}>
+          {genre}
+        </span>
+      </div>
+    ))}
+</div>
               <div
                 style={{
                   marginTop: "5px",
