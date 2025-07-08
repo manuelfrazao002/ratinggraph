@@ -935,7 +935,7 @@ function SeriesPage() {
                 alignContent: "center",
               }}
             >
-              {data.Type === "TV Series" && data.NextEpisode?.trim() ? (
+              {isTVShow && data.NextEpisode?.trim() ? (
                 <div
                   style={{
                     position: "relative",
