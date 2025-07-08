@@ -129,6 +129,7 @@ const isTVShow = seriesData[0]?.Type === "TV show";
                   top: "-4px",
                 }}
               />
+              {!isMovie && 
               <h1
                 style={{
                   fontSize: "18px",
@@ -140,6 +141,20 @@ const isTVShow = seriesData[0]?.Type === "TV show";
               >
                 {seriesData[0]?.Title} {" ratings "} ({seriesData[0]?.Type}, {""} {seriesData[0]?.StartYear}-{seriesData[0]?.EndYear})
               </h1>
+              }
+              {!isTVShow && 
+              <h1
+                style={{
+                  fontSize: "18px",
+                  marginLeft: "6px",
+                  marginTop: "9px",
+                  fontWeight: "bold",
+                  color: "black",
+                }}
+              >
+                {seriesData[0]?.Title} {" ratings "} ({seriesData[0]?.Type}, {""} {seriesData[0]?.StartYear})
+              </h1>
+              }
             </div>
             <img
               src={UpInfo}
