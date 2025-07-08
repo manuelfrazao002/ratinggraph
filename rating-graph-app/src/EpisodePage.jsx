@@ -806,8 +806,16 @@ export default function Episodes() {
 
                     // Separar episódios recentes e top-rated
                     const recentEpisode = validEpisodes
-                      .filter((ep) => new Date(ep.Date) >= daysAgo30)
-                      .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
+  .filter((ep) => new Date(ep.Date) >= daysAgo30)
+  .sort((a, b) => {
+    const dateDiff = new Date(b.Date) - new Date(a.Date);
+    if (dateDiff !== 0) return dateDiff;
+    
+    // Se as datas forem iguais, ordenar por número do episódio (se disponível)
+    const aEpNum = parseInt(a.Number || "0");
+    const bEpNum = parseInt(b.Number || "0");
+    return bEpNum - aEpNum;
+  })[0];
 
                     // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
                     const topRatedEpisodes = validEpisodes
