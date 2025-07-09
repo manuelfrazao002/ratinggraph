@@ -75,7 +75,6 @@ const VotesOverTime = () => {
             if (isMovie) {
               return {
                 ...baseData,
-                num: row["Num"] || "", // Optional for movies
               };
             } else {
               return {
