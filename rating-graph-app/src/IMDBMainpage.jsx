@@ -4,7 +4,7 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
+import { getShowCoverSrc, getTrailerSrc } from "./ShowImageSrc";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -41,6 +41,8 @@ function SeriesPage() {
   const [data, setData] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [movies, setMovie] = useState([]);
+    const [coverSrc, setCoverSrc] = useState("");
+  const [trailerSrc, setTrailerSrc] = useState("");
 
   const urls = movieMap[movieId];
 
@@ -58,6 +60,19 @@ function SeriesPage() {
           error: (err) => console.error("Erro ao carregar CSV", err),
         });
       });
+  }, [movieId]);
+
+  // Load cover and trailer images dynamically
+  useEffect(() => {
+    const loadImages = async () => {
+      if (movieId) {
+        const cover = await getShowCoverSrc(movieId);
+        const trailer = await getTrailerSrc(movieId);
+        setCoverSrc(cover);
+        setTrailerSrc(trailer);
+      }
+    };
+    loadImages();
   }, [movieId]);
 
   console.log("movieId da URL:", movieId);
@@ -574,8 +589,8 @@ function SeriesPage() {
           >
             <div>
               <img
-                src={showCoverSrc[movieId]}
-                alt={`${data.Title} Poster`}
+                src={coverSrc}
+                alt=""
                 loading="lazy"
                 style={{
                   width: "278.267px",
@@ -587,7 +602,7 @@ function SeriesPage() {
             </div>
             <div style={{ margin: "0 auto", position: "relative" }}>
               <img
-                src={imgTrailerSrc[movieId]}
+                src={trailerSrc}
                 alt=""
                 style={{
                   width: "737.2px",

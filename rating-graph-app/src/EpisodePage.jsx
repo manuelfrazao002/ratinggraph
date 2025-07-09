@@ -5,7 +5,7 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { movieMap } from "./data/MovieMap";
 import { useParams } from "react-router-dom";
-import { showCoverSrc } from "./ShowImageSrc";
+import { getShowCoverSrc, getEpisodeSrc } from "./ShowImageSrc";
 import { Link } from "react-router-dom";
 
 //Navbar
@@ -55,6 +55,18 @@ export default function Episodes() {
   const [otherEpisodes, setOtherEpisodes] = useState([]); // para outras abas
   const [nextEpisode, setNextEpisode] = useState(null);
   const [allEpisodes, setAllEpisodes] = useState([]);
+  const [coverSrc, setCoverSrc] = useState("");
+
+    // Load cover image dynamically
+  useEffect(() => {
+    const loadCover = async () => {
+      if (movieId) {
+        const cover = await getShowCoverSrc(movieId);
+        setCoverSrc(cover);
+      }
+    };
+    loadCover();
+  }, [movieId]);
 
   const handleClick = (tab) => {
     if (tab !== activeTab) {
@@ -285,22 +297,11 @@ export default function Episodes() {
     const [imagePath, setImagePath] = useState("");
 
     useEffect(() => {
-      const basePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}`;
-      const formats = [".png", ".jpg", ".webp"]; // Order of preference
-
-      let found = false;
-
-      formats.forEach((ext) => {
-        const img = new Image();
-        img.src = basePath + ext;
-
-        img.onload = () => {
-          if (!found) {
-            setImagePath(img.src);
-            found = true;
-          }
-        };
-      });
+      const loadImage = async () => {
+        const src = await getEpisodeSrc(movieId, seasonNum, episodeNum);
+        setImagePath(src);
+      };
+      loadImage();
     }, [movieId, seasonNum, episodeNum]);
 
     function formatVotes(votes) {
@@ -347,8 +348,8 @@ export default function Episodes() {
             hasRating || hasSynopsis
               ? episode.Image && episode.Image.startsWith("http")
                 ? episode.Image
-                : imagePath
-              : showCoverSrc[movieId]
+                : imagePath || coverSrc
+              : coverSrc
           }
           alt=""
           style={{
@@ -363,7 +364,7 @@ export default function Episodes() {
             marginBottom: 7,
           }}
           onError={(e) => {
-            e.currentTarget.src = showCoverSrc[movieId]; // fallback para imagem padrão
+            e.currentTarget.src = coverSrc; // fallback para imagem padrão
           }}
         />
 
@@ -621,7 +622,7 @@ export default function Episodes() {
           >
             <div style={{ paddingLeft: 23, position: "relative", top: "-1px" }}>
               <img
-                src={showCoverSrc[movieId]}
+                src={coverSrc}
                 alt=""
                 loading="lazy"
                 style={{
@@ -686,11 +687,7 @@ export default function Episodes() {
                   }}
                 >
                   <img
-                    src={
-                      nextEpisode.Image?.startsWith("http")
-                        ? nextEpisode.Image
-                        : showCoverSrc[movieId]
-                    }
+                    src={nextEpisode.Image?.startsWith("http") ? nextEpisode.Image : coverSrc}
                     alt="Next Episode"
                     style={{
                       width: "224px",

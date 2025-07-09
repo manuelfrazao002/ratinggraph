@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Papa from "papaparse";
 import Navbar from "./imgs/imdb/imdb_navbar.png";
 import { createGlobalStyle } from "styled-components";
-import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
+import { getShowCoverSrc } from "./ShowImageSrc";
 import { movieMap, movies } from "./data/MovieMap";
 import ListBiggerText from "./imgs/imdb/listpage/listbiggertext.png";
 import ListChart from "./imgs/imdb/listpage/listchart.png";
@@ -31,6 +31,21 @@ function MovieList() {
   const [sortKey, setSortKey] = useState("Popularity");
   const [sortOrder, setSortOrder] = useState("asc"); // ou "desc"
   const [hoveredId, setHoveredId] = React.useState(null);
+  const [coverImages, setCoverImages] = useState({});
+
+    // Load cover images dynamically
+  useEffect(() => {
+    const loadCoverImages = async () => {
+      const covers = {};
+      for (const movie of movies) {
+        if (movie.id) {
+          covers[movie.id] = await getShowCoverSrc(movie.id);
+        }
+      }
+      setCoverImages(covers);
+    };
+    loadCoverImages();
+  }, []);
 
   useEffect(() => {
   const urls = movies
@@ -365,7 +380,7 @@ function parseVoteCount(voteStr) {
                         >
                           <div style={{ verticalAlign: "center" }}>
                             <img
-                              src={showCoverSrc[movie.movieId]} // movieId vem do CSV? Use esta chave para pegar a imagem
+                              src={coverImages[movie.movieId]} // movieId vem do CSV? Use esta chave para pegar a imagem
                               alt={movie.Title}
                               style={{
                                 width: "72px",

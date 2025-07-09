@@ -40,11 +40,12 @@ import { useParams } from 'react-router-dom';
 import { movieMap } from "./data/MovieMap";
 import { Link } from "react-router-dom";
 
-import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
+import { getShowCoverSrc } from "./ShowImageSrc";
 
 function App() {
   const { movieId } = useParams();
   const [seriesData, setSeriesData] = useState([]);
+  const [coverSrc, setCoverSrc] = useState("");
 
   useEffect(() => {
         if (!movieId || !movieMap[movieId]) {
@@ -66,6 +67,17 @@ function App() {
           },
         });
       });
+  }, [movieId]);
+
+    // Load cover image dynamically
+  useEffect(() => {
+    const loadCover = async () => {
+      if (movieId) {
+        const cover = await getShowCoverSrc(movieId);
+        setCoverSrc(cover);
+      }
+    };
+    loadCover();
   }, [movieId]);
 
   const isMovie = seriesData[0]?.Type === "Movie";
@@ -170,7 +182,7 @@ const isTVShow = seriesData[0]?.Type === "TV show";
               }}
             >
               <img
-                src={showCoverSrc[movieId]}
+                src={coverSrc}
                 alt="Imagem da Série"
                 style={{
                   width: "132px",

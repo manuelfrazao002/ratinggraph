@@ -11,39 +11,36 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import Papa from "papaparse";
 
 import { useParams } from "react-router-dom";
-import { movieMap } from "./data/MovieMap";
+import { movieMap, movies } from "./data/MovieMap";
 import { Link } from "react-router-dom";
 
-import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
+import { getShowCoverSrc } from "./ShowImageSrc";
 
-const movies = [
-  {
-    id: "toe",
-    title: "The Outside Explorers",
-  },
-  {
-    id: "spacemetro",
-    title: "Space Metro",
-  },
-  {
-    id: "goodfriends",
-    title: "Good Friends",
-  },
-  {
-    id: "different",
-    title: "Different",
-  },
-  {
-    id: "darkcases",
-    title: "Dark Cases",
-  },
-];
+  const urls = movies
+    .map((movie) => movieMap[movie.id]?.[0])
+    .filter(Boolean);
 
 function RatingList() {
   const [seriesData, setSeriesData] = useState([]);
   const [sortKey, setSortKey] = useState("Trend");
   const [sortOrder, setSortOrder] = useState("desc");
   const [data, setData] = useState([]);
+  const [coverImages, setCoverImages] = useState({});
+
+    // Load cover images dynamically
+  useEffect(() => {
+    const loadCoverImages = async () => {
+      const covers = {};
+      for (const movie of movies) {
+        if (movie.id) {
+          covers[movie.id] = await getShowCoverSrc(movie.id);
+        }
+      }
+      setCoverImages(covers);
+    };
+    loadCoverImages();
+  }, []);
+  
 
   useEffect(() => {
   // Obter todas as chaves (IDs dos filmes) do movieMap
@@ -264,7 +261,7 @@ function RatingList() {
                             }}
                           >
                             <img
-                              src={showCoverSrc[movie.movieId]}
+                              src={coverImages[movie.movieId]}
                               alt={movie.Title}
                               style={{
                                 width: "134px",
