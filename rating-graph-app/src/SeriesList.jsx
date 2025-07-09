@@ -21,28 +21,10 @@ import SideContent from "./imgs/imdb/listpage/sidecontent.png";
 import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
 
-const movies = [
-  {
-    id: "toe",
-    title: "The Outside Explorers",
-  },
-  {
-    id: "spacemetro",
-    title: "Space Metro",
-  },
-  {
-    id: "goodfriends",
-    title: "Good Friends",
-  },
-    {
-    id: "different",
-    title: "Different",
-  },
-      {
-    id: "darkcases",
-    title: "Dark Cases",
-  },
-];
+const urls = movies
+  .map((movie) => movieMap[movie.id]?.[0])
+  .filter(Boolean); // Remove valores undefined no caso de IDs inválidos ou entradas faltando
+
 
 function MovieList() {
   const [data, setData] = useState([]);
@@ -51,40 +33,34 @@ function MovieList() {
   const [hoveredId, setHoveredId] = React.useState(null);
 
   useEffect(() => {
-    // URLs dos CSVs que quer carregar (exemplo pegando o primeiro CSV de cada)
-    const urls = [
-      movieMap["toe"][0],
-      movieMap["spacemetro"][0],
-      movieMap["goodfriends"][0],
-      movieMap["different"][0],
-      movieMap["darkcases"][0],
-    ];
+  const urls = movies
+    .map((movie) => movieMap[movie.id]?.[0])
+    .filter(Boolean);
 
-    Promise.all(
-      urls.map((url) =>
-        fetch(url)
-          .then((res) => res.text())
-          .then(
-            (csv) =>
-              new Promise((resolve) =>
-                Papa.parse(csv, {
-                  header: true,
-                  complete: (results) => resolve(results.data),
-                  error: (err) => {
-                    console.error("Erro ao carregar CSV", err);
-                    resolve([]); // evita quebrar a Promise.all
-                  },
-                })
-              )
-          )
-      )
-    ).then((resultsArrays) => {
-      // resultsArrays é um array com os dados de cada CSV
-      // Junta tudo em um array só
-      const allData = [].concat(...resultsArrays);
-      setData(allData);
-    });
-  }, []);
+  Promise.all(
+    urls.map((url) =>
+      fetch(url)
+        .then((res) => res.text())
+        .then(
+          (csv) =>
+            new Promise((resolve) =>
+              Papa.parse(csv, {
+                header: true,
+                complete: (results) => resolve(results.data),
+                error: (err) => {
+                  console.error("Erro ao carregar CSV", err);
+                  resolve([]); // evita quebrar a Promise.all
+                },
+              })
+            )
+        )
+    )
+  ).then((resultsArrays) => {
+    const allData = [].concat(...resultsArrays);
+    setData(allData);
+  });
+}, []);
+
 
   const GlobalStyle = createGlobalStyle`
   #root {

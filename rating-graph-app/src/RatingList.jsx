@@ -29,11 +29,11 @@ const movies = [
     id: "goodfriends",
     title: "Good Friends",
   },
-    {
+  {
     id: "different",
     title: "Different",
   },
-      {
+  {
     id: "darkcases",
     title: "Dark Cases",
   },
@@ -41,22 +41,27 @@ const movies = [
 
 function RatingList() {
   const [seriesData, setSeriesData] = useState([]);
-  const [sortKey, setSortKey] = useState("Title");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortKey, setSortKey] = useState("Trend");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [data, setData] = useState([]);
 
-useEffect(() => {
-    // URLs dos CSVs que quer carregar (exemplo pegando o primeiro CSV de cada)
-    const urls = [
-      movieMap["toe"][0],
-      movieMap["spacemetro"][0],
-      movieMap["goodfriends"][0],
-      movieMap["different"][0],
-      movieMap["darkcases"][0],
-    ];
+  useEffect(() => {
+  // Obter todas as chaves (IDs dos filmes) do movieMap
+  const movieIds = Object.keys(movieMap);
+  
+  // Criar array de URLs alternando entre índice 0 e 2 para cada filme
+  const urls = movieIds.flatMap(movieId => {
+    // Verificar se existem os CSVs necessários (índices 0 e 2)
+    if (movieMap[movieId][0] && movieMap[movieId][2]) {
+      return [movieMap[movieId][0], movieMap[movieId][2]];
+    }
+    // Se algum CSV estiver faltando, retornar apenas os disponíveis
+    return movieMap[movieId].filter(url => url);
+  });
 
-    Promise.all(
-      urls.map((url) =>
+  Promise.all(
+    urls.map((url) =>
+      url ? // Só processar URLs válidas
         fetch(url)
           .then((res) => res.text())
           .then(
@@ -67,19 +72,36 @@ useEffect(() => {
                   complete: (results) => resolve(results.data),
                   error: (err) => {
                     console.error("Erro ao carregar CSV", err);
-                    resolve([]); // evita quebrar a Promise.all
+                    resolve([]);
                   },
                 })
               )
-          )
-      )
-    ).then((resultsArrays) => {
-      // resultsArrays é um array com os dados de cada CSV
-      // Junta tudo em um array só
-      const allData = [].concat(...resultsArrays);
-      setData(allData);
-    });
-  }, []);
+          ) : Promise.resolve([]) // Para URLs vazias, retornar array vazio
+    )
+  ).then((resultsArrays) => {
+    // Agora precisamos combinar os dados correspondentes (0 e 2)
+    const combinedData = [];
+    let movieIndex = 0;
+    
+    for (let i = 0; i < resultsArrays.length; i += 2) {
+      const movieId = movieIds[movieIndex];
+      const data0 = resultsArrays[i] || []; // CSV 0
+      const data2 = i+1 < resultsArrays.length ? resultsArrays[i+1] || [] : []; // CSV 2
+      
+      // Combinar os dados - assumindo que cada CSV tem apenas uma linha relevante
+      const combined = {
+        ...(data0[0] || {}), // pega o primeiro item do CSV 0
+        ...(data2[0] || {}), // combina com o primeiro item do CSV 2
+        movieId: movieId
+      };
+      
+      combinedData.push(combined);
+      movieIndex++;
+    }
+    
+    setData(combinedData);
+  });
+}, []);
 
   const GlobalStyle = createGlobalStyle`
     #root {
@@ -89,28 +111,31 @@ useEffect(() => {
     }
   `;
 
-    const sortedData = [...data].sort((a, b) => {
-  let valueA = a[sortKey];
-  let valueB = b[sortKey];
+  const sortedData = [...data].sort((a, b) => {
+    let valueA = a["Trend"]; // Alterado para sempre ordenar por Trend
+    let valueB = b["Trend"]; // Alterado para sempre ordenar por Trend
 
-  // Special handling for formatted "Votes"
-  if (sortKey === "Votes") {
-    valueA = parseVoteCount(valueA);
-    valueB = parseVoteCount(valueB);
-  }
+      valueA = Number(String(valueA).replace(/,/g, ""));
+  valueB = Number(String(valueB).replace(/,/g, ""));
 
-  const isNumeric = !isNaN(valueA) && !isNaN(valueB);
+    // Special handling for formatted "Votes"
+    if (sortKey === "Votes") {
+      valueA = parseVoteCount(valueA);
+      valueB = parseVoteCount(valueB);
+    }
 
-  if (isNumeric) {
+    const isNumeric = !isNaN(valueA) && !isNaN(valueB);
+
+    if (isNumeric) {
+      return sortOrder === "asc"
+        ? Number(valueA) - Number(valueB)
+        : Number(valueB) - Number(valueA);
+    }
+
     return sortOrder === "asc"
-      ? Number(valueA) - Number(valueB)
-      : Number(valueB) - Number(valueA);
-  }
-
-  return sortOrder === "asc"
-    ? String(valueA).localeCompare(String(valueB))
-    : String(valueB).localeCompare(String(valueA));
-});
+      ? String(valueA).localeCompare(String(valueB))
+      : String(valueB).localeCompare(String(valueA));
+  });
 
   return (
     <div style={{ backgroundColor: "#FFD040" }}>
@@ -155,7 +180,7 @@ useEffect(() => {
                   lineHeight: "18px",
                   textShadow: "1px 1px 0px rgba(0,0,0,.1)",
                 }}
-                class="fas fa-search"
+                className="fas fa-search"
               ></i>
               <h1
                 style={{
@@ -191,54 +216,93 @@ useEffect(() => {
                 display: "flex",
                 alignItems: "center",
                 marginTop: "0",
-                padding: "0px 4px",
+                padding: "0 4px 4px",
+                flexWrap: "wrap",
               }}
             >
-
-            {sortedData.map((movie, index) => {
-                              return (
-                                <div
-                                  
-                                >
-                                  <div
-                                    key={index}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "space-between",
-                                    }}
-                                  >
-                                    <li
-                                      style={{
-
-                                        display: "flex",
-                                        gap: "8px",
-                                        alignItems: "center",
-                                        margin: "0 4px 8px",
-                                      }}
-                                    >
-                                        <Link key={movie.movieId}
-                                          to={`/ratinggraph/${movie.movieId}`}>
-                                      <div style={{ verticalAlign: "center" }}>
-                                        <img
-                                          src={showCoverSrc[movie.movieId]}
-                                          alt={movie.Title}
-                                          style={{
-                                            width: "134px",
-                                            height: "196px",
-                                            objectFit: "cover",
-                                            backgroundColor: "#000",
-                                        }}
-                                        />
-                                      </div>
-                                      </Link>
-                                      
-                                    </li>
-                                  </div>
-                                </div>
-                              );
-                            })}
-
+              {sortedData.map((movie, index) => {
+                  console.log(`Filme: ${movie.Title}`, {
+    Trend: movie.Trend,
+    AverageRating: movie.AverageRating,
+    TodosOsDados: movie // Mostra todos os dados do filme
+  });
+                return (
+                  <div
+                  key={movie.movieId}
+                    style={{
+                      position: "relative",
+                      margin: "0 4px 8px",
+                    }}
+                  >
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <li
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          alignItems: "center",
+                          margin: 0,
+                          padding: 0,
+                          listStyle: "none",
+                          
+                        }}
+                      >
+                        <Link
+                          key={movie.movieId}
+                          to={`/ratinggraph/${movie.movieId}`}
+                        >
+                          <div
+                            style={{
+                              position: "relative",
+                              height: "196px",
+                            }}
+                          >
+                            <img
+                              src={showCoverSrc[movie.movieId]}
+                              alt={movie.Title}
+                              style={{
+                                width: "134px",
+                                height: "196px",
+                                objectFit: "cover",
+                                backgroundColor: "#000",
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "absolute",
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                background: "rgba(0,0,0,.5)",
+                                color: "#fff",
+                                padding: "6px",
+                                fontSize: "12px",
+                                textAlign: "center",
+                                lineHeight: "17px",
+                                textShadow: "1px 1px 0px rgba(0,0,0,.1)",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  height: "auto",
+                              }}
+                            >
+                                <b style={{lineHeight: "22px"}}>{movie.Title}</b>
+                              <div>Trend: {movie.Trend}</div>
+                              <div>Average Rating: {movie.AverageRating}</div>
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
