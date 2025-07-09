@@ -10,7 +10,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCC8tWmczr-L_vFXwsiyApUsIEh1FyQp-M",
   authDomain: "backendratingapp.firebaseapp.com",
   projectId: "backendratingapp",
-  storageBucket: "backendratingapp.firebasestorage.app",
+  storageBucket: "backendratingapp.appspot.com",
   messagingSenderId: "1065152244064",
   appId: "1:1065152244064:web:264459bffb90a066731605",
   measurementId: "G-7H2FWCMZ98"
