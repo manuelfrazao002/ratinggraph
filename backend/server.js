@@ -3,23 +3,33 @@ const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { initializeApp } = require('firebase/app');
+const { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } = require('firebase/storage');
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID
+};
+
+// Inicialize o Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+const storage = getStorage(firebaseApp);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configuração do caminho para a pasta public do frontend
-// Modifique este caminho conforme a estrutura do seu projeto
-const FRONTEND_PUBLIC_PATH = path.resolve(__dirname, '..', 'rating-graph-app', 'public');
-
 // Enable CORS for your frontend
 app.use(cors({
-  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com'] // Add localhost for development
+  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com']
 }));
 
-// Middleware para verificar a autenticação (adicione sua lógica real)
+// Middleware para verificar a autenticação
 const authenticate = (req, res, next) => {
-  // Implemente sua lógica de autenticação aqui
-  // Exemplo básico:
   const authToken = req.headers['authorization'];
   if (authToken === process.env.ADMIN_TOKEN) {
     return next();
@@ -27,47 +37,9 @@ const authenticate = (req, res, next) => {
   res.status(401).json({ error: 'Unauthorized' });
 };
 
-// Configure storage for multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let uploadPath;
-    
-    switch(req.params.type) {
-      case 'covers':
-        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'covers');
-        break;
-      case 'trailers':
-        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'trailers');
-        break;
-      case 'episodes':
-        const { movieId, seasonNum } = req.params;
-        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'show', movieId, seasonNum.toString());
-        break;
-      default:
-        return cb(new Error('Invalid upload type'));
-    }
-
-    // Create directory if it doesn't exist
-    fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    let filename;
-    
-    if (req.params.type === 'episodes') {
-      const { episodeNum } = req.params;
-      filename = `ep${episodeNum}${path.extname(file.originalname)}`;
-    } else {
-      // For covers and trailers, use the movieId as filename
-      filename = `${req.params.movieId}${path.extname(file.originalname)}`;
-    }
-    
-    cb(null, filename);
-  }
-});
-
+// Configure multer para usar memoryStorage (não precisamos mais do diskStorage)
 const upload = multer({ 
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (allowedTypes.includes(file.mimetype)) {
@@ -82,58 +54,90 @@ const upload = multer({
 });
 
 // Upload endpoints with authentication
-app.post('/upload/:type/:movieId', authenticate, upload.single('image'), (req, res) => {
+app.post('/upload/:type/:movieId', authenticate, upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // Construa a URL correta para o frontend acessar
-  let imageUrl;
-  if (req.params.type === 'episodes') {
-    const { movieId, seasonNum } = req.params;
-    imageUrl = `/imgs/show/${movieId}/${seasonNum}/${req.file.filename}`;
-  } else {
-    imageUrl = `/imgs/${req.params.type}/${req.file.filename}`;
+  try {
+    // Define o caminho no Firebase Storage
+    let filePath;
+    if (req.params.type === 'episodes') {
+      const { movieId, seasonNum } = req.params;
+      const { episodeNum } = req.query;
+      filePath = `imgs/show/${movieId}/${seasonNum}/ep${episodeNum}${path.extname(req.file.originalname)}`;
+    } else {
+      filePath = `imgs/${req.params.type}/${req.params.movieId}${path.extname(req.file.originalname)}`;
+    }
+
+    // Cria referência para o arquivo no Firebase
+    const storageRef = ref(storage, filePath);
+    
+    // Faz upload do arquivo
+    await uploadBytes(storageRef, req.file.buffer);
+    
+    // Obtém a URL pública
+    const downloadURL = await getDownloadURL(storageRef);
+
+    res.json({
+      message: 'File uploaded successfully',
+      imageUrl: downloadURL
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to upload file' });
   }
-  
-  res.json({
-    message: 'File uploaded successfully',
-    imageUrl: imageUrl
-  });
 });
 
-app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, upload.single('image'), (req, res) => {
+app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  const imageUrl = `/imgs/show/${req.params.movieId}/${req.params.seasonNum}/${req.file.filename}`;
-  
-  res.json({
-    message: 'Episode image uploaded successfully',
-    imageUrl: imageUrl
-  });
+  try {
+    const filePath = `imgs/show/${req.params.movieId}/${req.params.seasonNum}/ep${req.params.episodeNum}${path.extname(req.file.originalname)}`;
+    const storageRef = ref(storage, filePath);
+    
+    await uploadBytes(storageRef, req.file.buffer);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    res.json({
+      message: 'Episode image uploaded successfully',
+      imageUrl: downloadURL
+    });
+  } catch (error) {
+    console.error('Episode upload error:', error);
+    res.status(500).json({ error: 'Failed to upload episode image' });
+  }
 });
 
 // Endpoint para deletar imagens
-app.delete('/delete-image', authenticate, (req, res) => {
-  const { imagePath } = req.body;
+app.delete('/delete-image', authenticate, async (req, res) => {
+  const { imageUrl } = req.body;
   
-  if (!imagePath) {
-    return res.status(400).json({ error: 'Image path is required' });
+  if (!imageUrl) {
+    return res.status(400).json({ error: 'Image URL is required' });
   }
 
-  const fullPath = path.join(FRONTEND_PUBLIC_PATH, imagePath);
-  
   try {
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-      return res.json({ message: 'Image deleted successfully' });
+    // Extrai o path do URL do Firebase
+    const urlParts = imageUrl.split('/o/');
+    if (urlParts.length < 2) {
+      return res.status(400).json({ error: 'Invalid Firebase image URL' });
     }
-    return res.status(404).json({ error: 'Image not found' });
+    
+    const filePath = decodeURIComponent(urlParts[1].split('?')[0]);
+    const storageRef = ref(storage, filePath);
+    
+    await deleteObject(storageRef);
+    
+    res.json({ message: 'Image deleted successfully' });
   } catch (error) {
     console.error('Error deleting image:', error);
-    return res.status(500).json({ error: 'Failed to delete image' });
+    if (error.code === 'storage/object-not-found') {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+    res.status(500).json({ error: 'Failed to delete image' });
   }
 });
 
@@ -154,5 +158,5 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Saving images to: ${FRONTEND_PUBLIC_PATH}`);
+  console.log(`Using Firebase Storage: ${firebaseConfig.storageBucket}`);
 });
