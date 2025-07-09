@@ -7,26 +7,41 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Configuração do caminho para a pasta public do frontend
+// Modifique este caminho conforme a estrutura do seu projeto
+const FRONTEND_PUBLIC_PATH = path.resolve(__dirname, '..', 'rating-graph-app', 'public');
+
 // Enable CORS for your frontend
 app.use(cors({
   origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173'] // Add localhost for development
 }));
 
-// Configure storage based on your frontend structure
+// Middleware para verificar a autenticação (adicione sua lógica real)
+const authenticate = (req, res, next) => {
+  // Implemente sua lógica de autenticação aqui
+  // Exemplo básico:
+  const authToken = req.headers['authorization'];
+  if (authToken === process.env.ADMIN_TOKEN) {
+    return next();
+  }
+  res.status(401).json({ error: 'Unauthorized' });
+};
+
+// Configure storage for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath;
     
     switch(req.params.type) {
       case 'covers':
-        uploadPath = path.join(__dirname, 'public', 'imgs', 'covers');
+        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'covers');
         break;
       case 'trailers':
-        uploadPath = path.join(__dirname, 'public', 'imgs', 'trailers');
+        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'trailers');
         break;
       case 'episodes':
         const { movieId, seasonNum } = req.params;
-        uploadPath = path.join(__dirname, 'public', 'imgs', 'show', movieId, seasonNum.toString());
+        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'show', movieId, seasonNum.toString());
         break;
       default:
         return cb(new Error('Invalid upload type'));
@@ -66,13 +81,20 @@ const upload = multer({
   }
 });
 
-// Upload endpoints
-app.post('/upload/:type/:movieId', upload.single('image'), (req, res) => {
+// Upload endpoints with authentication
+app.post('/upload/:type/:movieId', authenticate, upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  const imageUrl = `/imgs/${req.params.type}/${req.file.filename}`;
+  // Construa a URL correta para o frontend acessar
+  let imageUrl;
+  if (req.params.type === 'episodes') {
+    const { movieId, seasonNum } = req.params;
+    imageUrl = `/imgs/show/${movieId}/${seasonNum}/${req.file.filename}`;
+  } else {
+    imageUrl = `/imgs/${req.params.type}/${req.file.filename}`;
+  }
   
   res.json({
     message: 'File uploaded successfully',
@@ -80,7 +102,7 @@ app.post('/upload/:type/:movieId', upload.single('image'), (req, res) => {
   });
 });
 
-app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', upload.single('image'), (req, res) => {
+app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -93,18 +115,44 @@ app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', upload.single('image
   });
 });
 
-// Serve static files
-app.use('/imgs', express.static(path.join(__dirname, 'public', 'imgs')));
+// Endpoint para deletar imagens
+app.delete('/delete-image', authenticate, (req, res) => {
+  const { imagePath } = req.body;
+  
+  if (!imagePath) {
+    return res.status(400).json({ error: 'Image path is required' });
+  }
+
+  const fullPath = path.join(FRONTEND_PUBLIC_PATH, imagePath);
+  
+  try {
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+      return res.json({ message: 'Image deleted successfully' });
+    }
+    return res.status(404).json({ error: 'Image not found' });
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    return res.status(500).json({ error: 'Failed to delete image' });
+  }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     res.status(400).json({ error: err.message });
   } else if (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Saving images to: ${FRONTEND_PUBLIC_PATH}`);
 });
