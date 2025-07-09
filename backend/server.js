@@ -2,33 +2,24 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
-const { initializeApp } = require('firebase/app');
-const { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } = require('firebase/storage');
-
-// Configuração do Firebase
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID
-};
-
-// Inicialização do Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-const storage = getStorage(firebaseApp);
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware CORS
+// Configuração do caminho para a pasta public do frontend
+// Modifique este caminho conforme a estrutura do seu projeto
+const FRONTEND_PUBLIC_PATH = path.resolve(__dirname, '..', 'rating-graph-app', 'public');
+
+// Enable CORS for your frontend
 app.use(cors({
-  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com']
+  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com'] // Add localhost for development
 }));
 
-// Middleware de autenticação
+// Middleware para verificar a autenticação (adicione sua lógica real)
 const authenticate = (req, res, next) => {
+  // Implemente sua lógica de autenticação aqui
+  // Exemplo básico:
   const authToken = req.headers['authorization'];
   if (authToken === process.env.ADMIN_TOKEN) {
     return next();
@@ -36,9 +27,47 @@ const authenticate = (req, res, next) => {
   res.status(401).json({ error: 'Unauthorized' });
 };
 
-// Configuração do Multer
-const upload = multer({
-  storage: multer.memoryStorage(),
+// Configure storage for multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let uploadPath;
+    
+    switch(req.params.type) {
+      case 'covers':
+        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'covers');
+        break;
+      case 'trailers':
+        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'trailers');
+        break;
+      case 'episodes':
+        const { movieId, seasonNum } = req.params;
+        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'show', movieId, seasonNum.toString());
+        break;
+      default:
+        return cb(new Error('Invalid upload type'));
+    }
+
+    // Create directory if it doesn't exist
+    fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    let filename;
+    
+    if (req.params.type === 'episodes') {
+      const { episodeNum } = req.params;
+      filename = `ep${episodeNum}${path.extname(file.originalname)}`;
+    } else {
+      // For covers and trailers, use the movieId as filename
+      filename = `${req.params.movieId}${path.extname(file.originalname)}`;
+    }
+    
+    cb(null, filename);
+  }
+});
+
+const upload = multer({ 
+  storage,
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (allowedTypes.includes(file.mimetype)) {
@@ -48,145 +77,82 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: 5 * 1024 * 1024 // 5MB limit
   }
 });
 
-// Middleware de debug para verificar uploads
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Content-Type:', req.headers['content-type']);
-  next();
-});
-
-// Rota de upload principal
-app.post('/upload/:type/:movieId', authenticate, upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) {
-      console.error('No file received in upload:', {
-        headers: req.headers,
-        body: req.body
-      });
-      return res.status(400).json({ 
-        error: 'No file uploaded',
-        details: 'Ensure you are sending as multipart/form-data with field named "image"'
-      });
-    }
-
-    const fileExt = path.extname(req.file.originalname);
-    let filePath;
-
-    if (req.params.type === 'episodes') {
-      const { movieId, seasonNum } = req.params;
-      const { episodeNum } = req.query;
-      filePath = `imgs/show/${movieId}/${seasonNum}/ep${episodeNum}${fileExt}`;
-    } else {
-      filePath = `imgs/${req.params.type}/${req.params.movieId}${fileExt}`;
-    }
-
-    const storageRef = ref(storage, filePath);
-    await uploadBytes(storageRef, req.file.buffer);
-    const downloadURL = await getDownloadURL(storageRef);
-
-    console.log('Upload successful:', downloadURL);
-    res.json({
-      message: 'File uploaded successfully',
-      imageUrl: downloadURL,
-      fileInfo: {
-        originalName: req.file.originalname,
-        size: req.file.size,
-        mimetype: req.file.mimetype
-      }
-    });
-  } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ 
-      error: 'Failed to upload file',
-      details: error.message
-    });
+// Upload endpoints with authentication
+app.post('/upload/:type/:movieId', authenticate, upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
   }
-});
 
-// Rota alternativa para episódios
-app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, upload.single('image'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-
-    const filePath = `imgs/show/${req.params.movieId}/${req.params.seasonNum}/ep${req.params.episodeNum}${path.extname(req.file.originalname)}`;
-    const storageRef = ref(storage, filePath);
-    
-    await uploadBytes(storageRef, req.file.buffer);
-    const downloadURL = await getDownloadURL(storageRef);
-
-    res.json({
-      message: 'Episode image uploaded successfully',
-      imageUrl: downloadURL
-    });
-  } catch (error) {
-    console.error('Episode upload error:', error);
-    res.status(500).json({ 
-      error: 'Failed to upload episode image',
-      details: error.message
-    });
+  // Construa a URL correta para o frontend acessar
+  let imageUrl;
+  if (req.params.type === 'episodes') {
+    const { movieId, seasonNum } = req.params;
+    imageUrl = `/imgs/show/${movieId}/${seasonNum}/${req.file.filename}`;
+  } else {
+    imageUrl = `/imgs/${req.params.type}/${req.file.filename}`;
   }
-});
-
-// Rota para deletar imagens
-app.delete('/delete-image', authenticate, async (req, res) => {
-  try {
-    const { imageUrl } = req.body;
-    
-    if (!imageUrl) {
-      return res.status(400).json({ error: 'Image URL is required' });
-    }
-
-    const urlParts = imageUrl.split('/o/');
-    if (urlParts.length < 2) {
-      return res.status(400).json({ error: 'Invalid Firebase image URL' });
-    }
-    
-    const filePath = decodeURIComponent(urlParts[1].split('?')[0]);
-    const storageRef = ref(storage, filePath);
-    
-    await deleteObject(storageRef);
-    res.json({ message: 'Image deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    const status = error.code === 'storage/object-not-found' ? 404 : 500;
-    res.status(status).json({ 
-      error: 'Failed to delete image',
-      details: error.message
-    });
-  }
-});
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'healthy',
-    firebase: {
-      project: firebaseConfig.projectId,
-      bucket: firebaseConfig.storageBucket
-    },
-    timestamp: new Date().toISOString()
+  
+  res.json({
+    message: 'File uploaded successfully',
+    imageUrl: imageUrl
   });
 });
 
-// Error handling
+app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const imageUrl = `/imgs/show/${req.params.movieId}/${req.params.seasonNum}/${req.file.filename}`;
+  
+  res.json({
+    message: 'Episode image uploaded successfully',
+    imageUrl: imageUrl
+  });
+});
+
+// Endpoint para deletar imagens
+app.delete('/delete-image', authenticate, (req, res) => {
+  const { imagePath } = req.body;
+  
+  if (!imagePath) {
+    return res.status(400).json({ error: 'Image path is required' });
+  }
+
+  const fullPath = path.join(FRONTEND_PUBLIC_PATH, imagePath);
+  
+  try {
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+      return res.json({ message: 'Image deleted successfully' });
+    }
+    return res.status(404).json({ error: 'Image not found' });
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    return res.status(500).json({ error: 'Failed to delete image' });
+  }
+});
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Global error:', err);
-  res.status(500).json({ 
-    error: 'Internal server error',
-    details: process.env.NODE_ENV === 'development' ? err.message : undefined
-  });
+  if (err instanceof multer.MulterError) {
+    res.status(400).json({ error: err.message });
+  } else if (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Firebase Config:', {
-    projectId: firebaseConfig.projectId,
-    storageBucket: firebaseConfig.storageBucket
-  });
+  console.log(`Saving images to: ${FRONTEND_PUBLIC_PATH}`);
 });
