@@ -273,7 +273,7 @@ const VotesOverTime = () => {
             ];
             
             if (chartData.isMovie) {
-              tooltipLines.splice(1, 0, `Num: ${d.num || 'N/A'}`);
+              tooltipLines.splice(1, 0);
             } else {
               tooltipLines.splice(1, 0, 
                 `Seasons: ${d.seasons}`,
