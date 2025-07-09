@@ -3,23 +3,28 @@ const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const streamifier = require('streamifier');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configuração do caminho para a pasta public do frontend
-// Modifique este caminho conforme a estrutura do seu projeto
-const FRONTEND_PUBLIC_PATH = path.resolve(__dirname, '..', 'rating-graph-app', 'public');
+// Configuração do Cloudinary
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
 
-// Enable CORS for your frontend
+// Middlewares
 app.use(cors({
-  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com'] // Add localhost for development
+  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com']
 }));
+app.use(express.json());
 
-// Middleware para verificar a autenticação (adicione sua lógica real)
+// Autenticação
 const authenticate = (req, res, next) => {
-  // Implemente sua lógica de autenticação aqui
-  // Exemplo básico:
   const authToken = req.headers['authorization'];
   if (authToken === process.env.ADMIN_TOKEN) {
     return next();
@@ -27,107 +32,116 @@ const authenticate = (req, res, next) => {
   res.status(401).json({ error: 'Unauthorized' });
 };
 
-// Configure storage for multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let uploadPath;
-    
-    switch(req.params.type) {
-      case 'covers':
-        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'covers');
-        break;
-      case 'trailers':
-        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'trailers');
-        break;
-      case 'episodes':
-        const { movieId, seasonNum } = req.params;
-        uploadPath = path.join(FRONTEND_PUBLIC_PATH, 'imgs', 'show', movieId, seasonNum.toString());
-        break;
-      default:
-        return cb(new Error('Invalid upload type'));
-    }
+// Configuração otimizada do Cloudinary Storage
+const createStorage = (type) => {
+  return new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: (req, file) => {
+      const params = {
+        allowed_formats: ['jpg', 'png', 'webp'],
+        transformation: [{ width: 800, crop: 'limit', quality: 'auto' }],
+        format: 'webp', // Converter para webp automaticamente
+      };
 
-    // Create directory if it doesn't exist
-    fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    let filename;
-    
-    if (req.params.type === 'episodes') {
-      const { episodeNum } = req.params;
-      filename = `ep${episodeNum}${path.extname(file.originalname)}`;
-    } else {
-      // For covers and trailers, use the movieId as filename
-      filename = `${req.params.movieId}${path.extname(file.originalname)}`;
+      switch(type) {
+        case 'covers':
+          return {
+            ...params,
+            folder: `rating-graph/covers`,
+            public_id: `cover_${req.params.movieId}`,
+          };
+        case 'trailers':
+          return {
+            ...params,
+            folder: `rating-graph/trailers`,
+            public_id: `trailer_${req.params.movieId}`,
+          };
+        case 'episodes':
+          return {
+            ...params,
+            folder: `rating-graph/show/${req.params.movieId}/season_${req.params.seasonNum}`,
+            public_id: `episode_${req.params.episodeNum}`,
+          };
+        default:
+          throw new Error('Invalid upload type');
+      }
+    },
+    stream: {
+      write: (chunk, encoding, callback) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { resource_type: 'auto' }, 
+          (error, result) => {
+            if (error) return callback(error);
+            callback(null, result);
+          }
+        );
+        streamifier.createReadStream(chunk).pipe(stream);
+      }
     }
-    
-    cb(null, filename);
-  }
-});
+  });
+};
 
-const upload = multer({ 
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only .jpg, .png, and .webp formats are allowed'));
-    }
-  },
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
-});
+// Configurações de upload específicas para cada tipo
+const uploadCover = multer({ 
+  storage: createStorage('covers'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+}).single('image');
 
-// Upload endpoints with authentication
-app.post('/upload/:type/:movieId', authenticate, upload.single('image'), (req, res) => {
+const uploadTrailer = multer({ 
+  storage: createStorage('trailers'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+}).single('image');
+
+const uploadEpisode = multer({ 
+  storage: createStorage('episodes'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+}).single('image');
+
+// Handlers de upload genéricos
+const handleUpload = (req, res, next) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-
-  // Construa a URL correta para o frontend acessar
-  let imageUrl;
-  if (req.params.type === 'episodes') {
-    const { movieId, seasonNum } = req.params;
-    imageUrl = `/imgs/show/${movieId}/${seasonNum}/${req.file.filename}`;
-  } else {
-    imageUrl = `/imgs/${req.params.type}/${req.file.filename}`;
-  }
-  
   res.json({
     message: 'File uploaded successfully',
-    imageUrl: imageUrl
+    imageUrl: req.file.path,
+    publicId: req.file.filename
+  });
+};
+
+// Endpoints otimizados
+app.post('/upload/cover/:movieId', authenticate, (req, res, next) => {
+  uploadCover(req, res, (err) => {
+    if (err) return next(err);
+    handleUpload(req, res);
   });
 });
 
-app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const imageUrl = `/imgs/show/${req.params.movieId}/${req.params.seasonNum}/${req.file.filename}`;
-  
-  res.json({
-    message: 'Episode image uploaded successfully',
-    imageUrl: imageUrl
+app.post('/upload/trailer/:movieId', authenticate, (req, res, next) => {
+  uploadTrailer(req, res, (err) => {
+    if (err) return next(err);
+    handleUpload(req, res);
   });
 });
 
-// Endpoint para deletar imagens
-app.delete('/delete-image', authenticate, (req, res) => {
-  const { imagePath } = req.body;
+app.post('/upload/episode/:movieId/:seasonNum/:episodeNum', authenticate, (req, res, next) => {
+  uploadEpisode(req, res, (err) => {
+    if (err) return next(err);
+    handleUpload(req, res);
+  });
+});
+
+// Delete otimizado
+app.delete('/delete-image', authenticate, async (req, res) => {
+  const { publicId } = req.body;
   
-  if (!imagePath) {
-    return res.status(400).json({ error: 'Image path is required' });
+  if (!publicId) {
+    return res.status(400).json({ error: 'Public ID is required' });
   }
 
-  const fullPath = path.join(FRONTEND_PUBLIC_PATH, imagePath);
-  
   try {
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+    const result = await cloudinary.uploader.destroy(publicId);
+    if (result.result === 'ok') {
       return res.json({ message: 'Image deleted successfully' });
     }
     return res.status(404).json({ error: 'Image not found' });
@@ -137,22 +151,42 @@ app.delete('/delete-image', authenticate, (req, res) => {
   }
 });
 
-// Error handling middleware
+// Error handling melhorado
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
-    res.status(400).json({ error: err.message });
-  } else if (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ 
+      error: err.code === 'LIMIT_FILE_SIZE' 
+        ? 'File size exceeds 5MB limit' 
+        : err.message 
+    });
+  } else {
+    console.error(err.stack);
+    res.status(500).json({ 
+      error: process.env.NODE_ENV === 'production'
+        ? 'Internal server error'
+        : err.message
+    });
   }
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy' });
+// Health check com verificação do Cloudinary
+app.get('/health', async (req, res) => {
+  try {
+    await cloudinary.api.ping();
+    res.status(200).json({ 
+      status: 'healthy',
+      cloudinary: 'connected'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'unhealthy',
+      cloudinary: 'disconnected',
+      error: error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Saving images to: ${FRONTEND_PUBLIC_PATH}`);
+  console.log(`Cloudinary configured for cloud: ${cloudinary.config().cloud_name}`);
 });
