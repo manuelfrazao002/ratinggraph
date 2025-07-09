@@ -55,3 +55,11 @@ export const movieMap = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=1140739200&single=true&output=csv",
   ],
 };
+
+export const movies = Object.keys(movieMap).map((id) => ({
+  id,
+  title: id
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
+    .replace(/_/g, " ")                 // snake_case → snake case
+    .replace(/^\w/, (c) => c.toUpperCase()), // Capitaliza primeira letra
+}));

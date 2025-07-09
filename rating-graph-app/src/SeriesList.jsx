@@ -4,7 +4,7 @@ import Papa from "papaparse";
 import Navbar from "./imgs/imdb/imdb_navbar.png";
 import { createGlobalStyle } from "styled-components";
 import { showCoverSrc, imgTrailerSrc } from "./ShowImageSrc";
-import { movieMap } from "./data/MovieMap";
+import { movieMap, movies } from "./data/MovieMap";
 import ListBiggerText from "./imgs/imdb/listpage/listbiggertext.png";
 import ListChart from "./imgs/imdb/listpage/listchart.png";
 import ListFilter from "./imgs/imdb/listpage/listfilter.png";
