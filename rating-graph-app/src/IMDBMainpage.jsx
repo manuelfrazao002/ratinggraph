@@ -336,7 +336,7 @@ function SeriesPage() {
                   </>
                 )}
                 {data.BeginingYear}
-                {data.Type === "TVSeries" && `—${data.EndingYear || ""}`}
+                {data.Type === "TV Series" && `—${data.EndingYear || ""}`}
                 <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
                 {data.AgeRating}
                 {!isMovie && (
