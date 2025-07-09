@@ -13,7 +13,7 @@ const FRONTEND_PUBLIC_PATH = path.resolve(__dirname, '..', 'rating-graph-app', '
 
 // Enable CORS for your frontend
 app.use(cors({
-  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173'] // Add localhost for development
+  origin: ['https://ratinggraph.onrender.com', 'http://localhost:5173', 'https://backend-ratinggraph.onrender.com'] // Add localhost for development
 }));
 
 // Middleware para verificar a autenticação (adicione sua lógica real)
