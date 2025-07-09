@@ -210,7 +210,7 @@ function SeriesPage() {
         </Link>
         }
         {isMovie && 
-        <Link to={`/ratinggraph/${movieId}`}>
+        <Link to={`/`}>
           <img src={IMDBNavbar} alt="Rating Graph" />
         </Link>
         }
