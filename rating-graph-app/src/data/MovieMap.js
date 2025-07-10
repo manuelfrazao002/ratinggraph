@@ -54,6 +54,16 @@ export const movieMap = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=1942396010&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjwnfmK3Dt4xtzx16jYOW15yAEe4HnwtTXYJ7hysBxOs1d5OVlegaboxUxOVcxb7xK7dp__0YOWplB/pub?gid=1140739200&single=true&output=csv",
   ],
+  test: [
+    //IMDBData
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmQcTYrFmi-w54BZV-E8uYpXtcEbeWqwJ8kTJntqRXzZWr9J4pKE_ojOO1GFoH2Yt63g3dgR6U0UOz/pub?gid=1334662158&single=true&output=csv",
+    //DataBase TVSHOW
+    "",
+    //RatingGraphData
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmQcTYrFmi-w54BZV-E8uYpXtcEbeWqwJ8kTJntqRXzZWr9J4pKE_ojOO1GFoH2Yt63g3dgR6U0UOz/pub?gid=1942396010&single=true&output=csv",
+    //Daily Count
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmQcTYrFmi-w54BZV-E8uYpXtcEbeWqwJ8kTJntqRXzZWr9J4pKE_ojOO1GFoH2Yt63g3dgR6U0UOz/pub?gid=1140739200&single=true&output=csv",
+  ]
 };
 
 export const movies = Object.keys(movieMap).map((id) => ({
