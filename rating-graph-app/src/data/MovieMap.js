@@ -30,13 +30,13 @@ export const movieMap = {
   ],
   goodfriends: [
     //IMDBData
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTvgLiY4pgDCMXJ9VeH5qOQzL1OCp8QPJHjqYV7443gURsAEsEWSXVIZ3ub_KGirFHFuEaR74Szo3Fk/pub?gid=1334662158&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vScPJopX9eFoeD6oaTZbHCcgjMeTIXGB82u5cWwtvgFIj8PhntZOO0xkkY3BOKOpr-aR1EotqsktrQR/pub?gid=1334662158&single=true&output=csv",
     //DataBase TVSHOW
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTvgLiY4pgDCMXJ9VeH5qOQzL1OCp8QPJHjqYV7443gURsAEsEWSXVIZ3ub_KGirFHFuEaR74Szo3Fk/pub?gid=190829179&single=true&output=csv",
+    "",
     //RatingGraphData
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTvgLiY4pgDCMXJ9VeH5qOQzL1OCp8QPJHjqYV7443gURsAEsEWSXVIZ3ub_KGirFHFuEaR74Szo3Fk/pub?gid=1942396010&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vScPJopX9eFoeD6oaTZbHCcgjMeTIXGB82u5cWwtvgFIj8PhntZOO0xkkY3BOKOpr-aR1EotqsktrQR/pub?gid=1942396010&single=true&output=csv",
     //Daily Count
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTvgLiY4pgDCMXJ9VeH5qOQzL1OCp8QPJHjqYV7443gURsAEsEWSXVIZ3ub_KGirFHFuEaR74Szo3Fk/pub?gid=1140739200&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vScPJopX9eFoeD6oaTZbHCcgjMeTIXGB82u5cWwtvgFIj8PhntZOO0xkkY3BOKOpr-aR1EotqsktrQR/pub?gid=1140739200&single=true&output=csv",
   ],
   different: [
     //IMDBData
