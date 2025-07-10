@@ -154,7 +154,9 @@ app.delete('/delete-image', authenticate, async (req, res) => {
   }
 
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(publicId, {
+  invalidate: true // Limpa o cache imediatamente
+});
     result.result === 'ok' 
       ? res.json({ message: 'Imagem deletada com sucesso' })
       : res.status(404).json({ error: 'Imagem não encontrada' });
