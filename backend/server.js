@@ -57,24 +57,23 @@ app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisodes.arr
 
     const results = await Promise.all(
       req.files.map(async (file) => {
-        // Extrai o número do formato "ep1" (case insensitive)
-        const epMatch = file.originalname.match(/ep(\d+)/i);
-        if (!epMatch) {
-          throw new Error(`Formato de nome inválido: ${file.originalname} (use ep1.jpg, ep2.png)`);
-        }
-        const epNum = epMatch[1];
-
-        // Obtém o public_id CORRETO do arquivo temporário
-        const tempPublicId = file.filename; // Usa file.filename em vez de file.public_id
+        // Extrai o número do formato "temp_ep1" ou "ep1"
+        const epNum = file.filename.match(/temp_ep(\d+)/)?.[1] || 
+                     file.originalname.match(/ep(\d+)/i)?.[1];
         
-        // Novo public_id no formato ep1, ep2, etc.
+        if (!epNum) {
+          throw new Error(`Não foi possível extrair número do episódio de: ${file.originalname}`);
+        }
+
+        // Remove "temp_" do public_id temporário
+        const tempPublicId = file.filename; // Formato: "temp_ep1"
         const newPublicId = `rating-graph/show/${req.params.movieId}/season_${req.params.seasonNum}/ep${epNum}`;
         
-        // Renomeia no Cloudinary (agora com os parâmetros corretos)
+        // Renomeia no Cloudinary (remove o "temp_")
         await cloudinary.uploader.rename(
-          tempPublicId, // from_public_id (o nome temporário)
-          newPublicId,  // to_public_id (o novo nome)
-          { resource_type: 'image' } // Tipo explícito
+          tempPublicId, // "temp_ep1"
+          newPublicId,  // "rating-graph/show/.../ep1"
+          { resource_type: 'image' }
         );
         
         return {
