@@ -29,60 +29,83 @@ const authenticate = (req, res, next) => {
   res.status(401).json({ error: 'Unauthorized' });
 };
 
-// Configuração do storage para episódios
-const episodeStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: (req, file) => {
-    // Nome temporário que mantém o original para extrair o número depois
-    return {
-      folder: `rating-graph/show/${req.params.movieId}/season_${req.params.seasonNum}`,
-      public_id: `temp_${file.originalname.replace(/\.[^/.]+$/, '')}`, // Remove a extensão
-      allowed_formats: ['jpg', 'png', 'webp'],
-      format: 'webp',
-      transformation: [{ width: 800, crop: 'limit', quality: 'auto' }]
-    };
+// Factory function para criar storages
+const createStorage = (type) => {
+  return new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: (req, file) => {
+      const baseParams = {
+        allowed_formats: ['jpg', 'png', 'webp'],
+        format: 'webp',
+        transformation: [{ width: 800, crop: 'limit', quality: 'auto' }]
+      };
+
+      switch(type) {
+        case 'cover':
+          return {
+            ...baseParams,
+            folder: 'rating-graph/covers',
+            public_id: `cover_${req.params.movieId}`
+          };
+        case 'trailer':
+          return {
+            ...baseParams,
+            folder: 'rating-graph/trailers',
+            public_id: `trailer_${req.params.movieId}`
+          };
+        case 'episode':
+          const epNum = file.originalname.match(/ep(\d+)/i)?.[1] || '1';
+          return {
+            ...baseParams,
+            folder: `rating-graph/show/${req.params.movieId}/season_${req.params.seasonNum}`,
+            public_id: `ep${epNum}`
+          };
+        default:
+          throw new Error(`Tipo de upload inválido: ${type}`);
+      }
+    }
+  });
+};
+
+// Configurações de upload
+const uploadCover = multer({ 
+  storage: createStorage('cover'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+const uploadTrailer = multer({ 
+  storage: createStorage('trailer'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+const uploadEpisode = multer({ 
+  storage: createStorage('episode'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+// Handlers
+const handleSingleUpload = (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Nenhum arquivo enviado' });
   }
-});
+  res.json({
+    message: 'Upload realizado com sucesso',
+    url: req.file.path,
+    publicId: req.file.filename
+  });
+};
 
-const uploadEpisodes = multer({ 
-  storage: episodeStorage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
-});
-
-app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisodes.array('episodes', 10), async (req, res) => {
+const handleEpisodeUpload = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'Nenhum arquivo enviado' });
     }
 
-    const results = await Promise.all(
-      req.files.map(async (file) => {
-        // Extrai o número do formato "temp_ep1" ou "ep1"
-        const epNum = file.filename.match(/temp_ep(\d+)/)?.[1] || 
-                     file.originalname.match(/ep(\d+)/i)?.[1];
-        
-        if (!epNum) {
-          throw new Error(`Não foi possível extrair número do episódio de: ${file.originalname}`);
-        }
-
-        // Remove "temp_" do public_id temporário
-        const tempPublicId = file.filename; // Formato: "temp_ep1"
-        const newPublicId = `rating-graph/show/${req.params.movieId}/season_${req.params.seasonNum}/ep${epNum}`;
-        
-        // Renomeia no Cloudinary (remove o "temp_")
-        await cloudinary.uploader.rename(
-          tempPublicId, // "temp_ep1"
-          newPublicId,  // "rating-graph/show/.../ep1"
-          { resource_type: 'image' }
-        );
-        
-        return {
-          episodeNumber: epNum,
-          url: `https://res.cloudinary.com/${cloudinary.config().cloud_name}/image/upload/${newPublicId}.webp`,
-          publicId: newPublicId
-        };
-      })
-    );
+    const results = req.files.map(file => ({
+      episodeNumber: file.filename.match(/ep(\d+)/)?.[1] || '1',
+      url: file.path,
+      publicId: file.filename
+    }));
 
     res.json({
       message: `${results.length} episódios processados com sucesso`,
@@ -95,58 +118,14 @@ app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisodes.arr
       details: error.message 
     });
   }
-});
+};
 
-// Endpoints para capas e trailers (mantidos como antes)
-const mediaStorage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: (req, file) => {
-    let folder, publicId;
-    
-    switch(req.params.type) {
-      case 'covers':
-        folder = 'rating-graph/covers';
-        publicId = `cover_${req.params.movieId}`;
-        break;
-      case 'trailers':
-        folder = 'rating-graph/trailers';
-        publicId = `trailer_${req.params.movieId}`;
-        break;
-      default:
-        throw new Error('Tipo de upload inválido');
-    }
-    
-    return {
-      folder,
-      public_id: publicId,
-      allowed_formats: ['jpg', 'png', 'webp'],
-      format: 'webp',
-      transformation: [{ width: 800, crop: 'limit', quality: 'auto' }]
-    };
-  }
-});
+// Endpoints
+app.post('/upload/cover/:movieId', authenticate, uploadCover.single('image'), handleSingleUpload);
+app.post('/upload/trailer/:movieId', authenticate, uploadTrailer.single('image'), handleSingleUpload);
+app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisode.array('episodes', 10), handleEpisodeUpload);
 
-const uploadMedia = multer({ 
-  storage: mediaStorage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    allowedTypes.includes(file.mimetype) ? cb(null, true) : cb(new Error('Apenas formatos JPG, PNG e WebP são permitidos'));
-  },
-  limits: { fileSize: 5 * 1024 * 1024 }
-});
-
-app.post('/upload/:type/:movieId', authenticate, uploadMedia.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Nenhum arquivo enviado' });
-  }
-  res.json({
-    message: 'Upload realizado com sucesso',
-    imageUrl: req.file.path,
-    publicId: req.file.filename
-  });
-});
-
-// Endpoint para deletar
+// Endpoint para deletar com invalidação de cache
 app.delete('/delete-image', authenticate, async (req, res) => {
   const { publicId } = req.body;
   if (!publicId) {
@@ -155,14 +134,18 @@ app.delete('/delete-image', authenticate, async (req, res) => {
 
   try {
     const result = await cloudinary.uploader.destroy(publicId, {
-  invalidate: true
-});
-    result.result === 'ok' 
-      ? res.json({ message: 'Imagem deletada com sucesso' })
-      : res.status(404).json({ error: 'Imagem não encontrada' });
+      invalidate: true
+    });
+    res.json({
+      message: 'Imagem deletada com sucesso',
+      details: result
+    });
   } catch (error) {
     console.error('Erro ao deletar imagem:', error);
-    res.status(500).json({ error: 'Falha ao deletar imagem' });
+    res.status(500).json({ 
+      error: 'Falha ao deletar imagem',
+      details: error.message
+    });
   }
 });
 
