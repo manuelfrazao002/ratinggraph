@@ -3,7 +3,7 @@
  */
 
 // Cloudinary configuration
-const CLOUDINARY_CLOUD_NAME = 'duaapwky8'; // Replace with your cloud name if different
+const CLOUDINARY_CLOUD_NAME = 'duaapwky8';
 const CLOUDINARY_BASE_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
 /**
@@ -21,10 +21,10 @@ export const getTrailerSrc = (showId) => {
 };
 
 /**
- * Generates Cloudinary URL for episode image
+ * Generates Cloudinary URL for episode image (agora usando formato ep1, ep2)
  */
 export const getEpisodeSrc = (movieId, seasonNum, episodeNum) => {
-  return `${CLOUDINARY_BASE_URL}/rating-graph/show/${movieId}/season_${seasonNum}/episode_${episodeNum}.webp`;
+  return `${CLOUDINARY_BASE_URL}/rating-graph/show/${movieId}/season_${seasonNum}/ep${episodeNum}.webp`;
 };
 
 /**
@@ -38,8 +38,24 @@ export const getDefaultTrailer = () => {
   return `${CLOUDINARY_BASE_URL}/rating-graph/trailers/default.webp`;
 };
 
+/**
+ * Helper function to extract episode number from URL
+ * (Útil se você precisar extrair o número de uma URL existente)
+ */
+export const extractEpisodeNumber = (url) => {
+  const match = url.match(/ep(\d+)\.webp$/);
+  return match ? match[1] : null;
+};
+
 // Optional: Add transformations to URLs when needed
 export const getOptimizedImage = (url, width = 800) => {
   const parts = url.split('/upload/');
   return `${parts[0]}/upload/w_${width},q_auto,f_auto/${parts[1]}`;
+};
+
+// Novo: Função para gerar URL para lista de episódios
+export const getSeasonEpisodes = (movieId, seasonNum, count) => {
+  return Array.from({ length: count }, (_, i) => 
+    `${CLOUDINARY_BASE_URL}/rating-graph/show/${movieId}/season_${seasonNum}/ep${i + 1}.webp`
+  );
 };
