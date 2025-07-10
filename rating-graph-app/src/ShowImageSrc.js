@@ -1,67 +1,45 @@
 /**
- * Dynamic media sources with extension fallback support
+ * Dynamic media sources for Cloudinary with extension fallback support
  */
 
-// Base URL configuration (useful if you need to switch between dev/prod)
-const BASE_URL = ''; // Keep empty for relative paths or set to your backend URL
+// Cloudinary configuration
+const CLOUDINARY_CLOUD_NAME = 'duaapwky8'; // Replace with your cloud name if different
+const CLOUDINARY_BASE_URL = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
 /**
- * Checks if an image exists at the given path
+ * Generates Cloudinary URL for show cover
  */
-const checkImageExists = async (path) => {
-  try {
-    const response = await fetch(path, { method: 'HEAD' });
-    return response.ok;
-  } catch (error) {
-    return false;
-  }
+export const getShowCoverSrc = (showId) => {
+  return `${CLOUDINARY_BASE_URL}/rating-graph/covers/cover_${showId}.webp`;
 };
 
 /**
- * Finds the first available image format
+ * Generates Cloudinary URL for trailer image
  */
-const findAvailableImage = async (basePath, formats) => {
-  for (const ext of formats) {
-    const fullPath = `${BASE_URL}${basePath}${ext}`;
-    if (await checkImageExists(fullPath)) {
-      return fullPath;
-    }
-  }
-  return null;
+export const getTrailerSrc = (showId) => {
+  return `${CLOUDINARY_BASE_URL}/rating-graph/trailers/trailer_${showId}.webp`;
 };
 
 /**
- * Gets show cover image with format fallback
+ * Generates Cloudinary URL for episode image
  */
-export const getShowCoverSrc = async (showId) => {
-  const basePath = `/imgs/covers/${showId}`;
-  const formats = ['.png', '.jpg', '.webp']; // Order of preference
-  return await findAvailableImage(basePath, formats) || `${BASE_URL}/imgs/covers/default.png`;
+export const getEpisodeSrc = (movieId, seasonNum, episodeNum) => {
+  return `${CLOUDINARY_BASE_URL}/rating-graph/show/${movieId}/season_${seasonNum}/episode_${episodeNum}.webp`;
 };
 
 /**
- * Gets trailer image with format fallback
+ * Fallback/default images
  */
-export const getTrailerSrc = async (showId) => {
-  const basePath = `/imgs/trailers/${showId}`;
-  const formats = ['.jpg', '.png', '.webp']; // Order of preference
-  return await findAvailableImage(basePath, formats) || `${BASE_URL}/imgs/trailers/default.jpg`;
+export const getDefaultCover = () => {
+  return `${CLOUDINARY_BASE_URL}/rating-graph/covers/default.webp`;
 };
 
-/**
- * Gets episode image with format fallback
- */
-export const getEpisodeSrc = async (movieId, seasonNum, episodeNum) => {
-  const basePath = `/imgs/show/${movieId}/${seasonNum}/ep${episodeNum}`;
-  const formats = ['.png', '.jpg', '.webp']; // Order of preference
-  return await findAvailableImage(basePath, formats);
+export const getDefaultTrailer = () => {
+  return `${CLOUDINARY_BASE_URL}/rating-graph/trailers/default.webp`;
 };
 
-// // Optional: Preload common images for better performance
-// export const preloadCommonImages = async () => {
-//   const commonShows = ['toe', 'spacemetro', 'goodfriends', 'different', 'darkcases'];
-//   await Promise.all([
-//     ...commonShows.map(showId => getShowCoverSrc(showId)),
-//     ...commonShows.map(showId => getTrailerSrc(showId))
-//   ]);
-// };
+// Optional: Add transformations to URLs when needed
+export const getOptimizedImage = (url, width = 800) => {
+  const parts = url.split('/upload/');
+  return `${parts[0]}/upload/w_${width},q_auto,f_auto/${parts[1]}`;
+};
