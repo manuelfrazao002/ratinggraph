@@ -49,7 +49,6 @@ const uploadEpisodes = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 });
 
-// Endpoint para upload de múltiplos episódios
 app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisodes.array('episodes', 10), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -65,11 +64,18 @@ app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisodes.arr
         }
         const epNum = epMatch[1];
 
-        // Novo public_id no formato correto
+        // Obtém o public_id CORRETO do arquivo temporário
+        const tempPublicId = file.filename; // Usa file.filename em vez de file.public_id
+        
+        // Novo public_id no formato ep1, ep2, etc.
         const newPublicId = `rating-graph/show/${req.params.movieId}/season_${req.params.seasonNum}/ep${epNum}`;
         
-        // Renomeia no Cloudinary
-        await cloudinary.uploader.rename(file.public_id, newPublicId);
+        // Renomeia no Cloudinary (agora com os parâmetros corretos)
+        await cloudinary.uploader.rename(
+          tempPublicId, // from_public_id (o nome temporário)
+          newPublicId,  // to_public_id (o novo nome)
+          { resource_type: 'image' } // Tipo explícito
+        );
         
         return {
           episodeNumber: epNum,
@@ -78,9 +84,6 @@ app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisodes.arr
         };
       })
     );
-
-    // Ordena por número do episódio
-    results.sort((a, b) => parseInt(a.episodeNumber) - parseInt(b.episodeNumber));
 
     res.json({
       message: `${results.length} episódios processados com sucesso`,
