@@ -37,7 +37,8 @@ const createStorage = (type) => {
       const baseParams = {
         allowed_formats: ['jpg', 'png', 'webp'],
         format: 'webp',
-        transformation: [{ width: 800, crop: 'limit', quality: 'auto' }]
+        transformation: [{ width: 800, crop: 'limit', quality: 'auto' }],
+        invalidate: true
       };
 
       switch(type) {
