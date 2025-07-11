@@ -350,7 +350,7 @@ function parseVoteCount(voteStr) {
               <div style={{ padding: "12px" }}>
                 {sortedData.map((movie, index) => {
                   const isMovie = movie.Type === "Movie";
-                  const isTVShow = data.Type === "TVSeries" || data.Type === "TV Mini Series";
+                  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
                   return (
                     <div
                       style={{
