@@ -56,6 +56,23 @@ export const movieMap = {
   ],
 };
 
+export const animeMap = {
+  humansvsmachines: [
+    // Season 1 data
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=932829023&single=true&output=csv",
+  ],
+  // Adicione outros animes aqui no mesmo formato
+};
+
+
+export const animes = Object.keys(animeMap).map((id) => ({
+  id,
+  title: id
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/_/g, " ")
+    .replace(/^\w/, (c) => c.toUpperCase()),
+}));
+
 export const movies = Object.keys(movieMap).map((id) => ({
   id,
   title: id

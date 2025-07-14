@@ -47,7 +47,20 @@ function MovieList() {
     loadCoverImages();
   }, []);
 
-  useEffect(() => {
+  // No início do componente MovieList, adicione uma função para filtrar animes
+const filterAnime = (data) => {
+  return data.filter(item => {
+    if (!item) return false;
+    
+    // Verifica múltiplas possibilidades de identificação de anime
+    const isAnime = 
+      item.Type?.toLowerCase().includes('anime');
+    
+    return !isAnime;
+  });
+};
+
+useEffect(() => {
   const urls = movies
     .map((movie) => movieMap[movie.id]?.[0])
     .filter(Boolean);
@@ -61,7 +74,10 @@ function MovieList() {
             new Promise((resolve) =>
               Papa.parse(csv, {
                 header: true,
-                complete: (results) => resolve(results.data),
+                complete: (results) => {
+                  const filteredData = filterAnime(results.data);
+                  resolve(filteredData);
+                },
                 error: (err) => {
                   console.error("Erro ao carregar CSV", err);
                   resolve([]); // evita quebrar a Promise.all
@@ -99,7 +115,7 @@ function parseVoteCount(voteStr) {
 }
 
 
-  const sortedData = [...data].sort((a, b) => {
+  const sortedData = filterAnime([...data]).sort((a, b) => {
   let valueA = a[sortKey];
   let valueB = b[sortKey];
 
@@ -203,7 +219,7 @@ function parseVoteCount(voteStr) {
     <div style={{ padding: 0, margin: 0, backgroundColor: "black"}}>
       <GlobalStyle />
       <div>
-        <Link to={`/ratinggraph/list`}>
+        <Link to={`/`}>
         <img src={Navbar} alt="" />
         </Link>
       </div>
@@ -265,7 +281,7 @@ function parseVoteCount(voteStr) {
                     alignItems: "center",
                   }}
                 >
-                  <p style={{ color: "black" }}>{movies.length} Titles</p>
+                  <p style={{ color: "black" }}>{filterAnime(sortedData).length} Titles</p>
                   <img src={ListLayout} alt="" style={{ height: "48px" }} />
                 </div>
                 <div style={{ margin: "4px 4px 0px 0px", width: "808px" }}>
