@@ -6,6 +6,7 @@ import {
   getShowCoverSrc,
   getDefaultCover,
   getTrailerSrc,
+  getCharacterSrc,
 } from "../src/ShowImageSrc";
 import "./mal.css";
 
@@ -248,10 +249,10 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
   );
 }
 
-function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrl }) {
+function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrls }) {
   const { id } = useParams();
-  const [relatedEntries, setRelatedEntries] = useState([]);
-  const [animeData, setAnimeData] = useState([]);
+  const [characters, setCharacters] = useState([]);
+  const [voiceActors, setVoiceActors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
@@ -261,97 +262,77 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrl }) {
     try {
       setLoading(true);
 
-      // Carrega dados do anime principal
-      const baseId = id.replace(/_\w+$/, "");
-      const animeCsvUrl = animeMap[baseId]?.[1];
-      if (!animeCsvUrl) throw new Error("Base anime data not found");
+      // Carrega dados dos personagens (CSV [1])
+      const charactersResponse = await fetch(csvUrls[0]);
+      const charactersCsvText = await charactersResponse.text();
 
-      const [animeResponse, relatedResponse] = await Promise.all([
-        fetch(animeCsvUrl),
-        fetch(csvUrl),
-      ]);
+      // Carrega dados dos voice actors (CSV [2])
+      const voiceActorsResponse = await fetch(csvUrls[1]);
+      const voiceActorsCsvText = await voiceActorsResponse.text();
 
-      const [animeCsvText, relatedCsvText] = await Promise.all([
-        animeResponse.text(),
-        relatedResponse.text(),
-      ]);
-
-      // Processa os dados do anime principal
-      Papa.parse(animeCsvText, {
+      // Processa os dados dos personagens
+      Papa.parse(charactersCsvText, {
         header: true,
         complete: (results) => {
-          const anime = results.data.find((item) => item.showId === id);
-          if (anime) setAnimeData(anime);
-          else throw new Error(`Anime with id ${id} not found`);
-        },
-        error: () => {
-          throw new Error("Error parsing anime CSV");
-        },
-      });
-
-      // Processa os dados relacionados
-      Papa.parse(relatedCsvText, {
-        header: true,
-        complete: (results) => {
-          const related = results.data
-            .filter(
-              (entry) => entry.showId !== currentId && entry.Series === seriesId
-            )
-            .map((entry) => ({
+          const chars = results.data
+            .filter(entry => entry.showId === currentId)
+            .map(entry => ({
               ...entry,
-              coverImage: getShowCoverSrc(entry.showId) || getDefaultCover(),
-              isManga: entry.Type2 === "Manga",
-              isAnime: entry.Type2 === "Anime",
-              displayName:
-                entry.Type2 === "Manga"
-                  ? entry.NameEntriesManga || entry.NameEntries
-                  : entry.NameEntries,
+              type: 'character',
+              coverImage: getCharacterSrc(entry.mangaId),
             }));
-
-          setRelatedEntries(related);
-          setLoading(false);
+          
+          setCharacters(chars);
         },
         error: () => {
-          throw new Error("Error parsing related entries CSV");
+          throw new Error("Error parsing characters CSV");
         },
       });
+
+      // Processa os dados dos voice actors
+      Papa.parse(voiceActorsCsvText, {
+        header: true,
+        complete: (results) => {
+          const vActors = results.data
+            .filter(entry => entry.showId === currentId)
+            .map(entry => ({
+              ...entry,
+              type: 'voice_actor',
+              coverImage: getVoiceActorSrc(entry.VCId), // Você precisará criar esta função
+            }));
+          
+          setVoiceActors(vActors);
+        },
+        error: () => {
+          throw new Error("Error parsing voice actors CSV");
+        },
+      });
+
+      setLoading(false);
     } catch (err) {
       setError(err.message);
       setLoading(false);
     }
-  }, [id, currentId, seriesId, csvUrl]);
-
-  // Carrega os dados inicialmente e configura polling
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  // Atualiza os dados quando lastUpdate muda
-  useEffect(() => {
-    loadData();
-  }, [lastUpdate, loadData]);
-
-  const isManga = animeData.Type2 === "Manga";
-  const isAnime = animeData.Type2 === "Anime";
+  }, [id, currentId, csvUrls]);
 
   // Componente de renderização de item
   const renderEntryItem = (entry, index) => (
     <li
-      key={entry.showId}
+      key={`${entry.type}_${entry.id || index}`}
       style={{
         backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
         borderBottom: "1px solid #e5e5e5",
         display: "flex",
-        height: "78px",
+        padding: "5px 0",
       }}
     >
-      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+      <div style={{flexShrink: 0, padding: "3px", height:"64px"}}>
         <img
           src={entry.coverImage}
           alt=""
           style={{
-            width: "50px",
-            height: "70px",
+            width: "42px",
+            height: "62px",
             border: "1px solid #bebebe",
             objectFit: "cover",
           }}
@@ -360,98 +341,86 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrl }) {
           }}
         />
       </div>
-      <div
-        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {isAnime && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.displayName} ({entry.Type})
-            </span>
-          )}
-          {isManga && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.NameEntriesManga} ({entry.Type})
-            </span>
-          )}
-        </div>
+      <div style={{padding: "3px", verticalAlign:"top"}}>
         <Link
-          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+          to={`/${entry.type === 'character' ? 'character' : 'person'}/${entry.id}`}
           style={{
             color: "#1c439b",
             textDecoration: "none",
             fontSize: "11px",
             lineHeight: "1.5em",
             ":hover": { textDecoration: "underline" },
-            marginBottom: "3px",
           }}
         >
-          {entry.TitleJapanese || entry.Title}
+          {entry.Name}
         </Link>
+        <div style={{ display: "flex", alignItems: "center", padding: "3px 0"}}>
+          <small style={{ color: "#000" }}>
+            {entry.type === 'character' ? entry.Role : entry.Nationality}
+          </small>
+        </div>
+        {/* Mostrar relação personagem-dublador se aplicável */}
+        {entry.type === 'character' && entry.voiceActor && (
+          <div style={{ fontSize: "10px", color: "#666" }}>
+            Voiced by: {entry.voiceActor.Name} ({entry.voiceActor.Nationality})
+          </div>
+        )}
       </div>
     </li>
   );
 
-  if (error)
-    return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
-  if (relatedEntries.length < 1)
+  if (loading) return <div style={{ padding: "5px 0" }}>Loading...</div>;
+  if (error) return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
+  
+  // Combina personagens e dubladores
+  const allEntries = [...characters, ...voiceActors];
+  
+  if (allEntries.length < 1) {
     return (
-  <>
-  <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Characters & Voice Actors
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More characters
-                            </span>
-                          </div>
-      <span style={{ color: "#000" }}>
-        No characters or voice actors have been added to this title. Help improve our database by
-        adding characters or voice actors{" "}
-        <span style={{ color: "#1c439b" }}>here</span>.
-      </span>
+      <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Characters
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            More characters
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No characters have been added to this title. Help improve our database
+          by adding characters or voice actors{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
       </>
     );
-
+}
   // Divide os itens em duas colunas
   const half = Math.ceil(relatedEntries.length / 2);
   const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];
@@ -459,40 +428,40 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrl }) {
   return (
     <>
       <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Characters & Voice Actors
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More characters
-                            </span>
-                          </div>
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
+          }}
+        >
+          Characters
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          More characters
+        </span>
+      </div>
       <div style={{ display: "flex" }}>
         {columns.map((column, index) => (
           <React.Fragment key={index}>
@@ -564,20 +533,13 @@ function Characters({ seriesId, currentId, csvUrl }) {
       Papa.parse(relatedCsvText, {
         header: true,
         complete: (results) => {
-          const related = results.data
-            .filter(
-              (entry) => entry.showId !== currentId && entry.Series === seriesId
-            )
-            .map((entry) => ({
-              ...entry,
-              coverImage: getShowCoverSrc(entry.showId) || getDefaultCover(),
-              isManga: entry.Type2 === "Manga",
-              isAnime: entry.Type2 === "Anime",
-              displayName:
-                entry.Type2 === "Manga"
-                  ? entry.NameEntriesManga || entry.NameEntries
-                  : entry.NameEntries,
-            }));
+          const related = results.data.map((entry) => ({
+            ...entry,
+            coverImage: getCharacterSrc(entry.mangaId), // Usa mangaId para a imagem
+            DisplayName: entry.Name, // Usa o campo "Name" do CSV
+            Type: entry.Role, // Usa "Role" como tipo (ex: "Main")
+            isManga: true, // Força como true, já que é um componente de mangá
+          }));
 
           setRelatedEntries(related);
           setLoading(false);
@@ -608,21 +570,20 @@ function Characters({ seriesId, currentId, csvUrl }) {
   // Componente de renderização de item
   const renderEntryItem = (entry, index) => (
     <li
-      key={entry.showId}
+      key={entry.mangaId}
       style={{
         backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
         borderBottom: "1px solid #e5e5e5",
         display: "flex",
-        height: "78px",
       }}
     >
-      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+      <div style={{flexShrink: 0, padding: "3px", height:"64px"}}>
         <img
           src={entry.coverImage}
           alt=""
           style={{
-            width: "50px",
-            height: "70px",
+            width: "42px",
+            height: "62px",
             border: "1px solid #bebebe",
             objectFit: "cover",
           }}
@@ -632,32 +593,9 @@ function Characters({ seriesId, currentId, csvUrl }) {
         />
       </div>
       <div
-        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
+        style={{padding: "3px", verticalAlign:"top"}}
       >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {isAnime && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.displayName} ({entry.Type})
-            </span>
-          )}
-          {isManga && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.NameEntriesManga} ({entry.Type})
-            </span>
-          )}
-        </div>
+        
         <Link
           to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
           style={{
@@ -666,11 +604,15 @@ function Characters({ seriesId, currentId, csvUrl }) {
             fontSize: "11px",
             lineHeight: "1.5em",
             ":hover": { textDecoration: "underline" },
-            marginBottom: "3px",
           }}
         >
-          {entry.TitleJapanese || entry.Title}
+          {entry.DisplayName}
         </Link>
+              <div style={{ display: "flex", alignItems: "center", padding: "3px 0"}}>
+              <small style={{
+                color: "#000",
+              }}>{entry.Type}</small>
+        </div>
       </div>
     </li>
   );
@@ -679,47 +621,47 @@ function Characters({ seriesId, currentId, csvUrl }) {
     return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
   if (relatedEntries.length < 1)
     return (
-  <>
-  <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Characters
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More characters
-                            </span>
-                          </div>
-      <span style={{ color: "#000" }}>
-        No characters have been added to this title. Help improve our database by
-        adding characters or voice actors{" "}
-        <span style={{ color: "#1c439b" }}>here</span>.
-      </span>
+      <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Characters
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            More characters
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No characters have been added to this title. Help improve our database
+          by adding characters or voice actors{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
       </>
     );
 
@@ -730,40 +672,40 @@ function Characters({ seriesId, currentId, csvUrl }) {
   return (
     <>
       <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Characters
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More characters
-                            </span>
-                          </div>
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
+          }}
+        >
+          Characters
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          More characters
+        </span>
+      </div>
       <div style={{ display: "flex" }}>
         {columns.map((column, index) => (
           <React.Fragment key={index}>
@@ -950,47 +892,47 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
     return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
   if (relatedEntries.length < 1)
     return (
-  <>
-  <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Staff
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More staff
-                            </span>
-                          </div>
-      <span style={{ color: "#000" }}>
-        No staff has been added to this title. Help improve our database by
-        adding characters or voice actors{" "}
-        <span style={{ color: "#1c439b" }}>here</span>.
-      </span>
+      <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Staff
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            More staff
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No staff has been added to this title. Help improve our database by
+          adding characters or voice actors{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
       </>
     );
 
@@ -1001,40 +943,40 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
   return (
     <>
       <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Staff
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More staff
-                            </span>
-                          </div>
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
+          }}
+        >
+          Staff
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          More staff
+        </span>
+      </div>
       <div style={{ display: "flex" }}>
         {columns.map((column, index) => (
           <React.Fragment key={index}>
@@ -3358,7 +3300,7 @@ function MyAnimeList({ match }) {
                             )}
                           </div>
                         )}
-                                                {animeData.BeginningDate != "?" && isManga && (
+                        {animeData.BeginningDate != "?" && isManga && (
                           <div
                             style={{ fontSize: "11px", lineHeight: "1.5em" }}
                           >

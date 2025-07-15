@@ -70,12 +70,12 @@ export const animeMap = {
   mythologicalheroes: [
     //MALData
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=932829023&single=true&output=csv",
-    // //Characters
-    // "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1342594371&single=true&output=csv",
-    // //Voice Actors
-    // "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1228488073&single=true&output=csv",
-    // //Staff
-    // "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1105078943&single=true&output=csv",
+    //Characters
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1342594371&single=true&output=csv",
+    //Voice Actors
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1228488073&single=true&output=csv",
+    //Staff
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1105078943&single=true&output=csv",
   ]
   // Adicione outros animes aqui no mesmo formato
 };
