@@ -7,6 +7,7 @@ import {
   getDefaultCover,
   getTrailerSrc,
   getCharacterSrc,
+  getVoiceActorSrc,
 } from "../src/ShowImageSrc";
 import "./mal.css";
 
@@ -249,10 +250,10 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
   );
 }
 
-function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrls }) {
+function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrl }) {
   const { id } = useParams();
-  const [characters, setCharacters] = useState([]);
-  const [voiceActors, setVoiceActors] = useState([]);
+  const [relatedEntries, setRelatedEntries] = useState([]);
+  const [animeData, setAnimeData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
@@ -262,68 +263,78 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrls }) {
     try {
       setLoading(true);
 
-      // Carrega dados dos personagens (CSV [1])
-      const charactersResponse = await fetch(csvUrls[0]);
-      const charactersCsvText = await charactersResponse.text();
+      // Carrega dados do anime principal
+      const baseId = id.replace(/_\w+$/, "");
+      const CharacterUrl = animeMap[baseId]?.[1];
+      const VoiceActorUrl = animeMap[baseId]?.[2];
+      if (!CharacterUrl) throw new Error("Base anime data not found");
+      if (!VoiceActorUrl) throw new Error("Base anime data not found");
 
-      // Carrega dados dos voice actors (CSV [2])
-      const voiceActorsResponse = await fetch(csvUrls[1]);
-      const voiceActorsCsvText = await voiceActorsResponse.text();
+      const [CharacterResponse, CharacterRelatedResponse] = await Promise.all([
+        fetch(CharacterUrl),
+        fetch(csvUrl),
+      ]);
 
-      // Processa os dados dos personagens
-      Papa.parse(charactersCsvText, {
+      const [CharacterCsvText, CharacterRelatedCsvText] = await Promise.all([
+        CharacterResponse.text(),
+        CharacterRelatedResponse.text(),
+      ]);
+
+      // Processa os dados do anime principal
+      Papa.parse(CharacterCsvText, {
         header: true,
         complete: (results) => {
-          const chars = results.data
-            .filter(entry => entry.showId === currentId)
-            .map(entry => ({
-              ...entry,
-              type: 'character',
-              coverImage: getCharacterSrc(entry.mangaId),
-            }));
-          
-          setCharacters(chars);
+          const anime = results.data.find((item) => item.characterId === id);
+          if (anime) setAnimeData(anime);
+          else throw new Error(`Character with id ${id} not found`);
         },
         error: () => {
-          throw new Error("Error parsing characters CSV");
+          throw new Error("Error parsing anime CSV");
         },
       });
 
-      // Processa os dados dos voice actors
-      Papa.parse(voiceActorsCsvText, {
+      // Processa os dados relacionados
+      Papa.parse(CharacterRelatedCsvText, {
         header: true,
         complete: (results) => {
-          const vActors = results.data
-            .filter(entry => entry.showId === currentId)
-            .map(entry => ({
-              ...entry,
-              type: 'voice_actor',
-              coverImage: getVoiceActorSrc(entry.VCId), // Você precisará criar esta função
-            }));
-          
-          setVoiceActors(vActors);
+          const related = results.data.map((entry) => ({
+            ...entry,
+            coverImage: getCharacterSrc(entry.characterId),
+            DisplayName: entry.Name,
+            Type: entry.Role,
+          }));
+
+          setRelatedEntries(related);
+          setLoading(false);
         },
         error: () => {
-          throw new Error("Error parsing voice actors CSV");
+          throw new Error("Error parsing related entries CSV");
         },
       });
-
-      setLoading(false);
     } catch (err) {
       setError(err.message);
       setLoading(false);
     }
-  }, [id, currentId, csvUrls]);
+  }, [id, currentId, seriesId, csvUrl]);
+
+  // Carrega os dados inicialmente e configura polling
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Atualiza os dados quando lastUpdate muda
+  useEffect(() => {
+    loadData();
+  }, [lastUpdate, loadData]);
 
   // Componente de renderização de item
   const renderEntryItem = (entry, index) => (
     <li
-      key={`${entry.type}_${entry.id || index}`}
+      key={entry.characterId}
       style={{
         backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
         borderBottom: "1px solid #e5e5e5",
         display: "flex",
-        padding: "5px 0",
       }}
     >
       <div style={{flexShrink: 0, padding: "3px", height:"64px"}}>
@@ -341,9 +352,12 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrls }) {
           }}
         />
       </div>
-      <div style={{padding: "3px", verticalAlign:"top"}}>
+      <div
+        style={{padding: "3px", verticalAlign:"top"}}
+      >
+        
         <Link
-          to={`/${entry.type === 'character' ? 'character' : 'person'}/${entry.id}`}
+          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
           style={{
             color: "#1c439b",
             textDecoration: "none",
@@ -352,30 +366,20 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrls }) {
             ":hover": { textDecoration: "underline" },
           }}
         >
-          {entry.Name}
+          {entry.DisplayName}
         </Link>
-        <div style={{ display: "flex", alignItems: "center", padding: "3px 0"}}>
-          <small style={{ color: "#000" }}>
-            {entry.type === 'character' ? entry.Role : entry.Nationality}
-          </small>
+              <div style={{ display: "flex", alignItems: "center", padding: "3px 0"}}>
+              <small style={{
+                color: "#000",
+              }}>{entry.Type}</small>
         </div>
-        {/* Mostrar relação personagem-dublador se aplicável */}
-        {entry.type === 'character' && entry.voiceActor && (
-          <div style={{ fontSize: "10px", color: "#666" }}>
-            Voiced by: {entry.voiceActor.Name} ({entry.voiceActor.Nationality})
-          </div>
-        )}
       </div>
     </li>
   );
 
-  if (loading) return <div style={{ padding: "5px 0" }}>Loading...</div>;
-  if (error) return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
-  
-  // Combina personagens e dubladores
-  const allEntries = [...characters, ...voiceActors];
-  
-  if (allEntries.length < 1) {
+  if (error)
+    return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
+  if (relatedEntries.length < 1)
     return (
       <>
         <div
@@ -420,7 +424,7 @@ function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrls }) {
         </span>
       </>
     );
-}
+
   // Divide os itens em duas colunas
   const half = Math.ceil(relatedEntries.length / 2);
   const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];

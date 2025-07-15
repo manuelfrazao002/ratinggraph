@@ -41,7 +41,7 @@ export const getCharacterSrc = (showId, noCache = false) => {
  * @param {string} showId - Show identifier
  * @param {boolean} noCache - Bypass browser cache
  */
-export const getVoiceActirSrc = (showId, noCache = false) => {
+export const getVoiceActorSrc = (showId, noCache = false) => {
   const publicId = `rating-graph/voiceactor/voiceactor_${showId}`;
   return getCacheFreeUrl(publicId, noCache);
 };
