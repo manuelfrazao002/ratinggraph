@@ -52,51 +52,61 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
       ]);
 
       // Processa os dados do anime principal
+      const animeData = await new Promise((resolve, reject) => {
       Papa.parse(animeCsvText, {
         header: true,
         complete: (results) => {
           const anime = results.data.find((item) => item.showId === id);
-          if (anime) setAnimeData(anime);
-          else throw new Error(`Anime with id ${id} not found`);
+          if (anime) resolve(anime);
+          else reject(new Error(`Anime with id ${id} not found`));
         },
-        error: () => {
-          throw new Error("Error parsing anime CSV");
-        },
+        error: (err) => reject(new Error("Error parsing anime CSV")),
       });
-
-      // Processa os dados relacionados
-      Papa.parse(relatedCsvText, {
-  header: true,
-  complete: (results) => {
-    const isManga = animeData.Type2 === "Manga";
-    const currentSeasonNum = parseInt(currentId.match(/_s(\d+)$/)?.[1] || 0);
-
-    const filteredResults = results.data.filter(entry => {
-      // Se for manga, mostra todos os Sequels
-      if (isManga && entry.NameEntries === "Sequel") return true;
-      
-      // Se for anime, mostra apenas o próximo Sequel
-      if (!isManga && entry.NameEntries === "Sequel") {
-        const entrySeasonNum = parseInt(entry.showId.match(/_s(\d+)$/)?.[1] || 0);
-        return entrySeasonNum === currentSeasonNum + 1;
-      }
-      
-      // Mantém outros tipos (Prequel, Adaptation)
-      return true;
     });
 
-    const related = filteredResults
-      .filter((entry) => entry.showId !== currentId && entry.Series === seriesId)
-      .map((entry) => ({
-        ...entry,
-        coverImage: getShowCoverSrc(entry.showId),
-        isManga: entry.Type2 === "Manga",
-        isAnime: entry.Type2 === "Anime",
-        displayName: entry.Type2 === "Manga" 
-          ? entry.NameEntriesManga || entry.NameEntries 
-          : entry.NameEntries,
-      }));
-      
+      // Processa os dados relacionados
+Papa.parse(relatedCsvText, {
+  header: true,
+  complete: (results) => {
+    console.log("Total de entradas no CSV:", results.data.length);
+    console.log("Primeiras entradas:", results.data);    
+    const currentSeasonNum = parseInt(currentId.match(/_s(\d+)$/)?.[1] || 0);
+
+    // Primeiro filtra por série e remove o currentId
+        // Filtra por série e remove o currentId
+    let related = results.data.filter(entry => entry.showId !== currentId);
+
+    
+    related = related.filter(entry => {
+      const isManga = animeData.Type2 === "Manga"; // Verifica o tipo desta entrada específica
+      console.log("Tipo do anime:", isManga);
+
+      if (isManga) {
+        // Se for manga: mostra Adaptations, Sequels e Prequels
+        return ["Adaptation"].includes(entry.NameEntriesManga);
+      } else {
+        // Se for anime:
+        if (entry.NameEntries === "Sequel") {
+          const entrySeasonNum = parseInt(entry.showId.match(/_s(\d+)$/)?.[1] || 0);
+          return entrySeasonNum === currentSeasonNum + 1;
+        }
+        return ["Prequel", "Adaptation"].includes(entry.NameEntries);
+      }
+    });
+
+    // Mapeia os resultados finais
+    related = related.map(entry => ({
+      ...entry,
+      coverImage: getShowCoverSrc(entry.showId),
+      isManga: entry.Type2 === "Manga",
+      isAnime: entry.Type2 === "Anime",
+      displayName: animeData.Type2 === "Manga" 
+        ? entry.NameEntriesManga || entry.NameEntries 
+        : entry.NameEntries,
+    }));
+
+    console.log("All entries:", results.data);
+console.log("Filtered entries:", related);
     setRelatedEntries(related);
     setLoading(false);
   },
@@ -152,7 +162,7 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
         style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
       >
         <div style={{ display: "flex", alignItems: "center" }}>
-          {isAnime && (
+          {entry.isAnime && (
             <span
               style={{
                 color: "#000",
@@ -163,7 +173,7 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
               {entry.displayName} ({entry.Type})
             </span>
           )}
-          {isManga && (
+          {entry.isManga && (
             <span
               style={{
                 color: "#000",
@@ -2785,6 +2795,8 @@ function MyAnimeList({ match }) {
                                                   height: "60px",
                                                   display: "grid",
                                                   alignContent: "end",
+                                                  position: "absolute",
+                                                  left: "103px",
                                                 }}
                                               >
                                                 <div
@@ -2992,8 +3004,8 @@ function MyAnimeList({ match }) {
                                                   height: "60px",
                                                   display: "grid",
                                                   alignContent: "end",
-                                                  position: "relative",
-                                                  right: "-0.3px",
+                                                  position: "absolute",
+                                                  left: "103px",
                                                 }}
                                               >
                                                 <div

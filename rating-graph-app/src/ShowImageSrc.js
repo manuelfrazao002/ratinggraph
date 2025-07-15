@@ -51,6 +51,16 @@ export const getVoiceActorSrc = (showId, noCache = false) => {
  * @param {string} showId - Show identifier
  * @param {boolean} noCache - Bypass browser cache
  */
+export const getStaffSrc = (showId, noCache = false) => {
+  const publicId = `rating-graph/staff/staff_${showId}`;
+  return getCacheFreeUrl(publicId, noCache);
+};
+
+/**
+ * Generates Cloudinary URL for trailer image
+ * @param {string} showId - Show identifier
+ * @param {boolean} noCache - Bypass browser cache
+ */
 export const getTrailerSrc = (showId, noCache = false) => {
   const publicId = `rating-graph/trailers/trailer_${showId}`;
   return getCacheFreeUrl(publicId, noCache);

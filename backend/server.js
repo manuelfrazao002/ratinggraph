@@ -73,6 +73,12 @@ const createStorage = (type) => {
             folder: 'rating-graph/voiceactors',
             public_id: `voiceactor_${req.params.movieId}`
           };
+          case 'staff':
+          return {
+            ...baseParams,
+            folder: 'rating-graph/staff',
+            public_id: `staff_${req.params.movieId}`
+          };
         default:
           throw new Error(`Tipo de upload inválido: ${type}`);
       }
@@ -98,6 +104,11 @@ const uploadCharacter = multer({
 
 const uploadVoiceActor = multer({ 
   storage: createStorage('voiceactor'),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+const uploadStaff = multer({ 
+  storage: createStorage('staff'),
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
@@ -148,6 +159,7 @@ app.post('/upload/cover/:movieId', authenticate, uploadCover.single('image'), ha
 app.post('/upload/trailer/:movieId', authenticate, uploadTrailer.single('image'), handleSingleUpload);
 app.post('/upload/characters/:movieId', authenticate, uploadCharacter.single('image'), handleSingleUpload);
 app.post('/upload/voiceactors/:movieId', authenticate, uploadVoiceActor.single('image'), handleSingleUpload);
+app.post('/upload/staff/:movieId', authenticate, uploadStaff.single('image'), handleSingleUpload);
 app.post('/upload/episode/:movieId/:seasonNum', authenticate, uploadEpisode.array('episodes', 10), handleEpisodeUpload);
 
 // Endpoint para deletar com invalidação de cache
