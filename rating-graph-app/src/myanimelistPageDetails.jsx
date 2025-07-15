@@ -19,6 +19,7 @@ import RatingBarManga from "../public/imgs/mal/ratingbar_manga.png";
 import MalxJapan from "../public/imgs/mal/malxjapan.png";
 import ReadMangaMirai from "../public/imgs/mal/readmangamirai.png";
 import ReadSample from "../public/imgs/mal/readsample.png";
+import NotifyStart from "../public/imgs/mal/notifystart.png";
 
 function RelatedEntries({ seriesId, currentId, csvUrl }) {
   const { id } = useParams();
@@ -176,40 +177,887 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
     </li>
   );
 
-  if (loading)
-    return <div style={{ padding: "5px 0" }}>Loading related entries...</div>;
   if (error)
     return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
-  if (!relatedEntries.length)
-    return <div style={{ padding: "5px 0" }}>No related entries found.</div>;
+  if (relatedEntries.length <= 1) return null;
 
   // Divide os itens em duas colunas
   const half = Math.ceil(relatedEntries.length / 2);
   const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];
 
   return (
-    <div style={{ display: "flex" }}>
-      {columns.map((column, index, entry, itemIndex) => (
-        <React.Fragment key={entry.showId} entry={entry} index={itemIndex}>
-          {index > 0 && (
-            <div
+    <>
+      <div
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
+          }}
+        >
+          Related Entries
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          Edit
+        </span>
+      </div>
+      <div style={{ display: "flex" }}>
+        {columns.map((column, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && (
+              <div
+                style={{
+                  width: "1px",
+                  backgroundColor: "#e5e5e5",
+                  margin: "0 8px",
+                }}
+              />
+            )}
+            <div style={{ width: "392px" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
+                {column.map(renderEntryItem)}
+              </ul>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function CharactersVoiceActorsEntries({ seriesId, currentId, csvUrl }) {
+  const { id } = useParams();
+  const [relatedEntries, setRelatedEntries] = useState([]);
+  const [animeData, setAnimeData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Função para carregar os dados
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Carrega dados do anime principal
+      const baseId = id.replace(/_\w+$/, "");
+      const animeCsvUrl = animeMap[baseId]?.[1];
+      if (!animeCsvUrl) throw new Error("Base anime data not found");
+
+      const [animeResponse, relatedResponse] = await Promise.all([
+        fetch(animeCsvUrl),
+        fetch(csvUrl),
+      ]);
+
+      const [animeCsvText, relatedCsvText] = await Promise.all([
+        animeResponse.text(),
+        relatedResponse.text(),
+      ]);
+
+      // Processa os dados do anime principal
+      Papa.parse(animeCsvText, {
+        header: true,
+        complete: (results) => {
+          const anime = results.data.find((item) => item.showId === id);
+          if (anime) setAnimeData(anime);
+          else throw new Error(`Anime with id ${id} not found`);
+        },
+        error: () => {
+          throw new Error("Error parsing anime CSV");
+        },
+      });
+
+      // Processa os dados relacionados
+      Papa.parse(relatedCsvText, {
+        header: true,
+        complete: (results) => {
+          const related = results.data
+            .filter(
+              (entry) => entry.showId !== currentId && entry.Series === seriesId
+            )
+            .map((entry) => ({
+              ...entry,
+              coverImage: getShowCoverSrc(entry.showId) || getDefaultCover(),
+              isManga: entry.Type2 === "Manga",
+              isAnime: entry.Type2 === "Anime",
+              displayName:
+                entry.Type2 === "Manga"
+                  ? entry.NameEntriesManga || entry.NameEntries
+                  : entry.NameEntries,
+            }));
+
+          setRelatedEntries(related);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing related entries CSV");
+        },
+      });
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, [id, currentId, seriesId, csvUrl]);
+
+  // Carrega os dados inicialmente e configura polling
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Atualiza os dados quando lastUpdate muda
+  useEffect(() => {
+    loadData();
+  }, [lastUpdate, loadData]);
+
+  const isManga = animeData.Type2 === "Manga";
+  const isAnime = animeData.Type2 === "Anime";
+
+  // Componente de renderização de item
+  const renderEntryItem = (entry, index) => (
+    <li
+      key={entry.showId}
+      style={{
+        backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
+        borderBottom: "1px solid #e5e5e5",
+        display: "flex",
+        height: "78px",
+      }}
+    >
+      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+        <img
+          src={entry.coverImage}
+          alt=""
+          style={{
+            width: "50px",
+            height: "70px",
+            border: "1px solid #bebebe",
+            objectFit: "cover",
+          }}
+          onError={(e) => {
+            e.target.src = getDefaultCover();
+          }}
+        />
+      </div>
+      <div
+        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {isAnime && (
+            <span
               style={{
-                width: "1px",
-                backgroundColor: "#e5e5e5",
-                margin: "0 8px",
+                color: "#000",
+                fontSize: "11px",
+                marginRight: "8px",
               }}
-            />
-          )}
-          <div style={{ width: "392px" }}>
-            <ul
-              style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
             >
-              {column.map(renderEntryItem)}
-            </ul>
-          </div>
-        </React.Fragment>
-      ))}
-    </div>
+              {entry.displayName} ({entry.Type})
+            </span>
+          )}
+          {isManga && (
+            <span
+              style={{
+                color: "#000",
+                fontSize: "11px",
+                marginRight: "8px",
+              }}
+            >
+              {entry.NameEntriesManga} ({entry.Type})
+            </span>
+          )}
+        </div>
+        <Link
+          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+          style={{
+            color: "#1c439b",
+            textDecoration: "none",
+            fontSize: "11px",
+            lineHeight: "1.5em",
+            ":hover": { textDecoration: "underline" },
+            marginBottom: "3px",
+          }}
+        >
+          {entry.TitleJapanese || entry.Title}
+        </Link>
+      </div>
+    </li>
+  );
+
+  if (error)
+    return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
+  if (relatedEntries.length < 1)
+    return (
+  <>
+  <div
+                            style={{
+                              borderColor: "#bebebe",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              margin: "4px 0 5px",
+                              padding: "3px 0",
+                              height: "16.5px",
+                            }}
+                          >
+                            <h2
+                              style={{
+                                fontSize: "12px",
+                                color: "#000",
+                                fontWeight: "700",
+                                margin: "0",
+                              }}
+                            >
+                              Characters & Voice Actors
+                            </h2>
+                            <span
+                              style={{
+                                fontWeight: "normal",
+                                fontSize: "11px",
+                                color: "#1c439b",
+                                height: "16.5px",
+                                paddingRight: "2px",
+                              }}
+                            >
+                              More characters
+                            </span>
+                          </div>
+      <span style={{ color: "#000" }}>
+        No characters or voice actors have been added to this title. Help improve our database by
+        adding characters or voice actors{" "}
+        <span style={{ color: "#1c439b" }}>here</span>.
+      </span>
+      </>
+    );
+
+  // Divide os itens em duas colunas
+  const half = Math.ceil(relatedEntries.length / 2);
+  const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];
+
+  return (
+    <>
+      <div
+                            style={{
+                              borderColor: "#bebebe",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              margin: "4px 0 5px",
+                              padding: "3px 0",
+                              height: "16.5px",
+                            }}
+                          >
+                            <h2
+                              style={{
+                                fontSize: "12px",
+                                color: "#000",
+                                fontWeight: "700",
+                                margin: "0",
+                              }}
+                            >
+                              Characters & Voice Actors
+                            </h2>
+                            <span
+                              style={{
+                                fontWeight: "normal",
+                                fontSize: "11px",
+                                color: "#1c439b",
+                                height: "16.5px",
+                                paddingRight: "2px",
+                              }}
+                            >
+                              More characters
+                            </span>
+                          </div>
+      <div style={{ display: "flex" }}>
+        {columns.map((column, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && (
+              <div
+                style={{
+                  width: "1px",
+                  backgroundColor: "#e5e5e5",
+                  margin: "0 8px",
+                }}
+              />
+            )}
+            <div style={{ width: "392px" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
+                {column.map(renderEntryItem)}
+              </ul>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function Characters({ seriesId, currentId, csvUrl }) {
+  const { id } = useParams();
+  const [relatedEntries, setRelatedEntries] = useState([]);
+  const [animeData, setAnimeData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Função para carregar os dados
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Carrega dados do anime principal
+      const baseId = id.replace(/_\w+$/, "");
+      const animeCsvUrl = animeMap[baseId]?.[1];
+      if (!animeCsvUrl) throw new Error("Base anime data not found");
+
+      const [animeResponse, relatedResponse] = await Promise.all([
+        fetch(animeCsvUrl),
+        fetch(csvUrl),
+      ]);
+
+      const [animeCsvText, relatedCsvText] = await Promise.all([
+        animeResponse.text(),
+        relatedResponse.text(),
+      ]);
+
+      // Processa os dados do anime principal
+      Papa.parse(animeCsvText, {
+        header: true,
+        complete: (results) => {
+          const anime = results.data.find((item) => item.mangaId === id);
+          if (anime) setAnimeData(anime);
+          else throw new Error(`Character with id ${id} not found`);
+        },
+        error: () => {
+          throw new Error("Error parsing anime CSV");
+        },
+      });
+
+      // Processa os dados relacionados
+      Papa.parse(relatedCsvText, {
+        header: true,
+        complete: (results) => {
+          const related = results.data
+            .filter(
+              (entry) => entry.showId !== currentId && entry.Series === seriesId
+            )
+            .map((entry) => ({
+              ...entry,
+              coverImage: getShowCoverSrc(entry.showId) || getDefaultCover(),
+              isManga: entry.Type2 === "Manga",
+              isAnime: entry.Type2 === "Anime",
+              displayName:
+                entry.Type2 === "Manga"
+                  ? entry.NameEntriesManga || entry.NameEntries
+                  : entry.NameEntries,
+            }));
+
+          setRelatedEntries(related);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing related entries CSV");
+        },
+      });
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, [id, currentId, seriesId, csvUrl]);
+
+  // Carrega os dados inicialmente e configura polling
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Atualiza os dados quando lastUpdate muda
+  useEffect(() => {
+    loadData();
+  }, [lastUpdate, loadData]);
+
+  const isManga = animeData.Type2 === "Manga";
+  const isAnime = animeData.Type2 === "Anime";
+
+  // Componente de renderização de item
+  const renderEntryItem = (entry, index) => (
+    <li
+      key={entry.showId}
+      style={{
+        backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
+        borderBottom: "1px solid #e5e5e5",
+        display: "flex",
+        height: "78px",
+      }}
+    >
+      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+        <img
+          src={entry.coverImage}
+          alt=""
+          style={{
+            width: "50px",
+            height: "70px",
+            border: "1px solid #bebebe",
+            objectFit: "cover",
+          }}
+          onError={(e) => {
+            e.target.src = getDefaultCover();
+          }}
+        />
+      </div>
+      <div
+        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {isAnime && (
+            <span
+              style={{
+                color: "#000",
+                fontSize: "11px",
+                marginRight: "8px",
+              }}
+            >
+              {entry.displayName} ({entry.Type})
+            </span>
+          )}
+          {isManga && (
+            <span
+              style={{
+                color: "#000",
+                fontSize: "11px",
+                marginRight: "8px",
+              }}
+            >
+              {entry.NameEntriesManga} ({entry.Type})
+            </span>
+          )}
+        </div>
+        <Link
+          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+          style={{
+            color: "#1c439b",
+            textDecoration: "none",
+            fontSize: "11px",
+            lineHeight: "1.5em",
+            ":hover": { textDecoration: "underline" },
+            marginBottom: "3px",
+          }}
+        >
+          {entry.TitleJapanese || entry.Title}
+        </Link>
+      </div>
+    </li>
+  );
+
+  if (error)
+    return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
+  if (relatedEntries.length < 1)
+    return (
+  <>
+  <div
+                            style={{
+                              borderColor: "#bebebe",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              margin: "4px 0 5px",
+                              padding: "3px 0",
+                              height: "16.5px",
+                            }}
+                          >
+                            <h2
+                              style={{
+                                fontSize: "12px",
+                                color: "#000",
+                                fontWeight: "700",
+                                margin: "0",
+                              }}
+                            >
+                              Characters
+                            </h2>
+                            <span
+                              style={{
+                                fontWeight: "normal",
+                                fontSize: "11px",
+                                color: "#1c439b",
+                                height: "16.5px",
+                                paddingRight: "2px",
+                              }}
+                            >
+                              More characters
+                            </span>
+                          </div>
+      <span style={{ color: "#000" }}>
+        No characters have been added to this title. Help improve our database by
+        adding characters or voice actors{" "}
+        <span style={{ color: "#1c439b" }}>here</span>.
+      </span>
+      </>
+    );
+
+  // Divide os itens em duas colunas
+  const half = Math.ceil(relatedEntries.length / 2);
+  const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];
+
+  return (
+    <>
+      <div
+                            style={{
+                              borderColor: "#bebebe",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              margin: "4px 0 5px",
+                              padding: "3px 0",
+                              height: "16.5px",
+                            }}
+                          >
+                            <h2
+                              style={{
+                                fontSize: "12px",
+                                color: "#000",
+                                fontWeight: "700",
+                                margin: "0",
+                              }}
+                            >
+                              Characters
+                            </h2>
+                            <span
+                              style={{
+                                fontWeight: "normal",
+                                fontSize: "11px",
+                                color: "#1c439b",
+                                height: "16.5px",
+                                paddingRight: "2px",
+                              }}
+                            >
+                              More characters
+                            </span>
+                          </div>
+      <div style={{ display: "flex" }}>
+        {columns.map((column, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && (
+              <div
+                style={{
+                  width: "1px",
+                  backgroundColor: "#e5e5e5",
+                  margin: "0 8px",
+                }}
+              />
+            )}
+            <div style={{ width: "392px" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
+                {column.map(renderEntryItem)}
+              </ul>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function StaffEntries({ seriesId, currentId, csvUrl }) {
+  const { id } = useParams();
+  const [relatedEntries, setRelatedEntries] = useState([]);
+  const [animeData, setAnimeData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Função para carregar os dados
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Carrega dados do anime principal
+      const baseId = id.replace(/_\w+$/, "");
+      const animeCsvUrl = animeMap[baseId]?.[3];
+      if (!animeCsvUrl) throw new Error("Base anime data not found");
+
+      const [animeResponse, relatedResponse] = await Promise.all([
+        fetch(animeCsvUrl),
+        fetch(csvUrl),
+      ]);
+
+      const [animeCsvText, relatedCsvText] = await Promise.all([
+        animeResponse.text(),
+        relatedResponse.text(),
+      ]);
+
+      // Processa os dados do anime principal
+      Papa.parse(animeCsvText, {
+        header: true,
+        complete: (results) => {
+          const anime = results.data.find((item) => item.showId === id);
+          if (anime) setAnimeData(anime);
+          else throw new Error(`Anime with id ${id} not found`);
+        },
+        error: () => {
+          throw new Error("Error parsing anime CSV");
+        },
+      });
+
+      // Processa os dados relacionados
+      Papa.parse(relatedCsvText, {
+        header: true,
+        complete: (results) => {
+          const related = results.data
+            .filter(
+              (entry) => entry.showId !== currentId && entry.Series === seriesId
+            )
+            .map((entry) => ({
+              ...entry,
+              coverImage: getShowCoverSrc(entry.showId) || getDefaultCover(),
+              isManga: entry.Type2 === "Manga",
+              isAnime: entry.Type2 === "Anime",
+              displayName:
+                entry.Type2 === "Manga"
+                  ? entry.NameEntriesManga || entry.NameEntries
+                  : entry.NameEntries,
+            }));
+
+          setRelatedEntries(related);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing related entries CSV");
+        },
+      });
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, [id, currentId, seriesId, csvUrl]);
+
+  // Carrega os dados inicialmente e configura polling
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Atualiza os dados quando lastUpdate muda
+  useEffect(() => {
+    loadData();
+  }, [lastUpdate, loadData]);
+
+  const isManga = animeData.Type2 === "Manga";
+  const isAnime = animeData.Type2 === "Anime";
+
+  // Componente de renderização de item
+  const renderEntryItem = (entry, index) => (
+    <li
+      key={entry.showId}
+      style={{
+        backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
+        borderBottom: "1px solid #e5e5e5",
+        display: "flex",
+        height: "78px",
+      }}
+    >
+      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+        <img
+          src={entry.coverImage}
+          alt=""
+          style={{
+            width: "50px",
+            height: "70px",
+            border: "1px solid #bebebe",
+            objectFit: "cover",
+          }}
+          onError={(e) => {
+            e.target.src = getDefaultCover();
+          }}
+        />
+      </div>
+      <div
+        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {isAnime && (
+            <span
+              style={{
+                color: "#000",
+                fontSize: "11px",
+                marginRight: "8px",
+              }}
+            >
+              {entry.displayName} ({entry.Type})
+            </span>
+          )}
+          {isManga && (
+            <span
+              style={{
+                color: "#000",
+                fontSize: "11px",
+                marginRight: "8px",
+              }}
+            >
+              {entry.NameEntriesManga} ({entry.Type})
+            </span>
+          )}
+        </div>
+        <Link
+          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+          style={{
+            color: "#1c439b",
+            textDecoration: "none",
+            fontSize: "11px",
+            lineHeight: "1.5em",
+            ":hover": { textDecoration: "underline" },
+            marginBottom: "3px",
+          }}
+        >
+          {entry.TitleJapanese || entry.Title}
+        </Link>
+      </div>
+    </li>
+  );
+
+  if (error)
+    return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
+  if (relatedEntries.length < 1)
+    return (
+  <>
+  <div
+                            style={{
+                              borderColor: "#bebebe",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              margin: "4px 0 5px",
+                              padding: "3px 0",
+                              height: "16.5px",
+                            }}
+                          >
+                            <h2
+                              style={{
+                                fontSize: "12px",
+                                color: "#000",
+                                fontWeight: "700",
+                                margin: "0",
+                              }}
+                            >
+                              Staff
+                            </h2>
+                            <span
+                              style={{
+                                fontWeight: "normal",
+                                fontSize: "11px",
+                                color: "#1c439b",
+                                height: "16.5px",
+                                paddingRight: "2px",
+                              }}
+                            >
+                              More staff
+                            </span>
+                          </div>
+      <span style={{ color: "#000" }}>
+        No staff has been added to this title. Help improve our database by
+        adding characters or voice actors{" "}
+        <span style={{ color: "#1c439b" }}>here</span>.
+      </span>
+      </>
+    );
+
+  // Divide os itens em duas colunas
+  const half = Math.ceil(relatedEntries.length / 2);
+  const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];
+
+  return (
+    <>
+      <div
+                            style={{
+                              borderColor: "#bebebe",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              margin: "4px 0 5px",
+                              padding: "3px 0",
+                              height: "16.5px",
+                            }}
+                          >
+                            <h2
+                              style={{
+                                fontSize: "12px",
+                                color: "#000",
+                                fontWeight: "700",
+                                margin: "0",
+                              }}
+                            >
+                              Staff
+                            </h2>
+                            <span
+                              style={{
+                                fontWeight: "normal",
+                                fontSize: "11px",
+                                color: "#1c439b",
+                                height: "16.5px",
+                                paddingRight: "2px",
+                              }}
+                            >
+                              More staff
+                            </span>
+                          </div>
+      <div style={{ display: "flex" }}>
+        {columns.map((column, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && (
+              <div
+                style={{
+                  width: "1px",
+                  backgroundColor: "#e5e5e5",
+                  margin: "0 8px",
+                }}
+              />
+            )}
+            <div style={{ width: "392px" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
+                {column.map(renderEntryItem)}
+              </ul>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -311,12 +1159,12 @@ function MyAnimeList({ match }) {
       >
         <header>
           <div>
-            <Link to={`/myanimelist/list`}>                                                         
-            <img
-              src={Top}
-              alt="My Anime List"
-              style={{ marginBottom: "-6px" }}
-            />
+            <Link to={`/myanimelist/list`}>
+              <img
+                src={Top}
+                alt="My Anime List"
+                style={{ marginBottom: "-6px" }}
+              />
             </Link>
             <img
               src={Navbar_mal}
@@ -423,6 +1271,13 @@ function MyAnimeList({ match }) {
                           }}
                         />
                       </div>
+                      {animeData.BeginningDate === "?" && (
+                        <img
+                          src={NotifyStart}
+                          alt=""
+                          style={{ marginTop: "4px" }}
+                        />
+                      )}
                       {isAnime && (
                         <div style={{ paddingTop: "8px" }}>
                           <div
@@ -910,7 +1765,12 @@ function MyAnimeList({ match }) {
                         <span style={{ color: "#444", fontWeight: "700" }}>
                           Type:{" "}
                         </span>
-                        <span style={{ color: "#1c439b" }}>
+                        <span
+                          style={{
+                            color:
+                              animeData.Type != "Unknown" ? "#1c439b" : "#000",
+                          }}
+                        >
                           {animeData.Type || "N/A"}
                         </span>
                       </div>
@@ -979,8 +1839,15 @@ function MyAnimeList({ match }) {
                           <span style={{ color: "#444", fontWeight: "700" }}>
                             Aired:{" "}
                           </span>
-                          {formatDate(animeData.BeginningDate)} to{" "}
-                          {formatDate(animeData.EndingDate)}
+                          {animeData.BeginningDate != "?" && (
+                            <>
+                              {formatDate(animeData.BeginningDate)} to{" "}
+                              {formatDate(animeData.EndingDate)}
+                            </>
+                          )}
+                          {animeData.BeginningDate === "?" && (
+                            <span>Not available</span>
+                          )}
                         </div>
                       )}
                       {isManga && (
@@ -998,7 +1865,7 @@ function MyAnimeList({ match }) {
                           {formatDate(animeData.EndingDate)}
                         </div>
                       )}
-                      {isAnime && (
+                      {animeData.Premiered != "Unknown" && isAnime && (
                         <div
                           style={{
                             padding: "3px 0",
@@ -1014,7 +1881,7 @@ function MyAnimeList({ match }) {
                           </span>
                         </div>
                       )}
-                      {isAnime && (
+                      {animeData.Premiered != "Unknown" && isAnime && (
                         <div
                           style={{
                             padding: "3px 0",
@@ -1055,9 +1922,21 @@ function MyAnimeList({ match }) {
                           <span style={{ color: "#444", fontWeight: "700" }}>
                             Licensors:{" "}
                           </span>
-                          <span style={{ color: "#1c439b" }}>
-                            {animeData.Licensors || "N/A"}
-                          </span>
+                          {animeData.BeginningDate != "?" && (
+                            <span style={{ color: "#1c439b" }}>
+                              {animeData.Licensors || "N/A"}
+                            </span>
+                          )}
+                          {animeData.BeginningDate === "?" && (
+                            <>
+                              <span>
+                                None found,{" "}
+                                <span style={{ color: "#1c439b" }}>
+                                  add some
+                                </span>
+                              </span>
+                            </>
+                          )}
                         </div>
                       )}
                       {isAnime && (
@@ -1087,9 +1966,14 @@ function MyAnimeList({ match }) {
                           <span style={{ color: "#444", fontWeight: "700" }}>
                             Source:{" "}
                           </span>
-                          <span style={{ color: "#1c439b" }}>
-                            {animeData.Source || "N/A"}
-                          </span>
+                          {animeData.Source != "Original" && (
+                            <span style={{ color: "#1c439b" }}>
+                              {animeData.Source || "N/A"}
+                            </span>
+                          )}
+                          {animeData.Source === "Original" && (
+                            <span>Original</span>
+                          )}
                         </div>
                       )}
                       <div
@@ -1145,7 +2029,10 @@ function MyAnimeList({ match }) {
                           <span style={{ color: "#444", fontWeight: "700" }}>
                             Duration:{" "}
                           </span>
-                          {animeData.Duration || "N/A"}
+                          {animeData.BeginningDate != "?" && (
+                            <>{animeData.Duration || "N/A"}</>
+                          )}
+                          {animeData.BeginningDate === "?" && <>Unknown</>}
                         </div>
                       )}
                       {isAnime && (
@@ -1803,11 +2690,33 @@ function MyAnimeList({ match }) {
                                                     paddingLeft: "3px",
                                                   }}
                                                 >
+                                                  {animeData.Premiered !=
+                                                    "Unknown" && (
+                                                    <span
+                                                      style={{
+                                                        borderRight:
+                                                          "#bebebe 1px solid",
+                                                        color: "#1c439b",
+                                                        fontFamily:
+                                                          "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                                        fontSize: "10px",
+                                                        marginRight: "12px",
+                                                        paddingRight: "12px",
+                                                      }}
+                                                    >
+                                                      {animeData.Premiered ||
+                                                        "N/A"}
+                                                    </span>
+                                                  )}
                                                   <span
                                                     style={{
                                                       borderRight:
                                                         "#bebebe 1px solid",
-                                                      color: "#1c439b",
+                                                      color:
+                                                        animeData.Type !=
+                                                        "Unknown"
+                                                          ? "#1c439b"
+                                                          : "#000",
                                                       fontFamily:
                                                         "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
                                                       fontSize: "10px",
@@ -1815,21 +2724,7 @@ function MyAnimeList({ match }) {
                                                       paddingRight: "12px",
                                                     }}
                                                   >
-                                                    {animeData.Season || "N/A"}
-                                                  </span>
-                                                  <span
-                                                    style={{
-                                                      borderRight:
-                                                        "#bebebe 1px solid",
-                                                      color: "#1c439b",
-                                                      fontFamily:
-                                                        "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                                      fontSize: "10px",
-                                                      marginRight: "12px",
-                                                      paddingRight: "12px",
-                                                    }}
-                                                  >
-                                                    {animeData.Type || "N/A"}
+                                                    {animeData.Type}
                                                   </span>
                                                   <span
                                                     style={{
@@ -2353,78 +3248,50 @@ function MyAnimeList({ match }) {
                           [Written by MAL Rewrite]
                         </span>
                         <div style={{ marginBottom: "15px" }} />
-                        <div
-                          style={{
-                            borderColor: "#bebebe",
-                            borderStyle: "solid",
-                            borderWidth: "0 0 1px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            margin: "4px 0 5px",
-                            padding: "3px 0",
-                            height: "16.5px",
-                          }}
-                        >
-                          <h2
-                            style={{
-                              fontSize: "12px",
-                              color: "#000",
-                              fontWeight: "700",
-                              margin: "0",
-                            }}
-                          >
-                            Background
-                          </h2>
-                          <span
-                            style={{
-                              fontWeight: "normal",
-                              fontSize: "11px",
-                              color: "#1c439b",
-                              height: "16.5px",
-                              paddingRight: "2px",
-                            }}
-                          >
-                            Edit
-                          </span>
-                        </div>
-                        <i>{animeData.TitleJapanese}</i> {animeData.Background}
+                        {animeData.BeginningDate != "?" &&
+                          animeData.Background != "-" && (
+                            <>
+                              <div
+                                style={{
+                                  borderColor: "#bebebe",
+                                  borderStyle: "solid",
+                                  borderWidth: "0 0 1px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  margin: "4px 0 5px",
+                                  padding: "3px 0",
+                                  height: "16.5px",
+                                }}
+                              >
+                                <h2
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#000",
+                                    fontWeight: "700",
+                                    margin: "0",
+                                  }}
+                                >
+                                  Background
+                                </h2>
+                                <span
+                                  style={{
+                                    fontWeight: "normal",
+                                    fontSize: "11px",
+                                    color: "#1c439b",
+                                    height: "16.5px",
+                                    paddingRight: "2px",
+                                  }}
+                                >
+                                  Edit
+                                </span>
+                              </div>
+                              <i>{animeData.TitleJapanese}</i>{" "}
+                              {animeData.Background}
+                            </>
+                          )}
                         <div style={{ marginBottom: "28px" }} />
-                        <div
-                          style={{
-                            borderColor: "#bebebe",
-                            borderStyle: "solid",
-                            borderWidth: "0 0 1px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            margin: "4px 0 5px",
-                            padding: "3px 0",
-                            height: "16.5px",
-                          }}
-                        >
-                          <h2
-                            style={{
-                              fontSize: "12px",
-                              color: "#000",
-                              fontWeight: "700",
-                              margin: "0",
-                            }}
-                          >
-                            Related Entries
-                          </h2>
-                          <span
-                            style={{
-                              fontWeight: "normal",
-                              fontSize: "11px",
-                              color: "#1c439b",
-                              height: "16.5px",
-                              paddingRight: "2px",
-                            }}
-                          >
-                            Edit
-                          </span>
-                        </div>
+
                         <div style={{ fontSize: "11px", lineHeight: "1.5em" }}>
                           {animeData.Series &&
                           animeMap[animeData.Series]?.[0] ? (
@@ -2474,141 +3341,50 @@ function MyAnimeList({ match }) {
                           </span>
                         </div>
                         <img src={MalxJapan} alt="" />
-                        <div style={{ marginBottom: "15px" }} />
-                        {isAnime && (
+                        <div style={{ marginBottom: "24px" }} />
+                        {animeData.BeginningDate != "?" && isAnime && (
                           <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
+                            style={{ fontSize: "11px", lineHeight: "1.5em" }}
                           >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Characters & Voice Actors
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More characters
-                            </span>
+                            {animeData.Series &&
+                            animeMap[animeData.Series]?.[0] ? (
+                              <CharactersVoiceActorsEntries
+                                seriesId={animeData.Series}
+                                currentId={id}
+                                csvUrl={animeMap[animeData.Series][1]}
+                              />
+                            ) : (
+                              "No related entries found."
+                            )}
                           </div>
                         )}
-                        {isManga && (
+                                                {animeData.BeginningDate != "?" && isManga && (
                           <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
+                            style={{ fontSize: "11px", lineHeight: "1.5em" }}
                           >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Characters
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More characters
-                            </span>
+                            {animeData.Series &&
+                            animeMap[animeData.Series]?.[0] ? (
+                              <Characters
+                                seriesId={animeData.Series}
+                                currentId={id}
+                                csvUrl={animeMap[animeData.Series][1]}
+                              />
+                            ) : (
+                              "No related entries found."
+                            )}
                           </div>
                         )}
-                        <div style={{ fontSize: "11px", lineHeight: "1.5em" }}>
-                          {animeData.Series &&
-                          animeMap[animeData.Series]?.[0] ? (
-                            <RelatedEntries
-                              seriesId={animeData.Series}
-                              currentId={id}
-                              csvUrl={animeMap[animeData.Series][0]}
-                            />
-                          ) : (
-                            "No related entries found."
-                          )}
-                        </div>
-                        <div style={{ marginBottom: "15px" }} />
-                        {isAnime && (
-                          <div
-                            style={{
-                              borderColor: "#bebebe",
-                              borderStyle: "solid",
-                              borderWidth: "0 0 1px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              margin: "4px 0 5px",
-                              padding: "3px 0",
-                              height: "16.5px",
-                            }}
-                          >
-                            <h2
-                              style={{
-                                fontSize: "12px",
-                                color: "#000",
-                                fontWeight: "700",
-                                margin: "0",
-                              }}
-                            >
-                              Staff
-                            </h2>
-                            <span
-                              style={{
-                                fontWeight: "normal",
-                                fontSize: "11px",
-                                color: "#1c439b",
-                                height: "16.5px",
-                                paddingRight: "2px",
-                              }}
-                            >
-                              More staff
-                            </span>
-                          </div>
-                        )}
+                        <div style={{ marginBottom: "20px" }} />
                         {isAnime && (
                           <div
                             style={{ fontSize: "11px", lineHeight: "1.5em" }}
                           >
                             {animeData.Series &&
                             animeMap[animeData.Series]?.[0] ? (
-                              <RelatedEntries
+                              <StaffEntries
                                 seriesId={animeData.Series}
                                 currentId={id}
-                                csvUrl={animeMap[animeData.Series][0]}
+                                csvUrl={animeMap[animeData.Series][3]}
                               />
                             ) : (
                               "No related entries found."

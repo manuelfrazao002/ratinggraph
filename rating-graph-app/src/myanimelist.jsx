@@ -107,9 +107,11 @@ const AnimeItem = ({ anime, index }) => {
             {anime.Type && (
               <span style={{ color: "#1c439b" }}>{anime.Type}</span>
             )}
-            <p style={{ margin: 0, width: "46.2px", textAlign: "end" }}>
+            {anime.Episodes != "Unknown" && (
+            <p style={{ margin: 0, textAlign: "end", marginLeft:"4px"}}>
               ({anime.Episodes} eps)
             </p>
+            )}
           </div>
           {anime.Score && <span>Scored {anime.Score}</span>}
           {anime.Members && <span>{anime.Members} members</span>}
@@ -121,7 +123,7 @@ const AnimeItem = ({ anime, index }) => {
 
 async function fetchAnimeData(csvUrl) {
   try {
-    const response = await fetch(csvUrl);
+    const response = await fetch(csvUrl[0]);
     if (!response.ok) throw new Error("Network response was not ok");
 
     const csvText = await response.text();
