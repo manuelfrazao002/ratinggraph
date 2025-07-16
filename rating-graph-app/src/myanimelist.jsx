@@ -104,8 +104,11 @@ const AnimeItem = ({ anime, index }) => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            {anime.Type && (
+            {anime.Type != "Unknown" && (
               <span style={{ color: "#1c439b" }}>{anime.Type}</span>
+            )}
+            {anime.Type === "Unknown" && (
+              <span>{anime.Type}</span>
             )}
             {anime.Episodes != "Unknown" && (
             <p style={{ margin: 0, textAlign: "end", marginLeft:"4px"}}>
