@@ -23,6 +23,8 @@ import MalxJapan from "../public/imgs/mal/malxjapan.png";
 import ReadMangaMirai from "../public/imgs/mal/readmangamirai.png";
 import ReadSample from "../public/imgs/mal/readsample.png";
 import NotifyStart from "../public/imgs/mal/notifystart.png";
+import MV from "../public/imgs/mal/mv.png";
+import Play from "../public/imgs/mal/play.png";
 
 function RelatedEntries({ seriesId, currentId, csvUrl }) {
   const { id } = useParams();
@@ -54,44 +56,48 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
 
       // Processa os dados do anime principal
       const animeData = await new Promise((resolve, reject) => {
-      Papa.parse(animeCsvText, {
-        header: true,
-        complete: (results) => {
-          const anime = results.data.find((item) => item.showId === id);
-          if (anime) resolve(anime);
-          else reject(new Error(`Anime with id ${id} not found`));
-        },
-        error: (err) => reject(new Error("Error parsing anime CSV")),
+        Papa.parse(animeCsvText, {
+          header: true,
+          complete: (results) => {
+            const anime = results.data.find((item) => item.showId === id);
+            if (anime) resolve(anime);
+            else reject(new Error(`Anime with id ${id} not found`));
+          },
+          error: (err) => reject(new Error("Error parsing anime CSV")),
+        });
       });
-    });
 
       // Processa os dados relacionados
-Papa.parse(relatedCsvText, {
+      Papa.parse(relatedCsvText, {
   header: true,
   complete: (results) => {
     console.log("Total de entradas no CSV:", results.data.length);
-    console.log("Primeiras entradas:", results.data);    
+    console.log("Primeiras entradas:", results.data);
     const currentSeasonNum = parseInt(currentId.match(/_s(\d+)$/)?.[1] || 0);
 
-    // Primeiro filtra por série e remove o currentId
-        // Filtra por série e remove o currentId
+    // Filtra por série e remove o currentId
     let related = results.data.filter(entry => entry.showId !== currentId);
 
-    
     related = related.filter(entry => {
-      const isManga = animeData.Type2 === "Manga"; // Verifica o tipo desta entrada específica
+      const isManga = animeData.Type2 === "Manga";
       console.log("Tipo do anime:", isManga);
 
       if (isManga) {
-        // Se for manga: mostra Adaptations, Sequels e Prequels
         return ["Adaptation"].includes(entry.NameEntriesManga);
       } else {
-        // Se for anime:
-        if (entry.NameEntries === "Sequel") {
-          const entrySeasonNum = parseInt(entry.showId.match(/_s(\d+)$/)?.[1] || 0);
-          return entrySeasonNum === currentSeasonNum + 1;
+        const entrySeasonNum = parseInt(entry.showId.match(/_s(\d+)$/)?.[1] || 0);
+        
+        // Determina dinamicamente o tipo de relação
+        if (entrySeasonNum === currentSeasonNum + 1) {
+          entry.NameEntries = "Sequel"; // Atualiza dinamicamente
+          return true;
+        } 
+        else if (entrySeasonNum === currentSeasonNum - 1) {
+          entry.NameEntries = "Prequel"; // Atualiza dinamicamente
+          return true;
         }
-        return ["Prequel", "Adaptation"].includes(entry.NameEntries);
+        // Mantém outras relações (Adaptation)
+        return entry.NameEntries === "Adaptation";
       }
     });
 
@@ -106,8 +112,7 @@ Papa.parse(relatedCsvText, {
         : entry.NameEntries,
     }));
 
-    console.log("All entries:", results.data);
-console.log("Filtered entries:", related);
+    console.log("Filtered related entries:", related);
     setRelatedEntries(related);
     setLoading(false);
   },
@@ -134,75 +139,79 @@ console.log("Filtered entries:", related);
   const isManga = animeData.Type2 === "Manga";
   const isAnime = animeData.Type2 === "Anime";
 
-  console.log(relatedEntries)
+  console.log(relatedEntries);
   // Componente de renderização de item
- const renderEntryItem = (entry, index) => {
+  const renderEntryItem = (entry, index) => {
     return (
-    <li
-      key={`${entry.showId}-${entry.NameEntries}-${index}`}
-      style={{
-        backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
-        borderBottom: "1px solid #e5e5e5",
-        display: "flex",
-        height: "78px",
-      }}
-    >
-      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
-        <img
-          src={entry.coverImage}
-          alt=""
-          style={{
-            width: "50px",
-            height: "70px",
-            border: "1px solid #bebebe",
-            objectFit: "cover",
-          }}
-        />
-      </div>
-      <div
-        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
+      <li
+        key={`${entry.showId}-${entry.NameEntries}-${index}`}
+        style={{
+          backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
+          borderBottom: "1px solid #e5e5e5",
+          display: "flex",
+          height: "78px",
+        }}
       >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {entry.isAnime && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.displayName} ({entry.Type})
-            </span>
-          )}
-          {entry.isManga && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.NameEntriesManga} ({entry.Type})
-            </span>
-          )}
+        <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+          <img
+            src={entry.coverImage}
+            alt=""
+            style={{
+              width: "50px",
+              height: "70px",
+              border: "1px solid #bebebe",
+              objectFit: "cover",
+            }}
+          />
         </div>
-        <Link
-          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+        <div
           style={{
-            color: "#1c439b",
-            textDecoration: "none",
-            fontSize: "11px",
-            lineHeight: "1.5em",
-            ":hover": { textDecoration: "underline" },
-            marginBottom: "3px",
+            display: "flex",
+            flexDirection: "column",
+            paddingTop: "3px",
           }}
         >
-          {entry.TitleJapanese || entry.Title}
-        </Link>
-      </div>
-    </li>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {entry.isAnime && (
+              <span
+                style={{
+                  color: "#000",
+                  fontSize: "11px",
+                  marginRight: "8px",
+                }}
+              >
+                {entry.displayName} ({entry.Type})
+              </span>
+            )}
+            {entry.isManga && (
+              <span
+                style={{
+                  color: "#000",
+                  fontSize: "11px",
+                  marginRight: "8px",
+                }}
+              >
+                {entry.NameEntriesManga} ({entry.Type})
+              </span>
+            )}
+          </div>
+          <Link
+            to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+            style={{
+              color: "#1c439b",
+              textDecoration: "none",
+              fontSize: "11px",
+              lineHeight: "1.5em",
+              ":hover": { textDecoration: "underline" },
+              marginBottom: "3px",
+            }}
+          >
+            {entry.TitleJapanese || entry.Title}
+          </Link>
+        </div>
+      </li>
     );
- };
+  };
 
   if (error)
     return <div style={{ padding: "5px 0", color: "red" }}>Error: {error}</div>;
@@ -298,14 +307,18 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
       Papa.parse(csvText, {
         header: true,
         complete: (results) => {
-          const filtered = results.data.filter(item => item.showId === currentId);
-          setCharacters(filtered.map(char => ({
-            ...char,
-            coverImage: getCharacterSrc(char.characterId),
-            DisplayName: char.Name,
-            Type: char.Role
-          })));
-        }
+          const filtered = results.data.filter(
+            (item) => item.showId === currentId
+          );
+          setCharacters(
+            filtered.map((char) => ({
+              ...char,
+              coverImage: getCharacterSrc(char.characterId),
+              DisplayName: char.Name,
+              Type: char.Role,
+            }))
+          );
+        },
       });
     } catch (err) {
       setError("Error loading characters: " + err.message);
@@ -321,14 +334,18 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
       Papa.parse(csvText, {
         header: true,
         complete: (results) => {
-          const filtered = results.data.filter(item => item.showId === currentId);
-          setVoiceActors(filtered.map(va => ({
-            ...va,
-            coverImage: getVoiceActorSrc(va.VCId),
-            DisplayName: va.Name,
-            Type: va.Nationality
-          })));
-        }
+          const filtered = results.data.filter(
+            (item) => item.showId === currentId
+          );
+          setVoiceActors(
+            filtered.map((va) => ({
+              ...va,
+              coverImage: getVoiceActorSrc(va.VCId),
+              DisplayName: va.Name,
+              Type: va.Nationality,
+            }))
+          );
+        },
       });
     } catch (err) {
       setError("Error loading voice actors: " + err.message);
@@ -339,15 +356,17 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
   const loadVoiceActorRelations = useCallback(async () => {
     try {
       if (!VoiceActorRelationUrl) return;
-      
+
       const response = await fetch(VoiceActorRelationUrl);
       const csvText = await response.text();
-      
+
       Papa.parse(csvText, {
         header: true,
         complete: (results) => {
-          setVoiceActorRelations(results.data.filter(item => item.showId === currentId));
-        }
+          setVoiceActorRelations(
+            results.data.filter((item) => item.showId === currentId)
+          );
+        },
       });
     } catch (err) {
       setError("Error loading voice actor relations: " + err.message);
@@ -363,34 +382,34 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
         await Promise.all([
           loadCharacters(),
           loadVoiceActors(),
-          loadVoiceActorRelations()
+          loadVoiceActorRelations(),
         ]);
       } catch (err) {
         setError(err.message);
       }
       setLoading(false);
     };
-    
+
     loadAll();
   }, [loadCharacters, loadVoiceActors, loadVoiceActorRelations]);
 
   // Função para associar personagens a dubladores
   const getPairedEntries = () => {
-    return characters.map(character => {
+    return characters.map((character) => {
       const relation = voiceActorRelations.find(
-        rel => rel.characterId === character.characterId
+        (rel) => rel.characterId === character.characterId
       );
-      
-      const voiceActor = relation 
-        ? voiceActors.find(va => va.VCId === relation.VCId)
+
+      const voiceActor = relation
+        ? voiceActors.find((va) => va.VCId === relation.VCId)
         : null;
 
       return {
         character,
-        voiceActor: voiceActor || { 
-          DisplayName: '', 
-          Type: '', 
-          coverImage: '',
+        voiceActor: voiceActor || {
+          DisplayName: "",
+          Type: "",
+          coverImage: "",
         },
       };
     });
@@ -398,12 +417,12 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
 
   const renderEntryItem = ({ character, voiceActor, language }, index) => (
     <li
-      key={`${character.characterId}-${voiceActor.VCId || 'unknown'}`}
+      key={`${character.characterId}-${voiceActor.VCId || "unknown"}`}
       style={{
         backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
         borderBottom: "1px solid #e5e5e5",
         display: "flex",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
       }}
     >
       {/* Lado esquerdo - Personagem */}
@@ -433,7 +452,9 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
           >
             {character.DisplayName}
           </Link>
-          <div style={{ display: "flex", alignItems: "center", padding: "3px 0" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", padding: "3px 0" }}
+          >
             <small style={{ color: "#000" }}>{character.Type}</small>
           </div>
         </div>
@@ -459,7 +480,14 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
             <small style={{ color: "#000" }}>{voiceActor.Type}</small>
           </div>
         </div>
-        <div style={{ flexShrink: 0, padding: "3px", height: "64px", float: "right" }}>
+        <div
+          style={{
+            flexShrink: 0,
+            padding: "3px",
+            height: "64px",
+            float: "right",
+          }}
+        >
           <img
             src={voiceActor.coverImage}
             alt=""
@@ -514,15 +542,15 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
           </span>
         </div>
         <span style={{ color: "#000" }}>
-          No characters and voice actors have been added to this title. Help improve our database by
-          adding characters or voice actors{" "}
+          No characters and voice actors have been added to this title. Help
+          improve our database by adding characters or voice actors{" "}
           <span style={{ color: "#1c439b" }}>here</span>.
         </span>
       </>
     );
-  
+
   const pairedEntries = getPairedEntries();
-  
+
   if (pairedEntries.length === 0) {
     return (
       <>
@@ -562,8 +590,8 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
           </span>
         </div>
         <span style={{ color: "#000" }}>
-          No characters or voice actors have been added to this title. Help improve our database
-          by adding characters or voice actors{" "}
+          No characters or voice actors have been added to this title. Help
+          improve our database by adding characters or voice actors{" "}
           <span style={{ color: "#1c439b" }}>here</span>.
         </span>
       </>
@@ -576,53 +604,57 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
 
   return (
     <>
-<div
+      <div
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+        }}
+      >
+        <h2
           style={{
-            borderColor: "#bebebe",
-            borderStyle: "solid",
-            borderWidth: "0 0 1px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            margin: "4px 0 5px",
-            padding: "3px 0",
-            height: "16.5px",
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
           }}
         >
-          <h2
-            style={{
-              fontSize: "12px",
-              color: "#000",
-              fontWeight: "700",
-              margin: "0",
-            }}
-          >
-            Characters & Voice Actors
-          </h2>
-          <span
-            style={{
-              fontWeight: "normal",
-              fontSize: "11px",
-              color: "#1c439b",
-              height: "16.5px",
-              paddingRight: "2px",
-            }}
-          >
-            More characters
-          </span>
-        </div>
+          Characters & Voice Actors
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          More characters
+        </span>
+      </div>
       <div style={{ display: "flex" }}>
         {columns.map((column, index) => (
           <React.Fragment key={index}>
             {index > 0 && (
-              <div style={{
-                width: "1px",
-                backgroundColor: "#e5e5e5",
-                margin: "0 8px"
-              }} />
+              <div
+                style={{
+                  width: "1px",
+                  backgroundColor: "#e5e5e5",
+                  margin: "0 8px",
+                }}
+              />
             )}
             <div style={{ width: "392px" }}>
-              <ul style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
                 {column.map(renderEntryItem)}
               </ul>
             </div>
@@ -674,33 +706,37 @@ function Characters({ seriesId, currentId, csvUrl }) {
         },
       });
 
-// Dentro da função loadData, modifique a parte que processa os dados relacionados:
-Papa.parse(relatedCsvText, {
-  header: true,
-  complete: (results) => {
-    // Filtra para remover duplicatas baseado no characterMangaId
-    const uniqueEntries = results.data.reduce((acc, entry) => {
-      if (!acc.some(item => item.characterMangaId === entry.characterMangaId)) {
-        acc.push(entry);
-      }
-      return acc;
-    }, []);
+      // Dentro da função loadData, modifique a parte que processa os dados relacionados:
+      Papa.parse(relatedCsvText, {
+        header: true,
+        complete: (results) => {
+          // Filtra para remover duplicatas baseado no characterMangaId
+          const uniqueEntries = results.data.reduce((acc, entry) => {
+            if (
+              !acc.some(
+                (item) => item.characterMangaId === entry.characterMangaId
+              )
+            ) {
+              acc.push(entry);
+            }
+            return acc;
+          }, []);
 
-    const related = uniqueEntries.map((entry) => ({
-      ...entry,
-      coverImage: getCharacterSrc(entry.characterMangaId),
-      DisplayName: entry.Name,
-      Type: entry.Role,
-      isManga: true,
-    }));
+          const related = uniqueEntries.map((entry) => ({
+            ...entry,
+            coverImage: getCharacterSrc(entry.characterMangaId),
+            DisplayName: entry.Name,
+            Type: entry.Role,
+            isManga: true,
+          }));
 
-    setRelatedEntries(related);
-    setLoading(false);
-  },
-  error: () => {
-    throw new Error("Error parsing related entries CSV");
-  },
-});
+          setRelatedEntries(related);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing related entries CSV");
+        },
+      });
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -730,7 +766,7 @@ Papa.parse(relatedCsvText, {
         display: "flex",
       }}
     >
-      <div style={{flexShrink: 0, padding: "3px", height:"64px"}}>
+      <div style={{ flexShrink: 0, padding: "3px", height: "64px" }}>
         <img
           src={entry.coverImage}
           alt=""
@@ -742,10 +778,7 @@ Papa.parse(relatedCsvText, {
           }}
         />
       </div>
-      <div
-        style={{padding: "3px", verticalAlign:"top"}}
-      >
-        
+      <div style={{ padding: "3px", verticalAlign: "top" }}>
         <Link
           to={``}
           style={{
@@ -758,16 +791,22 @@ Papa.parse(relatedCsvText, {
         >
           {entry.DisplayName}
         </Link>
-              <div style={{ display: "flex", alignItems: "center", padding: "3px 0"}}>
-              <small style={{
-                color: "#000",
-              }}>{entry.Type}</small>
+        <div
+          style={{ display: "flex", alignItems: "center", padding: "3px 0" }}
+        >
+          <small
+            style={{
+              color: "#000",
+            }}
+          >
+            {entry.Type}
+          </small>
         </div>
       </div>
     </li>
   );
 
- if (error)
+  if (error)
     return (
       <>
         <div
@@ -806,9 +845,8 @@ Papa.parse(relatedCsvText, {
           </span>
         </div>
         <span style={{ color: "#000" }}>
-          No characters have been added to this title. Help improve our database by
-          adding characters{" "}
-          <span style={{ color: "#1c439b" }}>here</span>.
+          No characters have been added to this title. Help improve our database
+          by adding characters <span style={{ color: "#1c439b" }}>here</span>.
         </span>
       </>
     );
@@ -852,8 +890,7 @@ Papa.parse(relatedCsvText, {
         </div>
         <span style={{ color: "#000" }}>
           No characters have been added to this title. Help improve our database
-          by adding characters or voice actors{" "}
-          <span style={{ color: "#1c439b" }}>here</span>.
+          by adding characters <span style={{ color: "#1c439b" }}>here</span>.
         </span>
       </>
     );
@@ -925,142 +962,99 @@ Papa.parse(relatedCsvText, {
   );
 }
 
-function StaffEntries({ seriesId, currentId, csvUrl }) {
+function StaffEntries({ seriesId, currentId }) {
   const { id } = useParams();
-  const [relatedEntries, setRelatedEntries] = useState([]);
-  const [animeData, setAnimeData] = useState([]);
+  const [staffEntries, setStaffEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-  // Função para carregar os dados
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Carrega dados do anime principal
+      // Obtém a URL do CSV de staff (posição [4] no animeMap)
       const baseId = id.replace(/_\w+$/, "");
-      const animeCsvUrl = animeMap[baseId]?.[3];
-      if (!animeCsvUrl) throw new Error("Base anime data not found");
+      const staffCsvUrl = animeMap[baseId]?.[4];
 
-      const [animeResponse, relatedResponse] = await Promise.all([
-        fetch(animeCsvUrl),
-        fetch(csvUrl),
-      ]);
+      if (!staffCsvUrl) {
+        setStaffEntries([]);
+        setLoading(false);
+        return;
+      }
 
-      const [animeCsvText, relatedCsvText] = await Promise.all([
-        animeResponse.text(),
-        relatedResponse.text(),
-      ]);
+      const response = await fetch(staffCsvUrl);
+      const csvText = await response.text();
 
-      // Processa os dados do anime principal
-      Papa.parse(animeCsvText, {
+      Papa.parse(csvText, {
         header: true,
         complete: (results) => {
-          const anime = results.data.find((item) => item.showId === id);
-          if (anime) setAnimeData(anime);
-          else throw new Error(`Anime with id ${id} not found`);
-        },
-        error: () => {
-          throw new Error("Error parsing anime CSV");
-        },
-      });
+          // Filtra apenas as entradas do anime atual
+          const filtered = results.data.filter(
+            (entry) =>
+              entry.showId === currentId &&
+              entry.staffId &&
+              entry.staffId !== "-" &&
+              entry.Name &&
+              entry.Role
+          );
 
-      // Processa os dados relacionados
-      Papa.parse(relatedCsvText, {
-        header: true,
-        complete: (results) => {
-          const related = results.data
-            .filter(
-              (entry) => entry.showId !== currentId && entry.Series === seriesId
-            )
-            .map((entry) => ({
-              ...entry,
-              coverImage: getStaffSrc(entry.showId),
-              isManga: entry.Type2 === "Manga",
-              isAnime: entry.Type2 === "Anime",
-              displayName:
-                entry.Type2 === "Manga"
-                  ? entry.NameEntriesManga || entry.NameEntries
-                  : entry.NameEntries,
-            }));
+          // Remove duplicatas
+          const uniqueEntries = filtered.reduce((acc, entry) => {
+            if (!acc.some((item) => item.staffId === entry.staffId)) {
+              acc.push(entry);
+            }
+            return acc;
+          }, []);
 
-          setRelatedEntries(related);
+          // Processa os dados
+          const staffData = uniqueEntries.map((entry) => ({
+            ...entry,
+            coverImage: getStaffSrc(entry.staffId),
+            DisplayName: entry.Name,
+            Type: entry.Role,
+          }));
+
+          console.log("Staff data loaded:", staffData);
+          setStaffEntries(staffData);
           setLoading(false);
         },
         error: () => {
-          throw new Error("Error parsing related entries CSV");
+          throw new Error("Error parsing staff CSV");
         },
       });
     } catch (err) {
       setError(err.message);
       setLoading(false);
     }
-  }, [id, currentId, seriesId, csvUrl]);
+  }, [currentId, id]);
 
-  // Carrega os dados inicialmente e configura polling
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // Atualiza os dados quando lastUpdate muda
-  useEffect(() => {
-    loadData();
-  }, [lastUpdate, loadData]);
-
-  const isManga = animeData.Type2 === "Manga";
-  const isAnime = animeData.Type2 === "Anime";
-
   // Componente de renderização de item
   const renderEntryItem = (entry, index) => (
     <li
-      key={`${entry.showId}-${entry.NameEntries}`}
+      key={`${entry.staffId}-${index}`}
       style={{
         backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F8F8F8",
         borderBottom: "1px solid #e5e5e5",
         display: "flex",
-        height: "78px",
       }}
     >
-      <div style={{ marginRight: "4px", flexShrink: 0, padding: "3px" }}>
+      <div style={{ flexShrink: 0, padding: "3px", height: "64px" }}>
         <img
           src={entry.coverImage}
           alt=""
           style={{
-            width: "50px",
-            height: "70px",
+            width: "42px",
+            height: "62px",
             border: "1px solid #bebebe",
             objectFit: "cover",
           }}
         />
       </div>
-      <div
-        style={{ display: "flex", flexDirection: "column", paddingTop: "3px" }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {isAnime && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.displayName} ({entry.Type})
-            </span>
-          )}
-          {isManga && (
-            <span
-              style={{
-                color: "#000",
-                fontSize: "11px",
-                marginRight: "8px",
-              }}
-            >
-              {entry.NameEntriesManga} ({entry.Type})
-            </span>
-          )}
-        </div>
+      <div style={{ padding: "3px", verticalAlign: "top" }}>
         <Link
           to={``}
           style={{
@@ -1069,11 +1063,21 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
             fontSize: "11px",
             lineHeight: "1.5em",
             ":hover": { textDecoration: "underline" },
-            marginBottom: "3px",
           }}
         >
-          {entry.TitleJapanese || entry.Title}
+          {entry.DisplayName}
         </Link>
+        <div
+          style={{ display: "flex", alignItems: "center", padding: "3px 0" }}
+        >
+          <small
+            style={{
+              color: "#000",
+            }}
+          >
+            {entry.Type}
+          </small>
+        </div>
       </div>
     </li>
   );
@@ -1118,12 +1122,11 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
         </div>
         <span style={{ color: "#000" }}>
           No staff has been added to this title. Help improve our database by
-          adding staff{" "}
-          <span style={{ color: "#1c439b" }}>here</span>.
+          adding staff <span style={{ color: "#1c439b" }}>here</span>.
         </span>
       </>
     );
-  if (relatedEntries.length < 1)
+  if (staffEntries.length < 1)
     return (
       <>
         <div
@@ -1163,15 +1166,14 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
         </div>
         <span style={{ color: "#000" }}>
           No staff has been added to this title. Help improve our database by
-          adding characters or voice actors{" "}
-          <span style={{ color: "#1c439b" }}>here</span>.
+          adding staff <span style={{ color: "#1c439b" }}>here</span>.
         </span>
       </>
     );
 
   // Divide os itens em duas colunas
-  const half = Math.ceil(relatedEntries.length / 2);
-  const columns = [relatedEntries.slice(0, half), relatedEntries.slice(half)];
+  const half = Math.ceil(staffEntries.length / 2);
+  const columns = [staffEntries.slice(0, half), staffEntries.slice(half)];
 
   return (
     <>
@@ -1233,6 +1235,530 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
         ))}
       </div>
     </>
+  );
+}
+
+function OpTheme({ seriesId, currentId }) {
+  const { id } = useParams();
+  const [opEntries, setOpEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Obtém a URL do CSV de staff (posição [4] no animeMap)
+      const baseId = id.replace(/_\w+$/, "");
+      const opCsvUrl = animeMap[baseId]?.[5];
+
+      if (!opCsvUrl) {
+        setOpEntries([]);
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(opCsvUrl);
+      const csvText = await response.text();
+
+      Papa.parse(csvText, {
+        header: true,
+        complete: (results) => {
+          // Filtra apenas as entradas do anime atual
+          const filtered = results.data.filter(
+            (entry) =>
+              entry.showId === currentId &&
+              entry.OPId &&
+              entry.Num &&
+              entry.Name &&
+              entry.Band &&
+              entry.Eps
+          );
+
+          // Remove duplicatas
+          const uniqueEntries = filtered.reduce((acc, entry) => {
+            if (!acc.some((item) => item.OPId === entry.OPId)) {
+              acc.push(entry);
+            }
+            return acc;
+          }, []);
+
+          // Processa os dados
+          const opData = uniqueEntries.map((entry) => ({
+            ...entry,
+            DisplayName: entry.Name,
+            Num: entry.Num,
+            Band: entry.Band,
+            Eps: entry.Eps,
+          }));
+
+          console.log("OP data loaded:", opData);
+          setOpEntries(opData);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing op CSV");
+        },
+      });
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, [currentId, id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Componente de renderização de item
+  const renderEntryItem = (entry, index) => (
+    <li
+      key={`${entry.OPId}-${index}`}
+      style={{
+        backgroundColor: "#ffffff",
+        display: "flex",
+        paddingLeft:"1px"
+      }}
+    >
+      <div style={{display:"flex", alignItems:"center"}}>
+      <img src={Play} alt="" style={{padding:"1px"}}/>
+      </div>
+      <div style={{ padding: "1px", display:"flex", alignItems:"center", width:"322.533px"}}>
+        <span>
+        <span style={{marginRight:"4px"}}>{entry.Num}:</span>
+        <Link
+          to={``}
+          style={{
+            color: "#1c439b",
+            textDecoration: "none",
+            fontSize: "11px",
+            lineHeight: "1.5em",
+            ":hover": { textDecoration: "underline" },
+            marginRight:"4px"
+          }}
+        >
+          "{entry.DisplayName}"
+        </Link>
+        <span style={{marginRight:"4px"}}>by {entry.Band}</span>
+        <span>(eps {entry.Eps})</span>
+        </span>
+      </div>
+      <div style={{display:"flex", alignItems:"center"}}>
+        <img src={MV} alt=""/>
+      </div>
+    </li>
+  );
+
+  if (error)
+    return (
+      <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+            height: "392px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Opening Theme
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No opening themes have been added to this title. Help improve our
+          database by adding an opening theme{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
+    );
+  if (opEntries.length < 1)
+    return (
+      <div style={{ width: "392px" }}>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Opening Theme
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No opening themes have been added to this title. Help improve our
+          database by adding an opening theme{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </div>
+    );
+
+  // Divide os itens em duas colunas
+  const half = Math.ceil(opEntries.length);
+  const columns = [opEntries.slice(0, half), opEntries.slice(half)];
+
+  return (
+    <div style={{ width: "392px" }}>
+      <div
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+          width: "392px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
+          }}
+        >
+          Opening Theme
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          Edit
+        </span>
+      </div>
+      <div style={{ display: "flex" }}>
+        {columns.map((column, index) => (
+          <React.Fragment key={index}>
+            <div style={{ width: "392px" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
+                {column.map(renderEntryItem)}
+              </ul>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EdTheme({ seriesId, currentId }) {
+  const { id } = useParams();
+  const [edEntries, setEdEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Obtém a URL do CSV de staff (posição [4] no animeMap)
+      const baseId = id.replace(/_\w+$/, "");
+      const opCsvUrl = animeMap[baseId]?.[6];
+
+      if (!opCsvUrl) {
+        setEdEntries([]);
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(opCsvUrl);
+      const csvText = await response.text();
+
+      Papa.parse(csvText, {
+        header: true,
+        complete: (results) => {
+          // Filtra apenas as entradas do anime atual
+          const filtered = results.data.filter(
+            (entry) =>
+              entry.showId === currentId &&
+              entry.EDId &&
+              entry.Num &&
+              entry.Name &&
+              entry.Band &&
+              entry.Eps
+          );
+
+          // Remove duplicatas
+          const uniqueEntries = filtered.reduce((acc, entry) => {
+            if (!acc.some((item) => item.EDId === entry.EDId)) {
+              acc.push(entry);
+            }
+            return acc;
+          }, []);
+
+          // Processa os dados
+          const edData = uniqueEntries.map((entry) => ({
+            ...entry,
+            DisplayName: entry.Name,
+            Num: entry.Num,
+            Band: entry.Band,
+            Eps: entry.Eps,
+          }));
+
+          console.log("ED data loaded:", edData);
+          setEdEntries(edData);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing op CSV");
+        },
+      });
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, [currentId, id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Componente de renderização de item
+  const renderEntryItem = (entry, index) => (
+    <li
+      key={`${entry.EDId}-${index}`}
+      style={{
+        backgroundColor: "#ffffff",
+        display: "flex",
+        paddingLeft:"1px"
+      }}
+    >
+      <div style={{display:"flex", alignItems:"center"}}>
+      <img src={Play} alt="" style={{padding:"1px"}}/>
+      </div>
+      <div style={{ padding: "1px", display:"flex", alignItems:"center", width:"322.533px"}}>
+        <span>
+        <span style={{marginRight:"4px"}}>{entry.Num}:</span>
+        <Link
+          to={``}
+          style={{
+            color: "#1c439b",
+            textDecoration: "none",
+            fontSize: "11px",
+            lineHeight: "1.5em",
+            ":hover": { textDecoration: "underline" },
+            marginRight:"4px"
+          }}
+        >
+          "{entry.DisplayName}"
+        </Link>
+        <span style={{marginRight:"4px"}}>by {entry.Band}</span>
+        <span>(eps {entry.Eps})</span>
+        </span>
+      </div>
+      <div style={{display:"flex", alignItems:"center"}}>
+        <img src={MV} alt=""/>
+      </div>
+    </li>
+  );
+
+  if (error)
+    return (
+      <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+            height: "392px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Ending Theme
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No ending themes have been added to this title. Help improve our
+          database by adding an ending theme{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
+    );
+  if (edEntries.length < 1)
+    return (
+      <div style={{ width: "392px" }}>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Ending Theme
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No ending themes have been added to this title. Help improve our
+          database by adding an ending theme{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </div>
+    );
+
+  // Divide os itens em duas colunas
+  const half = Math.ceil(edEntries.length);
+  const columns = [edEntries.slice(0, half), edEntries.slice(half)];
+
+  return (
+    <div style={{ width: "392px" }}>
+      <div
+        style={{
+          borderColor: "#bebebe",
+          borderStyle: "solid",
+          borderWidth: "0 0 1px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: "4px 0 5px",
+          padding: "3px 0",
+          height: "16.5px",
+          width: "392px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "12px",
+            color: "#000",
+            fontWeight: "700",
+            margin: "0",
+          }}
+        >
+          Ending Theme
+        </h2>
+        <span
+          style={{
+            fontWeight: "normal",
+            fontSize: "11px",
+            color: "#1c439b",
+            height: "16.5px",
+            paddingRight: "2px",
+          }}
+        >
+          Edit
+        </span>
+      </div>
+      <div style={{ display: "flex" }}>
+        {columns.map((column, index) => (
+          <React.Fragment key={index}>
+            <div style={{ width: "392px" }}>
+              <ul
+                style={{ listStyleType: "none", paddingLeft: "0", margin: "0" }}
+              >
+                {column.map(renderEntryItem)}
+              </ul>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -3394,6 +3920,7 @@ function MyAnimeList({ match }) {
                             Edit
                           </span>
                         </div>
+                        {animeData.Synopsis != "-" && (<>
                         <div style={{ marginTop: 0, fontSize: "11px" }}>
                           {animeData.Synopsis?.split("\n").map(
                             (paragraph, index) => (
@@ -3409,10 +3936,18 @@ function MyAnimeList({ match }) {
                               </p>
                             )
                           )}
-                        </div>
+                        </div>                        
                         <span style={{ color: "#000" }}>
                           [Written by MAL Rewrite]
                         </span>
+                        </>
+                        )}
+                        {animeData.Synopsis === "-" && (<>
+                        <div style={{ marginTop: 0, fontSize: "11px" }}>
+                          {animeData.SeasonName} of <i>{animeData.SeriesName}.</i>
+                        </div>                        
+                        </>
+                        )}
                         <div style={{ marginBottom: "15px" }} />
                         {animeData.BeginningDate != "?" &&
                           animeData.Background != "-" && (
@@ -3555,6 +4090,44 @@ function MyAnimeList({ match }) {
                             ) : (
                               "No related entries found."
                             )}
+                          </div>
+                        )}
+                        <div style={{ marginBottom: "15px" }} />
+                        {isAnime && (
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <div
+                              style={{ fontSize: "11px", lineHeight: "1.5em" }}
+                            >
+                              {animeData.Series &&
+                              animeMap[animeData.Series]?.[0] ? (
+                                <OpTheme
+                                  seriesId={animeData.Series}
+                                  currentId={id}
+                                  csvUrl={animeMap[animeData.Series][5]}
+                                />
+                              ) : (
+                                "No related entries found."
+                              )}
+                            </div>
+                            <div
+                              style={{ fontSize: "11px", lineHeight: "1.5em" }}
+                            >
+                              {animeData.Series &&
+                              animeMap[animeData.Series]?.[0] ? (
+                                <EdTheme
+                                  seriesId={animeData.Series}
+                                  currentId={id}
+                                  csvUrl={animeMap[animeData.Series][6]}
+                                />
+                              ) : (
+                                "No related entries found."
+                              )}
+                            </div>
                           </div>
                         )}
                         <div style={{ marginBottom: "15px" }} />
