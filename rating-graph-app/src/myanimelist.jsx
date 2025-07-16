@@ -89,7 +89,7 @@ const AnimeItem = ({ anime, index }) => {
           >
             {anime.TitleJapanese || anime.TitleEnglish || "Untitled"}
           </Link>
-          {anime.showId && (
+          {anime.showId && anime.Type != "Manga" && (
             <img src={btn_add} alt="" style={{ marginLeft: "8px" }} />
           )}
         </div>
