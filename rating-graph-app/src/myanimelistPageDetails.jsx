@@ -8,6 +8,7 @@ import {
   getTrailerSrc,
   getCharacterSrc,
   getVoiceActorSrc,
+  getStaffSrc,
 } from "../src/ShowImageSrc";
 import "./mal.css";
 
@@ -975,7 +976,7 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
             )
             .map((entry) => ({
               ...entry,
-              coverImage: getShowCoverSrc(entry.showId),
+              coverImage: getStaffSrc(entry.showId),
               isManga: entry.Type2 === "Manga",
               isAnime: entry.Type2 === "Anime",
               displayName:
@@ -1061,7 +1062,7 @@ function StaffEntries({ seriesId, currentId, csvUrl }) {
           )}
         </div>
         <Link
-          to={`/${entry.isManga ? "manga" : "anime"}/${entry.showId}`}
+          to={``}
           style={{
             color: "#1c439b",
             textDecoration: "none",
