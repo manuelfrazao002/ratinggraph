@@ -110,9 +110,14 @@ const AnimeItem = ({ anime, index }) => {
             {anime.Type === "Unknown" && (
               <span>{anime.Type}</span>
             )}
-            {anime.Episodes != "Unknown" && (
+            {anime.Type != "Manga" && anime.Episodes != "Unknown" && (
             <p style={{ margin: 0, textAlign: "end", marginLeft:"4px"}}>
               ({anime.Episodes} eps)
+            </p>
+            )}
+            {anime.Type === "Manga" && anime.Volumes != "Unknown" && (
+            <p style={{ margin: 0, textAlign: "end", marginLeft:"4px"}}>
+              ({anime.Volumes} vols)
             </p>
             )}
           </div>
@@ -161,6 +166,7 @@ function cleanAnimeData(animeList) {
     cleanAnime.Episodes = anime.Episodes || anime['Number of Episodes'] || '?';
     cleanAnime.Score = anime.Score || anime.Rating || 'N/A';
     cleanAnime.Members = anime.Members || anime['User Votes'] || '0';
+    cleanAnime.Volumes = anime.Volumes;
     
     return cleanAnime;
   });
