@@ -92,6 +92,24 @@ const AnimeItem = ({ anime, index }) => {
           {anime.showId && anime.Type != "Manga" && (
             <img src={btn_add} alt="" style={{ marginLeft: "8px" }} />
           )}
+          {
+            anime.showId && anime.Type === "Manga" && (
+              <div style={{
+                marginLeft:"8px",
+                backgroundColor:"#e1e7f5",
+                color: "#1c439b",
+                fontSize:"10px",
+                fontWeight:"normal",
+                fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                padding:"2px 4px",
+                height:"10px",
+                display:"flex",
+                alignItems:"center"
+              }}>
+                add
+                </div>
+            )
+          }
         </div>
 
         <div
