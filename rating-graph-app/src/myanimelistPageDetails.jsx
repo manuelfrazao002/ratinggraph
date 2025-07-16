@@ -4586,6 +4586,7 @@ function MyAnimeList({ match }) {
                         >
                           Score Stats
                         </h2>
+                        {animeData.UserVotes != 0 && (
                         <div style={{ fontSize: "11px", marginBottom: "15px" }}>
                           {(() => {
                             const scores = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
@@ -4673,6 +4674,7 @@ function MyAnimeList({ match }) {
                             });
                           })()}
                         </div>
+                        )}
                       </div>
                     </div>
                   </td>
