@@ -2878,6 +2878,232 @@ function MyAnimeList({ match }) {
                           margin: "0 auto",
                         }}
                       >
+                        {isManga && (
+                        <div
+                          className="horizontal-nav"
+                          style={{
+                            margin: "5px 0 10px 0",
+                            borderColor: "#1c439b",
+                            borderStyle: "solid",
+                            borderWidth: "0 0 1px",
+                            padding: "0 0 2px",
+                            lineHeight: "1.5em",
+                            height: "18px",
+                          }}
+                        >
+                          <ul
+                            style={{
+                              marginRight: "0",
+                              paddingRight: "0",
+                              paddingLeft: "0",
+                              marginTop: "0",
+                              marginLeft: "0",
+                              fontFamily: "arial,helvetica,sans-serif",
+                              lineHeight: "1.5em",
+                              listStyleType: "none",
+                              display: "flex",
+                              position: "relative",
+                              top: "-1px",
+                              alignItems: "center",
+                              width: "639.217px",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#fff",
+                                backgroundColor: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Details
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Characters
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Stats
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Reviews
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Recommendations
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Interest Stacks
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              News
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Forum
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Clubs
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              Pictures
+                            </li>
+                            <li
+                              style={{
+                                backgroundColor: "#fff",
+                                color: "#1c439b",
+                                fontFamily:
+                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                fontSize: "12px",
+                                fontWeight: "400",
+                                padding: "2px 4px",
+                                textDecoration: "none",
+                                height: "14px",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              More Info
+                            </li>
+                          </ul>
+                        </div>
+                        )}
+                        {isAnime && (
                         <div
                           className="horizontal-nav"
                           style={{
@@ -3135,6 +3361,7 @@ function MyAnimeList({ match }) {
                             </li>
                           </ul>
                         </div>
+                        )}
                         <div
                           className="breadcrumb"
                           style={{
@@ -3416,7 +3643,7 @@ function MyAnimeList({ match }) {
                                                         animeData.Type !=
                                                         "Unknown"
                                                           ? "#1c439b"
-                                                          : "#000",
+                                                          : "#444",
                                                       fontFamily:
                                                         "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
                                                       fontSize: "10px",
