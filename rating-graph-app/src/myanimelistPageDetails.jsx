@@ -31,7 +31,7 @@ import Recomendations from "../public/imgs/mal/recomendations.png";
 import RecomendationsManga from "../public/imgs/mal/recommendations_manga.png";
 import RecentNews from "../public/imgs/mal/recentnews.png";
 import Discussions from "../public/imgs/mal/discussions.png";
-import RecentArticles from "../public/imgs/mal/recentArticles.png";
+import RecentArticles from "../public/imgs/mal/recentarticles.png";
 
 function RelatedEntries({ seriesId, currentId, csvUrl }) {
   const { id } = useParams();
