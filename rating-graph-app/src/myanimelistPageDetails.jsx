@@ -4539,11 +4539,16 @@ function MyAnimeList({ match }) {
                             </span>
                           </div>
                         </div>
+                        {animeData.Reviews > 0 && (
                         <img
                           src={Reviews}
                           alt=""
                           style={{ marginTop: "7px" }}
                         />
+                        )}
+                        {animeData.Reviews < 1 && (
+                          <span style={{position:"relative", top:"8px", marginBottom:"8px"}}>No reviews have been submitted for this title. Be the first to make a review <span style={{color:"#1c439b", cursor:"pointer"}}>here</span>!</span>
+                        )}
                         <div style={{ marginBottom: "28px" }} />
                         <div
                           style={{
