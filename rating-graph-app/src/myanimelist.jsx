@@ -20,6 +20,144 @@ import Footer2 from "../public/imgs/mal/footer2_mal.png";
 import "./mal.css";
 
 const AnimeItem = ({ anime, index }) => {
+
+  if(anime.Type !== "TV") {
+      return null;
+  }
+
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (anime.showId) {
+      const url = getOptimizedImage(getShowCoverSrc(anime.showId), 300);
+      setImageUrl(url);
+    } else {
+      setImageUrl(getDefaultCover());
+    }
+  }, [anime.showId]);
+
+  const formatNumber = (num) => {
+    if (num === undefined || num === null || isNaN(num)) return 'N/A';
+    return Number(num).toLocaleString('en-US');
+  };
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        height: "77px",
+        marginBottom: "4px",
+        paddingBottom: "4px",
+        borderBottom: "#e5e5e5 1px solid",
+        height:"72px"
+      }}
+    >
+      <div className="anime-cover" style={{ width: "54px", height: "72px" }}>
+        <img
+          src={imageUrl || getDefaultCover()}
+          alt={anime.TitleJapanese || anime.TitleEnglish || "Unknown title"}
+          onError={(e) => {
+            e.target.src = getDefaultCover();
+            setImageError(true);
+          }}
+          style={{ width: "52px", height: "72px" }}
+        />
+      </div>
+
+      <div
+        style={{
+          fontSize: "11px",
+          fontFamily: "Verdana, Arial",
+          paddingTop: 1,
+          paddingLeft: 8,
+          display: "table-cell",
+          height: "68px",
+        }}
+      >
+        
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontWeight: 700,
+            color: "#1C439B",
+            paddingTop: 1,
+            marginBottom: -1,
+          }}
+        ><Link 
+            to={`/anime/${anime.showId}`}
+            style={{
+                            fontWeight: 700,
+            color: "#1C439B",
+            }}
+          >
+            {anime.TitleJapanese || anime.TitleEnglish || "Untitled"}
+          </Link>
+          {anime.showId && anime.Type != "Manga" && (
+            <img src={btn_add} alt="" style={{ marginLeft: "8px" }} />
+          )}
+          {
+            anime.showId && anime.Type === "Manga" && (
+              <div style={{
+                marginLeft:"8px",
+                backgroundColor:"#e1e7f5",
+                color: "#1c439b",
+                fontSize:"10px",
+                fontWeight:"normal",
+                fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                padding:"2px 4px",
+                height:"10px",
+                display:"flex",
+                alignItems:"center"
+              }}>
+                add
+                </div>
+            )
+          }
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            paddingTop: 8,
+            lineHeight: "1.4em",
+            fontSize: "10px",
+            color: "#8B8B8B",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {anime.Type != "Unknown" && (
+              <span style={{ color: "#1c439b" }}>{anime.Type}</span>
+            )}
+            {anime.Type === "Unknown" && (
+              <span>{anime.Type}</span>
+            )}
+            {anime.Type != "Manga" && anime.Episodes != "Unknown" && (
+            <p style={{ margin: 0, textAlign: "end", marginLeft:"4px"}}>
+              ({anime.Episodes} eps)
+            </p>
+            )}
+            {anime.Type === "Manga" && anime.Volumes != "Unknown" && (
+            <p style={{ margin: 0, textAlign: "end", marginLeft:"4px"}}>
+              ({anime.Volumes} vols)
+            </p>
+            )}
+          </div>
+          {anime.Score && <span>Scored {anime.Score}</span>}
+          {anime.Members && <span>{anime.Members} members</span>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MangaItem = ({ anime, index }) => {
+
+  if(anime.Type !== "Manga") {
+      return null;
+  }
+
   const [imageUrl, setImageUrl] = useState("");
   const [imageError, setImageError] = useState(false);
 
@@ -557,7 +695,85 @@ function MyAnimeList() {
                         )}
                       </div>
                     )}
-                  </div>
+                    <div style={{
+                      paddingBottom:"24px",
+                      paddingTop:"4px",
+                      display:"flex",
+                      justifyContent:"center",
+                      cursor:"pointer",
+                    }}>
+                      <div style={{
+                      backgroundColor:"#4f74c8",
+                      minWidth:"220px",
+                      borderRadius:"4px",
+                      padding:"4px",
+                      color:"white",
+                      textAlign:"center",
+                      fontSize:"11px",
+                      display:"inline-block",
+                      fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif"
+                    }}>
+                        <i class="fa-solid fa-magnifying-glass" style={{marginRight:"3px"}}></i>
+                        <span>Search for "Unchain Studios" in Anime</span>
+                      </div>
+                    </div>
+                    <h2
+                      style={{
+                        borderColor: "#bebebe",
+                        borderStyle: "solid",
+                        borderWidth: "0 0 1px",
+                        color: "#000",
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        margin: "4px 0 5px",
+                        padding: "3px 0",
+                        height: "15px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      Manga
+                    </h2>
+                    {filteredAnime.length > 0 ? (
+                      filteredAnime.map((anime, index) => (
+                        <MangaItem
+                          key={anime.showId}
+                          anime={anime}
+                          index={index}
+                        />
+                      ))
+                    ) : (
+                      <div className="no-results">
+                        {animeList.length === 0 ? (
+                          <p>No anime data available.</p>
+                        ) : (
+                          <p>No anime found matching "{searchTerm}"</p>
+                        )}
+                      </div>
+                    )}
+                    <div style={{
+                      paddingBottom:"24px",
+                      paddingTop:"4px",
+                      display:"flex",
+                      justifyContent:"center",
+                      cursor:"pointer",
+                    }}>
+                      <div style={{
+                      backgroundColor:"#4f74c8",
+                      minWidth:"220px",
+                      borderRadius:"4px",
+                      padding:"4px",
+                      color:"white",
+                      textAlign:"center",
+                      fontSize:"11px",
+                      display:"inline-block",
+                      fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif"
+                    }}>
+                        <i class="fa-solid fa-magnifying-glass" style={{marginRight:"3px"}}></i>
+                        <span>Search for "Unchain Studios" in Manga</span>
+                      </div>
+                    </div>
+                  </div>                  
                 </div>
               )}
               <div
