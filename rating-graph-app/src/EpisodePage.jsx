@@ -537,7 +537,7 @@ export default function Episodes() {
   return (
     <div>
       <GlobalStyle />
-      <Link to={`/`}>
+      <Link to={`/imdb/list`}>
         <img src={IMDBNavbar} alt="" />
       </Link>
       <div
