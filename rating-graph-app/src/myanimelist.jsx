@@ -552,7 +552,7 @@ function MyAnimeList() {
                         height: "13px",
                       }}
                     >
-                      Search Results
+                      Search Results for "Unchain Studios"
                     </div>
                     <div
                       class="link-content-jump ml12 mb24"
@@ -810,7 +810,7 @@ function MyAnimeList() {
                       justifyContent: "center",
                     }}
                   >
-                    Related Information
+                    Related Information for "Unchain Studios"
                   </div>
                   <h2
                     id="anime"
