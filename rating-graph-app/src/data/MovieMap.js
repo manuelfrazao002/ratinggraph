@@ -73,17 +73,22 @@ export const animeMap = {
     //EdTheme
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=935077496&single=true&output=csv",
   ],
-  // mythologicalheroes: [
-  //   //MALData
-  //   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=932829023&single=true&output=csv",
-  //   //Characters
-  //   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1342594371&single=true&output=csv",
-  //   //Voice Actors
-  //   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1228488073&single=true&output=csv",
-  //   //Staff
-  //   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXGA1sTXdJYuyImW_jDV_2zLziOEIeK8Fzn96OMT2EsWrz1OtFolU8fekiqCajM78R8lctV0pPjYgZ/pub?gid=1105078943&single=true&output=csv",
-  // ]
-  // Adicione outros animes aqui no mesmo formato
+  ironfist: [
+    //MALData
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=932829023&single=true&output=csv",
+    //Characters
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=1811910701&single=true&output=csv",
+    //Voice Actors
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=454900849&single=true&output=csv",
+    //Rel_Char_VA
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=1922167735&single=true&output=csv",
+    //Staff
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=819407354&single=true&output=csv",
+    //OpTheme
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=343713026&single=true&output=csv",
+    //EdTheme
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=935077496&single=true&output=csv",
+  ]
 };
 
 

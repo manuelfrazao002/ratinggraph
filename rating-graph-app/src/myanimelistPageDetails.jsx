@@ -1900,6 +1900,7 @@ function MyAnimeList({ match }) {
               textAlign: "left",
             }}
           >
+            {animeData.TitleJapanese != animeData.TitleEnglish && (
             <div
               style={{
                 display: "table-cell",
@@ -1929,6 +1930,26 @@ function MyAnimeList({ match }) {
                 {animeData.TitleEnglish || animeData.Title}
               </h2>
             </div>
+            )}
+            {animeData.TitleJapanese === animeData.TitleEnglish && (
+            <div
+              style={{
+                display: "table-cell",
+                width: "855px",
+              }}
+            >
+              <h1
+                style={{
+                  fontSize: "16px",
+                  margin: "0",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                {animeData.TitleEnglish}
+              </h1>
+            </div>
+            )}
           </div>
 
           <div
@@ -2408,6 +2429,7 @@ function MyAnimeList({ match }) {
                       >
                         Alternative Titles
                       </h2>
+                      {animeData.Synonyms != "-" && (
                       <div
                         style={{
                           padding: "3px 0",
@@ -2422,6 +2444,7 @@ function MyAnimeList({ match }) {
                         </span>
                         {animeData.Synonyms || "N/A"}
                       </div>
+                      )}
 
                       <div
                         style={{
@@ -2937,9 +2960,6 @@ function MyAnimeList({ match }) {
                                 fontWeight: "400",
                                 padding: "2px 4px",
                                 textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
                                 height: "14px",
                                 display: "flex",
                                 alignItems: "center",
@@ -4073,6 +4093,7 @@ function MyAnimeList({ match }) {
                                                   >
                                                     {animeData.TitleEnglish}
                                                   </span>
+                                                  {animeData.Volumes != "Unknown" && (
                                                   <span
                                                     style={{
                                                       color: "#1c439b",
@@ -4080,12 +4101,13 @@ function MyAnimeList({ match }) {
                                                   >
                                                     {animeData.VolumeSale}
                                                   </span>
+                                                  )}
                                                   <span
                                                     style={{
                                                       lineHeight: "1.5em",
                                                       color: "#c0392b",
-                                                      position: "relative",
-                                                      top: "1px",
+                                                      position: "absolute",
+                                                      top: "55px",
                                                     }}
                                                   >
                                                     {animeData.VolumePrice}
@@ -4095,9 +4117,9 @@ function MyAnimeList({ match }) {
                                                   src={ReadSample}
                                                   alt=""
                                                   style={{
-                                                    position: "relative",
-                                                    right: "-50px",
-                                                    top: "5px",
+                                                    position: "absolute",
+                                                    top: "75px",
+                                                    right:"0px"
                                                   }}
                                                 />
                                               </div>
