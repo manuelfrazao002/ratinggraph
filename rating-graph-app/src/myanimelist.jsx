@@ -703,7 +703,7 @@ function MyAnimeList() {
                       paddingTop:"4px",
                       display:"flex",
                       justifyContent:"center",
-                      cursor:"pointer",
+                      cursor:"pointer",                     
                     }}>
                       <div style={{
                       backgroundColor:"#4f74c8",
@@ -714,10 +714,11 @@ function MyAnimeList() {
                       textAlign:"center",
                       fontSize:"11px",
                       display:"inline-block",
-                      fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif"
+                      fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                      height:"13px",
                     }}>
-                        <i class="fa-solid fa-magnifying-glass" style={{marginRight:"3px"}}></i>
-                        <span>Search for "Unchain Studios" in Anime</span>
+                        <i class="fa-solid fa-magnifying-glass" style={{marginRight:"3px", position:"relative",top:"-1px"}}></i>
+                        <span style={{position:"relative",top:"-1px"}}>Search for "Unchain Studios" in Anime</span>
                       </div>
                     </div>
                     <h2
@@ -770,10 +771,11 @@ function MyAnimeList() {
                       textAlign:"center",
                       fontSize:"11px",
                       display:"inline-block",
-                      fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif"
+                      fontFamily:"Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                      height:"13px",
                     }}>
-                        <i class="fa-solid fa-magnifying-glass" style={{marginRight:"3px"}}></i>
-                        <span>Search for "Unchain Studios" in Manga</span>
+                        <i class="fa-solid fa-magnifying-glass" style={{marginRight:"3px", position:"relative",top:"-1px"}}></i>
+                        <span style={{position:"relative",top:"-1px"}}>Search for "Unchain Studios" in Manga</span>
                       </div>
                     </div>
                   </div>                  
