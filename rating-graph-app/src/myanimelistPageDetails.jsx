@@ -25,6 +25,13 @@ import ReadSample from "../public/imgs/mal/readsample.png";
 import NotifyStart from "../public/imgs/mal/notifystart.png";
 import MV from "../public/imgs/mal/mv.png";
 import Play from "../public/imgs/mal/play.png";
+import Reviews from "../public/imgs/mal/reviews.png";
+import InterestStacks from "../public/imgs/mal/intereststacks.png";
+import Recomendations from "../public/imgs/mal/recomendations.png";
+import RecomendationsManga from "../public/imgs/mal/recommendations_manga.png";
+import RecentNews from "../public/imgs/mal/recentnews.png";
+import Discussions from "../public/imgs/mal/discussions.png";
+import RecentArticles from "../public/imgs/mal/recentArticles.png";
 
 function RelatedEntries({ seriesId, currentId, csvUrl }) {
   const { id } = useParams();
@@ -69,57 +76,63 @@ function RelatedEntries({ seriesId, currentId, csvUrl }) {
 
       // Processa os dados relacionados
       Papa.parse(relatedCsvText, {
-  header: true,
-  complete: (results) => {
-    console.log("Total de entradas no CSV:", results.data.length);
-    console.log("Primeiras entradas:", results.data);
-    const currentSeasonNum = parseInt(currentId.match(/_s(\d+)$/)?.[1] || 0);
+        header: true,
+        complete: (results) => {
+          console.log("Total de entradas no CSV:", results.data.length);
+          console.log("Primeiras entradas:", results.data);
+          const currentSeasonNum = parseInt(
+            currentId.match(/_s(\d+)$/)?.[1] || 0
+          );
 
-    // Filtra por série e remove o currentId
-    let related = results.data.filter(entry => entry.showId !== currentId);
+          // Filtra por série e remove o currentId
+          let related = results.data.filter(
+            (entry) => entry.showId !== currentId
+          );
 
-    related = related.filter(entry => {
-      const isManga = animeData.Type2 === "Manga";
-      console.log("Tipo do anime:", isManga);
+          related = related.filter((entry) => {
+            const isManga = animeData.Type2 === "Manga";
+            console.log("Tipo do anime:", isManga);
 
-      if (isManga) {
-        return ["Adaptation"].includes(entry.NameEntriesManga);
-      } else {
-        const entrySeasonNum = parseInt(entry.showId.match(/_s(\d+)$/)?.[1] || 0);
-        
-        // Determina dinamicamente o tipo de relação
-        if (entrySeasonNum === currentSeasonNum + 1) {
-          entry.NameEntries = "Sequel"; // Atualiza dinamicamente
-          return true;
-        } 
-        else if (entrySeasonNum === currentSeasonNum - 1) {
-          entry.NameEntries = "Prequel"; // Atualiza dinamicamente
-          return true;
-        }
-        // Mantém outras relações (Adaptation)
-        return entry.NameEntries === "Adaptation";
-      }
-    });
+            if (isManga) {
+              return ["Adaptation"].includes(entry.NameEntriesManga);
+            } else {
+              const entrySeasonNum = parseInt(
+                entry.showId.match(/_s(\d+)$/)?.[1] || 0
+              );
 
-    // Mapeia os resultados finais
-    related = related.map(entry => ({
-      ...entry,
-      coverImage: getShowCoverSrc(entry.showId),
-      isManga: entry.Type2 === "Manga",
-      isAnime: entry.Type2 === "Anime",
-      displayName: animeData.Type2 === "Manga" 
-        ? entry.NameEntriesManga || entry.NameEntries 
-        : entry.NameEntries,
-    }));
+              // Determina dinamicamente o tipo de relação
+              if (entrySeasonNum === currentSeasonNum + 1) {
+                entry.NameEntries = "Sequel"; // Atualiza dinamicamente
+                return true;
+              } else if (entrySeasonNum === currentSeasonNum - 1) {
+                entry.NameEntries = "Prequel"; // Atualiza dinamicamente
+                return true;
+              }
+              // Mantém outras relações (Adaptation)
+              return entry.NameEntries === "Adaptation";
+            }
+          });
 
-    console.log("Filtered related entries:", related);
-    setRelatedEntries(related);
-    setLoading(false);
-  },
-  error: () => {
-    throw new Error("Error parsing related entries CSV");
-  },
-});
+          // Mapeia os resultados finais
+          related = related.map((entry) => ({
+            ...entry,
+            coverImage: getShowCoverSrc(entry.showId),
+            isManga: entry.Type2 === "Manga",
+            isAnime: entry.Type2 === "Anime",
+            displayName:
+              animeData.Type2 === "Manga"
+                ? entry.NameEntriesManga || entry.NameEntries
+                : entry.NameEntries,
+          }));
+
+          console.log("Filtered related entries:", related);
+          setRelatedEntries(related);
+          setLoading(false);
+        },
+        error: () => {
+          throw new Error("Error parsing related entries CSV");
+        },
+      });
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -1317,34 +1330,41 @@ function OpTheme({ seriesId, currentId }) {
       style={{
         backgroundColor: "#ffffff",
         display: "flex",
-        paddingLeft:"1px"
+        paddingLeft: "1px",
       }}
     >
-      <div style={{display:"flex", alignItems:"center"}}>
-      <img src={Play} alt="" style={{padding:"1px"}}/>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={Play} alt="" style={{ padding: "1px" }} />
       </div>
-      <div style={{ padding: "1px", display:"flex", alignItems:"center", width:"322.533px"}}>
+      <div
+        style={{
+          padding: "1px",
+          display: "flex",
+          alignItems: "center",
+          width: "322.533px",
+        }}
+      >
         <span>
-        <span style={{marginRight:"4px"}}>{entry.Num}:</span>
-        <Link
-          to={``}
-          style={{
-            color: "#1c439b",
-            textDecoration: "none",
-            fontSize: "11px",
-            lineHeight: "1.5em",
-            ":hover": { textDecoration: "underline" },
-            marginRight:"4px"
-          }}
-        >
-          "{entry.DisplayName}"
-        </Link>
-        <span style={{marginRight:"4px"}}>by {entry.Band}</span>
-        <span>(eps {entry.Eps})</span>
+          <span style={{ marginRight: "4px" }}>{entry.Num}:</span>
+          <Link
+            to={``}
+            style={{
+              color: "#1c439b",
+              textDecoration: "none",
+              fontSize: "11px",
+              lineHeight: "1.5em",
+              ":hover": { textDecoration: "underline" },
+              marginRight: "4px",
+            }}
+          >
+            "{entry.DisplayName}"
+          </Link>
+          <span style={{ marginRight: "4px" }}>by {entry.Band}</span>
+          <span>(eps {entry.Eps})</span>
         </span>
       </div>
-      <div style={{display:"flex", alignItems:"center"}}>
-        <img src={MV} alt=""/>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={MV} alt="" />
       </div>
     </li>
   );
@@ -1579,34 +1599,41 @@ function EdTheme({ seriesId, currentId }) {
       style={{
         backgroundColor: "#ffffff",
         display: "flex",
-        paddingLeft:"1px"
+        paddingLeft: "1px",
       }}
     >
-      <div style={{display:"flex", alignItems:"center"}}>
-      <img src={Play} alt="" style={{padding:"1px"}}/>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={Play} alt="" style={{ padding: "1px" }} />
       </div>
-      <div style={{ padding: "1px", display:"flex", alignItems:"center", width:"322.533px"}}>
+      <div
+        style={{
+          padding: "1px",
+          display: "flex",
+          alignItems: "center",
+          width: "322.533px",
+        }}
+      >
         <span>
-        <span style={{marginRight:"4px"}}>{entry.Num}:</span>
-        <Link
-          to={``}
-          style={{
-            color: "#1c439b",
-            textDecoration: "none",
-            fontSize: "11px",
-            lineHeight: "1.5em",
-            ":hover": { textDecoration: "underline" },
-            marginRight:"4px"
-          }}
-        >
-          "{entry.DisplayName}"
-        </Link>
-        <span style={{marginRight:"4px"}}>by {entry.Band}</span>
-        <span>(eps {entry.Eps})</span>
+          <span style={{ marginRight: "4px" }}>{entry.Num}:</span>
+          <Link
+            to={``}
+            style={{
+              color: "#1c439b",
+              textDecoration: "none",
+              fontSize: "11px",
+              lineHeight: "1.5em",
+              ":hover": { textDecoration: "underline" },
+              marginRight: "4px",
+            }}
+          >
+            "{entry.DisplayName}"
+          </Link>
+          <span style={{ marginRight: "4px" }}>by {entry.Band}</span>
+          <span>(eps {entry.Eps})</span>
         </span>
       </div>
-      <div style={{display:"flex", alignItems:"center"}}>
-        <img src={MV} alt=""/>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src={MV} alt="" />
       </div>
     </li>
   );
@@ -1769,6 +1796,22 @@ function MyAnimeList({ match }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [trailerImage, setTrailerSrc] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
+
+  const baseColor = "#1c439b"; // cor do texto original
+  const hoverStyle = {
+    backgroundColor: isHovered ? baseColor : "#fff",
+    color: isHovered ? "#fff" : baseColor,
+    fontFamily: "Avenir, lucida grande, tahoma, verdana, arial, sans-serif",
+    fontSize: "12px",
+    fontWeight: "400",
+    padding: "2px 4px",
+    textDecoration: "none",
+    height: "14px",
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+  };
 
   // Load anime data from CSV
   useEffect(() => {
@@ -1901,54 +1944,54 @@ function MyAnimeList({ match }) {
             }}
           >
             {animeData.TitleJapanese != animeData.TitleEnglish && (
-            <div
-              style={{
-                display: "table-cell",
-                width: "855px",
-              }}
-            >
-              <h1
+              <div
                 style={{
-                  fontSize: "16px",
-                  margin: "0",
-                  display: "flex",
-                  alignItems: "center",
+                  display: "table-cell",
+                  width: "855px",
                 }}
               >
-                {animeData.TitleJapanese || animeData.Title}
-              </h1>
-              <h2
-                style={{
-                  fontSize: "14px",
-                  margin: "0",
-                  height: "17px",
-                  display: "flex",
-                  alignItems: "center",
-                  color: "gray",
-                }}
-              >
-                {animeData.TitleEnglish || animeData.Title}
-              </h2>
-            </div>
+                <h1
+                  style={{
+                    fontSize: "16px",
+                    margin: "0",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {animeData.TitleJapanese || animeData.Title}
+                </h1>
+                <h2
+                  style={{
+                    fontSize: "14px",
+                    margin: "0",
+                    height: "17px",
+                    display: "flex",
+                    alignItems: "center",
+                    color: "gray",
+                  }}
+                >
+                  {animeData.TitleEnglish || animeData.Title}
+                </h2>
+              </div>
             )}
             {animeData.TitleJapanese === animeData.TitleEnglish && (
-            <div
-              style={{
-                display: "table-cell",
-                width: "855px",
-              }}
-            >
-              <h1
+              <div
                 style={{
-                  fontSize: "16px",
-                  margin: "0",
-                  display: "flex",
-                  alignItems: "center",
+                  display: "table-cell",
+                  width: "855px",
                 }}
               >
-                {animeData.TitleEnglish}
-              </h1>
-            </div>
+                <h1
+                  style={{
+                    fontSize: "16px",
+                    margin: "0",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {animeData.TitleEnglish}
+                </h1>
+              </div>
             )}
           </div>
 
@@ -2430,20 +2473,20 @@ function MyAnimeList({ match }) {
                         Alternative Titles
                       </h2>
                       {animeData.Synonyms != "-" && (
-                      <div
-                        style={{
-                          padding: "3px 0",
-                          fontSize: "11px",
-                          lineHeight: "1.5em",
-                          position: "relative",
-                          top: "1px",
-                        }}
-                      >
-                        <span style={{ color: "#444", fontWeight: "700" }}>
-                          Synonyms:{" "}
-                        </span>
-                        {animeData.Synonyms || "N/A"}
-                      </div>
+                        <div
+                          style={{
+                            padding: "3px 0",
+                            fontSize: "11px",
+                            lineHeight: "1.5em",
+                            position: "relative",
+                            top: "1px",
+                          }}
+                        >
+                          <span style={{ color: "#444", fontWeight: "700" }}>
+                            Synonyms:{" "}
+                          </span>
+                          {animeData.Synonyms || "N/A"}
+                        </div>
                       )}
 
                       <div
@@ -2902,485 +2945,469 @@ function MyAnimeList({ match }) {
                         }}
                       >
                         {isManga && (
-                        <div
-                          className="horizontal-nav"
-                          style={{
-                            margin: "5px 0 10px 0",
-                            borderColor: "#1c439b",
-                            borderStyle: "solid",
-                            borderWidth: "0 0 1px",
-                            padding: "0 0 2px",
-                            lineHeight: "1.5em",
-                            height: "18px",
-                          }}
-                        >
-                          <ul
+                          <div
+                            className="horizontal-nav"
                             style={{
-                              marginRight: "0",
-                              paddingRight: "0",
-                              paddingLeft: "0",
-                              marginTop: "0",
-                              marginLeft: "0",
-                              fontFamily: "arial,helvetica,sans-serif",
+                              margin: "5px 0 10px 0",
+                              borderColor: "#1c439b",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              padding: "0 0 2px",
                               lineHeight: "1.5em",
-                              listStyleType: "none",
-                              display: "flex",
-                              position: "relative",
-                              top: "-1px",
-                              alignItems: "center",
-                              width: "639.217px",
-                              justifyContent: "space-between",
+                              height: "18px",
                             }}
                           >
-                            <li
+                            <ul
                               style={{
-                                backgroundColor: "#fff",
-                                color: "#fff",
-                                backgroundColor: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
+                                marginRight: "0",
+                                paddingRight: "0",
+                                paddingLeft: "0",
+                                marginTop: "0",
+                                marginLeft: "0",
+                                fontFamily: "arial,helvetica,sans-serif",
+                                lineHeight: "1.5em",
+                                listStyleType: "none",
                                 display: "flex",
+                                position: "relative",
+                                top: "-1px",
                                 alignItems: "center",
+                                width: "639.217px",
+                                justifyContent: "space-between",
                               }}
                             >
-                              Details
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Characters
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Stats
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Reviews
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Recommendations
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Interest Stacks
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              News
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Forum
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Clubs
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Pictures
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              More Info
-                            </li>
-                          </ul>
-                        </div>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#fff",
+                                  backgroundColor: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Details
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Characters
+                              </li>
+                              <Link to={`/manga/${animeData.showId}/stats`}>
+                                <li
+                                  style={hoverStyle}
+                                  onMouseEnter={() => setIsHovered(true)}
+                                  onMouseLeave={() => setIsHovered(false)}
+                                >
+                                  Stats
+                                </li>
+                              </Link>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Reviews
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Recommendations
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Interest Stacks
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                News
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Forum
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Clubs
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Pictures
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                More Info
+                              </li>
+                            </ul>
+                          </div>
                         )}
                         {isAnime && (
-                        <div
-                          className="horizontal-nav"
-                          style={{
-                            margin: "5px 0 10px 0",
-                            borderColor: "#1c439b",
-                            borderStyle: "solid",
-                            borderWidth: "0 0 1px",
-                            padding: "0 0 2px",
-                            lineHeight: "1.5em",
-                            height: "18px",
-                          }}
-                        >
-                          <ul
+                          <div
+                            className="horizontal-nav"
                             style={{
-                              marginRight: "0",
-                              paddingRight: "0",
-                              paddingLeft: "0",
-                              marginTop: "0",
-                              marginLeft: "0",
-                              fontFamily: "arial,helvetica,sans-serif",
+                              margin: "5px 0 10px 0",
+                              borderColor: "#1c439b",
+                              borderStyle: "solid",
+                              borderWidth: "0 0 1px",
+                              padding: "0 0 2px",
                               lineHeight: "1.5em",
-                              listStyleType: "none",
-                              display: "flex",
-                              position: "relative",
-                              top: "-1px",
-                              alignItems: "center",
-                              width: "782.483px",
-                              justifyContent: "space-between",
+                              height: "18px",
                             }}
                           >
-                            <li
+                            <ul
                               style={{
-                                backgroundColor: "#fff",
-                                color: "#fff",
-                                backgroundColor: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
+                                marginRight: "0",
+                                paddingRight: "0",
+                                paddingLeft: "0",
+                                marginTop: "0",
+                                marginLeft: "0",
+                                fontFamily: "arial,helvetica,sans-serif",
+                                lineHeight: "1.5em",
+                                listStyleType: "none",
                                 display: "flex",
+                                position: "relative",
+                                top: "-1px",
                                 alignItems: "center",
+                                width: "782.483px",
+                                justifyContent: "space-between",
                               }}
                             >
-                              Details
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Characters & Staff
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Episodes
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Videos
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Stats
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Reviews
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Recommendations
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Interest Stacks
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              News
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Forum
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Clubs
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              Pictures
-                            </li>
-                            <li
-                              style={{
-                                backgroundColor: "#fff",
-                                color: "#1c439b",
-                                fontFamily:
-                                  "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
-                                fontSize: "12px",
-                                fontWeight: "400",
-                                padding: "2px 4px",
-                                textDecoration: "none",
-                                height: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              More Info
-                            </li>
-                          </ul>
-                        </div>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#fff",
+                                  backgroundColor: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Details
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Characters & Staff
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Episodes
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Videos
+                              </li>
+                              <Link to={`/anime/${animeData.showId}/stats`}>
+                                <li
+                                  style={hoverStyle}
+                                  onMouseEnter={() => setIsHovered(true)}
+                                  onMouseLeave={() => setIsHovered(false)}
+                                >
+                                  Stats
+                                </li>
+                              </Link>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Reviews
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Recommendations
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Interest Stacks
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                News
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Forum
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Clubs
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                Pictures
+                              </li>
+                              <li
+                                style={{
+                                  backgroundColor: "#fff",
+                                  color: "#1c439b",
+                                  fontFamily:
+                                    "Avenir,lucida grande,tahoma,verdana,arial,sans-serif",
+                                  fontSize: "12px",
+                                  fontWeight: "400",
+                                  padding: "2px 4px",
+                                  textDecoration: "none",
+                                  height: "14px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                More Info
+                              </li>
+                            </ul>
+                          </div>
                         )}
                         <div
                           className="breadcrumb"
@@ -4093,14 +4120,15 @@ function MyAnimeList({ match }) {
                                                   >
                                                     {animeData.TitleEnglish}
                                                   </span>
-                                                  {animeData.Volumes != "Unknown" && (
-                                                  <span
-                                                    style={{
-                                                      color: "#1c439b",
-                                                    }}
-                                                  >
-                                                    {animeData.VolumeSale}
-                                                  </span>
+                                                  {animeData.Volumes !=
+                                                    "Unknown" && (
+                                                    <span
+                                                      style={{
+                                                        color: "#1c439b",
+                                                      }}
+                                                    >
+                                                      {animeData.VolumeSale}
+                                                    </span>
                                                   )}
                                                   <span
                                                     style={{
@@ -4119,7 +4147,7 @@ function MyAnimeList({ match }) {
                                                   style={{
                                                     position: "absolute",
                                                     top: "75px",
-                                                    right:"0px"
+                                                    right: "0px",
                                                   }}
                                                 />
                                               </div>
@@ -4169,33 +4197,36 @@ function MyAnimeList({ match }) {
                             Edit
                           </span>
                         </div>
-                        {animeData.Synopsis != "-" && (<>
-                        <div style={{ marginTop: 0, fontSize: "11px" }}>
-                          {animeData.Synopsis?.split("\n").map(
-                            (paragraph, index) => (
-                              <p
-                                key={index}
-                                style={{
-                                  color: "#000",
-                                  lineHeight: "1.5em",
-                                  margin: "0 0 16.5px 0",
-                                }}
-                              >
-                                {paragraph}
-                              </p>
-                            )
-                          )}
-                        </div>                        
-                        <span style={{ color: "#000" }}>
-                          [Written by MAL Rewrite]
-                        </span>
-                        </>
+                        {animeData.Synopsis != "-" && (
+                          <>
+                            <div style={{ marginTop: 0, fontSize: "11px" }}>
+                              {animeData.Synopsis?.split("\n").map(
+                                (paragraph, index) => (
+                                  <p
+                                    key={index}
+                                    style={{
+                                      color: "#000",
+                                      lineHeight: "1.5em",
+                                      margin: "0 0 16.5px 0",
+                                    }}
+                                  >
+                                    {paragraph}
+                                  </p>
+                                )
+                              )}
+                            </div>
+                            <span style={{ color: "#000" }}>
+                              [Written by MAL Rewrite]
+                            </span>
+                          </>
                         )}
-                        {animeData.Synopsis === "-" && (<>
-                        <div style={{ marginTop: 0, fontSize: "11px" }}>
-                          {animeData.SeasonName} of <i>{animeData.SeriesName}.</i>
-                        </div>                        
-                        </>
+                        {animeData.Synopsis === "-" && (
+                          <>
+                            <div style={{ marginTop: 0, fontSize: "11px" }}>
+                              {animeData.SeasonName} of{" "}
+                              <i>{animeData.SeriesName}.</i>
+                            </div>
+                          </>
                         )}
                         <div style={{ marginBottom: "15px" }} />
                         {animeData.BeginningDate != "?" &&
@@ -4341,7 +4372,7 @@ function MyAnimeList({ match }) {
                             )}
                           </div>
                         )}
-                        <div style={{ marginBottom: "15px" }} />
+                        <div style={{ marginBottom: "32px" }} />
                         {isAnime && (
                           <div
                             style={{
@@ -4379,7 +4410,7 @@ function MyAnimeList({ match }) {
                             </div>
                           </div>
                         )}
-                        <div style={{ marginBottom: "15px" }} />
+                        <div style={{ marginBottom: "72px" }} />
                         <h2
                           style={{
                             borderColor: "#bebebe",
@@ -4392,311 +4423,357 @@ function MyAnimeList({ match }) {
                             padding: "3px 0",
                           }}
                         >
-                          Summary Stats
+                          Reviews
                         </h2>
                         <div
                           style={{
                             display: "flex",
-                            flexDirection: "column",
+                            backgroundColor: "#f6f6f6",
+                            padding: ".5rem 10px",
+                            justifyContent: "space-between",
+                            paddingBottom: "0px",
+                            marginTop: "1px",
                           }}
                         >
-                          {isAnime && (
-                            <div
-                              style={{
-                                padding: "3px 0",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: "#444",
-                                  fontWeight: "700",
-                                  fontSize: "11px",
-                                }}
-                              >
-                                Watching:{" "}
-                              </span>
-                              <span
-                                style={{
-                                  color: "#000",
-                                  fontSize: "11px",
-                                }}
-                              >
-                                {animeData.Watching}
-                              </span>
-                            </div>
-                          )}
-                          {isManga && (
-                            <div
-                              style={{
-                                padding: "3px 0",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: "#444",
-                                  fontWeight: "700",
-                                  fontSize: "11px",
-                                }}
-                              >
-                                Reading:{" "}
-                              </span>
-                              <span
-                                style={{
-                                  color: "#000",
-                                  fontSize: "11px",
-                                }}
-                              >
-                                {animeData.Watching}
-                              </span>
-                            </div>
-                          )}
-                          <div
-                            style={{
-                              padding: "3px 0",
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: "#444",
-                                fontWeight: "700",
-                                fontSize: "11px",
-                              }}
-                            >
-                              Completed:{" "}
-                            </span>
-                            <span
-                              style={{
-                                color: "#000",
-                                fontSize: "11px",
-                              }}
-                            >
-                              {animeData.Completed}
-                            </span>
+                          <div style={{ color: "#1c439b" }}>
+                            <i class="fa-regular fa-square-plus"></i>
+                            <span> Write review</span>
                           </div>
                           <div
-                            style={{
-                              padding: "3px 0",
-                            }}
+                            style={{ display: "flex", flexDirection: "column" }}
                           >
-                            <span
-                              style={{
-                                color: "#444",
-                                fontWeight: "700",
-                                fontSize: "11px",
-                              }}
-                            >
-                              On-Hold:{" "}
-                            </span>
-                            <span
-                              style={{
-                                color: "#000",
-                                fontSize: "11px",
-                              }}
-                            >
-                              {animeData.Onhold}
-                            </span>
-                          </div>
-                          <div
-                            style={{
-                              padding: "3px 0",
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: "#444",
-                                fontWeight: "700",
-                                fontSize: "11px",
-                              }}
-                            >
-                              Dropped:{" "}
-                            </span>
-                            <span
-                              style={{
-                                color: "#000",
-                                fontSize: "11px",
-                              }}
-                            >
-                              {animeData.Dropped}
-                            </span>
-                          </div>
-                          {isAnime && (
+                            <div style={{ display: "flex" }}>
+                              <div
+                                style={{ color: "#26448f", margin: "0 8px" }}
+                              >
+                                <i class="fas fa-star">
+                                  <span
+                                    style={{
+                                      fontFamily: "Verdana, Arial",
+                                      fontWeight: "normal",
+                                    }}
+                                  >
+                                    <strong> {animeData.Recommended}</strong>{" "}
+                                    Recommended
+                                  </span>
+                                </i>
+                              </div>
+                              <div
+                                style={{ color: "#787878", margin: "0 8px" }}
+                              >
+                                <i class="fas fa-star-half-stroke">
+                                  <span
+                                    style={{
+                                      fontFamily: "Verdana, Arial",
+                                      fontWeight: "normal",
+                                    }}
+                                  >
+                                    <strong> {animeData.MixedFeelings}</strong>{" "}
+                                    Mixed Feelings
+                                  </span>
+                                </i>
+                              </div>
+                              <div
+                                style={{ color: "#a12f31", margin: "0 8px" }}
+                              >
+                                <i class="far fa-star">
+                                  <span
+                                    style={{
+                                      fontFamily: "Verdana, Arial",
+                                      fontWeight: "normal",
+                                    }}
+                                  >
+                                    <strong> {animeData.NotRecommended}</strong>{" "}
+                                    Not Recommended
+                                  </span>
+                                </i>
+                              </div>
+                            </div>
+                            {/* Barra de progresso corrigida */}
                             <div
                               style={{
-                                padding: "3px 0",
+                                display: "flex",
+                                height: "6px",
+                                width: "100%",
+                                overflow: "hidden",
+                                marginTop: "2px",
                               }}
                             >
-                              <span
+                              <div
                                 style={{
-                                  color: "#444",
-                                  fontWeight: "700",
-                                  fontSize: "11px",
+                                  backgroundColor: "#26448f",
+                                  width: `${Math.max(
+                                    (animeData.Recommended /
+                                      animeData.Reviews) *
+                                      100
+                                  )}%`,
+                                  minWidth: "1px",
                                 }}
-                              >
-                                Plan to Watch:{" "}
-                              </span>
-                              <span
+                              ></div>
+                              <div
                                 style={{
-                                  color: "#000",
-                                  fontSize: "11px",
+                                  backgroundColor: "#787878",
+                                  width: `${Math.max(
+                                    (animeData.MixedFeelings /
+                                      animeData.Reviews) *
+                                      100
+                                  )}%`,
+                                  minWidth: "1px",
                                 }}
-                              >
-                                {animeData.Plantowatch}
-                              </span>
+                              ></div>
+                              <div
+                                style={{
+                                  backgroundColor: "#a12f31",
+                                  width: `${Math.max(
+                                    (animeData.NotRecommended /
+                                      animeData.Reviews) *
+                                      100
+                                  )}%`,
+                                  minWidth: "1px",
+                                }}
+                              ></div>
                             </div>
-                          )}
-                          {isManga && (
-                            <div
-                              style={{
-                                padding: "3px 0",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: "#444",
-                                  fontWeight: "700",
-                                  fontSize: "11px",
-                                }}
-                              >
-                                Plan to Read:{" "}
-                              </span>
-                              <span
-                                style={{
-                                  color: "#000",
-                                  fontSize: "11px",
-                                }}
-                              >
-                                {animeData.Plantowatch}
-                              </span>
-                            </div>
-                          )}
-                          <div
-                            style={{
-                              padding: "3px 0",
-                            }}
-                          >
-                            <span
-                              style={{
-                                color: "#444",
-                                fontWeight: "700",
-                                fontSize: "11px",
-                              }}
-                            >
-                              Total:{" "}
-                            </span>
-                            <span
-                              style={{
-                                color: "#000",
-                                fontSize: "11px",
-                              }}
-                            >
-                              {animeData.Members}
+                          </div>
+                          <div style={{ color: "#1c439b" }}>
+                            <i class="fa-solid fa-angle-right"></i>
+                            <span>
+                              {" "}
+                              All reviews (<strong>{animeData.Reviews}</strong>)
                             </span>
                           </div>
                         </div>
-                        <div style={{ marginBottom: "15px" }} />
-                        <h2
+                        <img
+                          src={Reviews}
+                          alt=""
+                          style={{ marginTop: "7px" }}
+                        />
+                        <div style={{ marginBottom: "28px" }} />
+                        <div
                           style={{
                             borderColor: "#bebebe",
                             borderStyle: "solid",
                             borderWidth: "0 0 1px",
-                            color: "#000",
-                            fontSize: "12px",
-                            fontWeight: "700",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
                             margin: "4px 0 5px",
                             padding: "3px 0",
+                            height: "16.5px",
                           }}
                         >
-                          Score Stats
-                        </h2>
-                        {animeData.UserVotes != "-" && (
-                        <div style={{ fontSize: "11px", marginBottom: "15px" }}>
-                          {(() => {
-                            const scores = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-
-                            // Verificação segura dos valores
-                            const votesData = scores.map((score) => {
-                              const votesValue =
-                                animeData[`Score${score}Votes`];
-                              // Conversão segura para número, tratando casos de undefined/null/string vazia
-                              const votes =
-                                votesValue !== undefined &&
-                                votesValue !== null &&
-                                votesValue !== ""
-                                  ? Number(votesValue)
-                                  : 0;
-
-                              return { score, votes };
-                            });
-
-                            const totalVotes = votesData.reduce(
-                              (sum, item) => sum + item.votes,
-                              0
-                            );
-                            const maxVotes = Math.max(
-                              1,
-                              ...votesData.map((item) => item.votes)
-                            );
-
-                            return votesData.map(({ score, votes }) => {
-                              const percentage =
-                                totalVotes > 0
-                                  ? ((votes / totalVotes) * 100).toFixed(1)
-                                  : "0.0";
-                              const relativeWidth = (votes / maxVotes) * 100;
-
-                              return (
-                                <div
-                                  key={score}
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    marginBottom: "2px",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      width: "20px",
-                                      textAlign: "left",
-                                      color: "#000",
-                                      fontSize: "11px",
-                                    }}
-                                  >
-                                    {score}
-                                  </div>
-                                  <div style={{ flex: 1 }}>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        padding: "3px 0",
-                                      }}
-                                    >
-                                      <div
-                                        style={{
-                                          width: `${percentage}%`,
-                                          height: "15px",
-                                          backgroundColor: "#a6bbef",
-                                          flexShrink: 0,
-                                        }}
-                                      />
-                                      <div
-                                        style={{
-                                          paddingLeft: "5px",
-                                          fontFamily: "Verdana, Arial",
-                                        }}
-                                      >
-                                        <span style={{ color: "#000" }}>
-                                          {percentage}% <small>({votes})</small>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            });
-                          })()}
+                          <h2
+                            style={{
+                              fontSize: "12px",
+                              color: "#000",
+                              fontWeight: "700",
+                              margin: "0",
+                            }}
+                          >
+                            Interest Stacks
+                          </h2>
+                          <span
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "11px",
+                              color: "#1c439b",
+                              height: "16.5px",
+                              paddingRight: "2px",
+                            }}
+                          >
+                            More stacks
+                          </span>
                         </div>
-                        )}
+                        <img src={InterestStacks} alt="" />
+                        <div style={{ marginBottom: "11px" }} />
+                        {isAnime &&(<>
+                        <div
+                          style={{
+                            borderColor: "#bebebe",
+                            borderStyle: "solid",
+                            borderWidth: "0 0 1px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            margin: "4px 0 5px",
+                            padding: "3px 0",
+                            height: "16.5px",
+                          }}
+                        >
+                          <h2
+                            style={{
+                              fontSize: "12px",
+                              color: "#000",
+                              fontWeight: "700",
+                              margin: "0",
+                            }}
+                          >
+                            Recommendations
+                          </h2>
+                          <span
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "11px",
+                              color: "#1c439b",
+                              height: "16.5px",
+                              paddingRight: "2px",
+                            }}
+                          >
+                            More recommendations
+                          </span>
+                        </div>
+                        <img src={Recomendations} alt="" />
+                        </>)}
+                        <div style={{ marginBottom: "15px" }} />
+                        {isManga &&(<>
+                        <div
+                          style={{
+                            borderColor: "#bebebe",
+                            borderStyle: "solid",
+                            borderWidth: "0 0 1px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            margin: "4px 0 5px",
+                            padding: "3px 0",
+                            height: "16.5px",
+                          }}
+                        >
+                          <h2
+                            style={{
+                              fontSize: "12px",
+                              color: "#000",
+                              fontWeight: "700",
+                              margin: "0",
+                            }}
+                          >
+                            Recommendations
+                          </h2>
+                          <span
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "11px",
+                              color: "#1c439b",
+                              height: "16.5px",
+                              paddingRight: "2px",
+                            }}
+                          >
+                            More recommendations
+                          </span>
+                        </div>
+                        <img src={RecomendationsManga} alt="" />
+                        </>)}
+                        <div style={{ marginBottom: "15px" }} />
+                        <div
+                          style={{
+                            borderColor: "#bebebe",
+                            borderStyle: "solid",
+                            borderWidth: "0 0 1px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            margin: "4px 0 5px",
+                            padding: "3px 0",
+                            height: "16.5px",
+                          }}
+                        >
+                          <h2
+                            style={{
+                              fontSize: "12px",
+                              color: "#000",
+                              fontWeight: "700",
+                              margin: "0",
+                            }}
+                          >
+                            Recent News
+                          </h2>
+                          <span
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "11px",
+                              color: "#1c439b",
+                              height: "16.5px",
+                              paddingRight: "2px",
+                            }}
+                          >
+                            More news
+                          </span>
+                        </div>
+                        <img src={RecentNews} alt="" />
+                        <div style={{ marginBottom: "15px" }} />
+                        <div
+                          style={{
+                            borderColor: "#bebebe",
+                            borderStyle: "solid",
+                            borderWidth: "0 0 1px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            margin: "4px 0 5px",
+                            padding: "3px 0",
+                            height: "16.5px",
+                          }}
+                        >
+                          <h2
+                            style={{
+                              fontSize: "12px",
+                              color: "#000",
+                              fontWeight: "700",
+                              margin: "0",
+                            }}
+                          >
+                            Recent Forum Discussion
+                          </h2>
+                          <span
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "11px",
+                              color: "#1c439b",
+                              height: "16.5px",
+                              paddingRight: "2px",
+                            }}
+                          >
+                            More discussions
+                          </span>
+                        </div>
+                        <img src={Discussions} alt="" />
+                        <div style={{ marginBottom: "15px" }} />
+                        <div
+                          style={{
+                            borderColor: "#bebebe",
+                            borderStyle: "solid",
+                            borderWidth: "0 0 1px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            margin: "4px 0 5px",
+                            padding: "3px 0",
+                            height: "16.5px",
+                          }}
+                        >
+                          <h2
+                            style={{
+                              fontSize: "12px",
+                              color: "#000",
+                              fontWeight: "700",
+                              margin: "0",
+                            }}
+                          >
+                            Recent Featured Articles
+                          </h2>
+                          <span
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "11px",
+                              color: "#1c439b",
+                              height: "16.5px",
+                              paddingRight: "2px",
+                            }}
+                          >
+                            More features articles
+                          </span>
+                        </div>
+                        <img src={RecentArticles} alt="" />
+                        <div style={{ marginBottom: "100px" }} />
                       </div>
                     </div>
                   </td>

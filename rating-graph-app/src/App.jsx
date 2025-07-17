@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SitesList from "./siteslist";
 import RatingsPage from "../src/RatingPage";
 import IMDBMainPage from "./IMDBMainpage";
 import EpisodePage from "./EpisodePage";
@@ -8,7 +9,8 @@ import SeriesList from "./SeriesList";
 import RatingList from "./RatingList";
 import MyAnimeList from "./myanimelist";
 import MyAnimeListPageDetails from "./myanimelistPageDetails";
-import SitesList from "./siteslist";
+import MyAnimeListPageStats from "./myanimelistPageStats";
+
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
         <Route path="/anime/:id" element={<MyAnimeListPageDetails />} />
         <Route path="/manga/:id" element={<MyAnimeListPageDetails />} />
+        <Route path="/manga/:id/stats" element={<MyAnimeListPageStats />} />
+        <Route path="/anime/:id/stats" element={<MyAnimeListPageStats />} />
       </Routes>
     </Router>
   );
