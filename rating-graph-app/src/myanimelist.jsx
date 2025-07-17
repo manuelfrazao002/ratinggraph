@@ -550,6 +550,9 @@ function MyAnimeList() {
                         marginBottom: "12px",
                         fontSize: "11px",
                         height: "13px",
+                        display:"flex",
+                        alignItems:"center",
+                        justifyContent:"center"
                       }}
                     >
                       Search Results for "Unchain Studios"
