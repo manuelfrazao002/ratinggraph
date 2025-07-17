@@ -4507,7 +4507,6 @@ function MyAnimeList({ match }) {
                                       animeData.Reviews) *
                                       100
                                   )}%`,
-                                  minWidth: "1px",
                                 }}
                               ></div>
                               <div
@@ -4518,7 +4517,6 @@ function MyAnimeList({ match }) {
                                       animeData.Reviews) *
                                       100
                                   )}%`,
-                                  minWidth: "1px",
                                 }}
                               ></div>
                               <div
@@ -4529,7 +4527,6 @@ function MyAnimeList({ match }) {
                                       animeData.Reviews) *
                                       100
                                   )}%`,
-                                  minWidth: "1px",
                                 }}
                               ></div>
                             </div>
