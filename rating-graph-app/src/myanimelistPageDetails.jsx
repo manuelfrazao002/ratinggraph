@@ -501,6 +501,7 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
             float: "right",
           }}
         >
+          {voiceActor.coverImage != "" && (
           <img
             src={voiceActor.coverImage}
             alt=""
@@ -511,6 +512,7 @@ function CharactersVoiceActorsEntries({ seriesId, currentId }) {
               objectFit: "cover",
             }}
           />
+          )}
         </div>
       </div>
     </li>
