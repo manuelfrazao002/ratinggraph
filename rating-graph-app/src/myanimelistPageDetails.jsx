@@ -1385,7 +1385,7 @@ function OpTheme({ seriesId, currentId }) {
             margin: "4px 0 5px",
             padding: "3px 0",
             height: "16.5px",
-            height: "392px",
+            width: "392px",
           }}
         >
           <h2
@@ -1654,7 +1654,7 @@ function EdTheme({ seriesId, currentId }) {
             margin: "4px 0 5px",
             padding: "3px 0",
             height: "16.5px",
-            height: "392px",
+            width: "392px",
           }}
         >
           <h2
@@ -4284,7 +4284,7 @@ function MyAnimeList({ match }) {
                               csvUrl={animeMap[animeData.Series][0]}
                             />
                           ) : (
-                            "No related entries found."
+                            ""
                           )}
                         </div>
                         <div style={{ marginBottom: "28px" }} />
@@ -4337,7 +4337,48 @@ function MyAnimeList({ match }) {
                                 csvUrl={animeMap[animeData.Series][1]}
                               />
                             ) : (
-                              "No related entries found."
+<>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Characters & Voice Actors
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            More characters
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No characters and voice actors have been added to this title. Help
+          improve our database by adding characters or voice actors{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
                             )}
                           </div>
                         )}
@@ -4353,7 +4394,48 @@ function MyAnimeList({ match }) {
                                 csvUrl={animeMap[animeData.Series][1]}
                               />
                             ) : (
-                              "No related entries found."
+                              <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Characters
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            More characters
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No characters have been added to this title. Help
+          improve our database by adding characters{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
                             )}
                           </div>
                         )}
@@ -4370,7 +4452,48 @@ function MyAnimeList({ match }) {
                                 csvUrl={animeMap[animeData.Series][3]}
                               />
                             ) : (
-                              "No related entries found."
+                              <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Staff
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            More staff
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No staff has been added to this title. Help
+          improve our database by adding staff{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
                             )}
                           </div>
                         )}
@@ -4393,7 +4516,49 @@ function MyAnimeList({ match }) {
                                   csvUrl={animeMap[animeData.Series][5]}
                                 />
                               ) : (
-                                "No related entries found."
+                                <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+            width: "392px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Opening Theme
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No opening themes have been added to this title. Help improve our
+          database by adding an opening theme{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
                               )}
                             </div>
                             <div
@@ -4407,7 +4572,49 @@ function MyAnimeList({ match }) {
                                   csvUrl={animeMap[animeData.Series][6]}
                                 />
                               ) : (
-                                "No related entries found."
+                                <>
+        <div
+          style={{
+            borderColor: "#bebebe",
+            borderStyle: "solid",
+            borderWidth: "0 0 1px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "4px 0 5px",
+            padding: "3px 0",
+            height: "16.5px",
+            width: "392px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "12px",
+              color: "#000",
+              fontWeight: "700",
+              margin: "0",
+            }}
+          >
+            Ending Theme
+          </h2>
+          <span
+            style={{
+              fontWeight: "normal",
+              fontSize: "11px",
+              color: "#1c439b",
+              height: "16.5px",
+              paddingRight: "2px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+        <span style={{ color: "#000" }}>
+          No ending themes have been added to this title. Help improve our
+          database by adding an ending theme{" "}
+          <span style={{ color: "#1c439b" }}>here</span>.
+        </span>
+      </>
                               )}
                             </div>
                           </div>
