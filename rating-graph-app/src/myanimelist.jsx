@@ -21,7 +21,7 @@ import "./mal.css";
 
 const AnimeItem = ({ anime, index }) => {
 
-  if(anime.Type !== "TV") {
+  if(anime.Type !== "TV" && anime.Type !== "Movie"  ) {
       return null;
   }
 
@@ -318,7 +318,7 @@ function cleanAnimeData(animeList) {
     cleanAnime.showId = anime.showId || anime.id || '';
     cleanAnime.TitleJapanese = anime.TitleJapanese || anime.Title || '';
     cleanAnime.TitleEnglish = anime.TitleEnglish || anime.Title || '';
-    cleanAnime.Type = anime.Type || 'TV';
+    cleanAnime.Type = anime.Type || '';
     cleanAnime.Episodes = anime.Episodes || anime['Number of Episodes'] || '?';
     cleanAnime.Score = anime.Score || anime.Rating || 'N/A';
     cleanAnime.Members = anime.Members || anime['User Votes'] || '0';
