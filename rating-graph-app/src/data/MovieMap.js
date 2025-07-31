@@ -62,6 +62,22 @@ export const animeMap = {
     //EdTheme
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQY_5qeB74tR2sdz5pD-a_Z0v0JROuGkNDrk5z9Dd2Ll8sUa9Du0swW_YvMWgT5F-sErN15jDLSoeo0/pub?gid=935077496&single=true&output=csv",
   ],
+    spacemetro: [
+    //MALData
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=932829023&single=true&output=csv",
+    //Characters
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=1811910701&single=true&output=csv",
+    //Voice Actors
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=454900849&single=true&output=csv",
+    //Rel_Char_VA
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=1922167735&single=true&output=csv",
+    //Staff
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=819407354&single=true&output=csv",
+    //OpTheme
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=343713026&single=true&output=csv",
+    //EdTheme
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=935077496&single=true&output=csv",
+  ],
 };
 
 
