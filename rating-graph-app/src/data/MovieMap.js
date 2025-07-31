@@ -14,22 +14,6 @@ export const movieMap = {
 };
 
 export const animeMap = {
-  humansvsmachines: [
-    //MALData
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=932829023&single=true&output=csv",
-    //Characters
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=1811910701&single=true&output=csv",
-    //Voice Actors
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=454900849&single=true&output=csv",
-    //Rel_Char_VA
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=1922167735&single=true&output=csv",
-    //Staff
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=819407354&single=true&output=csv",
-    //OpTheme
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=343713026&single=true&output=csv",
-    //EdTheme
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQh4DLzV6lJSYhUcxFUiemwNMBqoDgpj1p1nJuNZ4PaR3gQ6yti6X8ftHEixBYxJ15N8nnlVECK4I/pub?gid=935077496&single=true&output=csv",
-  ],
   ironfist: [
     //MALData
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSy8Ne8uHdc2jfX-C32mzxClb4Cn1GhZ7KqfHlWktv-YganNAZABLqt5UU7856J71SW8X1MiLMZZ1-z/pub?gid=932829023&single=true&output=csv",
