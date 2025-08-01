@@ -1762,6 +1762,7 @@ function MyAnimeList({ match }) {
                                   color: "#444",
                                   fontWeight: "700",
                                   fontSize: "11px",
+                                  marginRight: "0.4px"
                                 }}
                               >
                                 Watching:{" "}
@@ -1811,6 +1812,7 @@ function MyAnimeList({ match }) {
                                 color: "#444",
                                 fontWeight: "700",
                                 fontSize: "11px",
+                                marginRight: "0.25px"
                               }}
                             >
                               Completed:{" "}
@@ -2039,7 +2041,7 @@ function MyAnimeList({ match }) {
                                         >
                                           <span style={{ color: "#000" }}>
                                             {percentage}%{" "}
-                                            <small>({votes})</small>
+                                            <small>({votes} votes)</small>
                                           </span>
                                         </div>
                                       </div>
