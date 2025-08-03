@@ -2035,7 +2035,7 @@ function MyAnimeList({ match }) {
                           height={350}
                         />
                       </div>
-                      {animeData.BeginningDate === "?" && (
+                      {animeData.Status === "Not yet aired" && (
                         <img
                           src={NotifyStart}
                           alt=""
@@ -4231,7 +4231,7 @@ function MyAnimeList({ match }) {
                           </>
                         )}
                         <div style={{ marginBottom: "15px" }} />
-                        {animeData.BeginningDate != "?" &&
+                        {animeData.Status != "Not yet aired" &&
                           animeData.Background != "-" && (
                             <>
                               <div
