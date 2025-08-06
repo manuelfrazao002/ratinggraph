@@ -2033,6 +2033,7 @@ function MyAnimeList({ match }) {
                           alt={animeData.Title}
                           width={225}
                           height={350}
+                          style={{objectFit: "cover"}}
                         />
                       </div>
                       {animeData.Status === "Not yet aired" && (
