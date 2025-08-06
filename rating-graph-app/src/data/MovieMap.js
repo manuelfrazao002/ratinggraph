@@ -78,7 +78,7 @@ export const animeMap = {
     //EdTheme
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRpJGI84zbRGQ08f1i6oQfO5O6PUkNYYGBpcqjV6Z5d80GzXEXCG8QMqTFkIn9qEu7SpK6LClij1mfS/pub?gid=935077496&single=true&output=csv",
   ],
-  darkcases: [
+  toe: [
     //MALData
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSfG4xEZ2jVqw7_X0dDSaDQqfTHFw6ohNZS7WDYpu8W6SJHpwDIUcIyxm9YbcqOm8qpsfejewLHic6u/pub?gid=932829023&single=true&output=csv",
     //Characters
