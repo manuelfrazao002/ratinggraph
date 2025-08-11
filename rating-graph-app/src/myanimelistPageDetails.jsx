@@ -4270,8 +4270,26 @@ function MyAnimeList({ match }) {
                                   Edit
                                 </span>
                               </div>
-                              <i>{animeData.TitleJapanese}</i>{" "}
-                              {animeData.Background}
+                              {animeData.Background != "-" && (
+                          <>
+                            <div style={{ marginTop: 0, fontSize: "11px" }}>
+                              {animeData.Background?.split("\n").map(
+                                (paragraph, index) => (
+                                  <p
+                                    key={index}
+                                    style={{
+                                      color: "#000",
+                                      lineHeight: "1.5em",
+                                      margin: "0 0 16.5px 0",
+                                    }}
+                                  >
+                                    {paragraph}
+                                  </p>
+                                )
+                              )}
+                            </div>
+                          </>
+                        )}
                             </>
                           )}
                         <div style={{ marginBottom: "28px" }} />
