@@ -4233,7 +4233,7 @@ function MyAnimeList({ match }) {
                         )}
                         <div style={{ marginBottom: "15px" }} />
                         {animeData.Status != "Not yet aired" &&
-                          animeData.Background != "-" && (
+                          animeData.Background != "-" && animeData.Type2 === "Manga" &&(
                             <>
                               <div
                                 style={{
@@ -4287,6 +4287,71 @@ function MyAnimeList({ match }) {
                                   </p>
                                 )
                               )}
+                            </div>
+                          </>
+                        )}
+                            </>
+                          )}
+                          {animeData.Status != "Not yet aired" &&
+                          animeData.Background != "-" && animeData.Type2 === "Anime" &&(
+                            <>
+                              <div
+                                style={{
+                                  borderColor: "#bebebe",
+                                  borderStyle: "solid",
+                                  borderWidth: "0 0 1px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  margin: "4px 0 5px",
+                                  padding: "3px 0",
+                                  height: "16.5px",
+                                }}
+                              >
+                                <h2
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#000",
+                                    fontWeight: "700",
+                                    margin: "0",
+                                  }}
+                                >
+                                  Background
+                                </h2>
+                                <span
+                                  style={{
+                                    fontWeight: "normal",
+                                    fontSize: "11px",
+                                    color: "#1c439b",
+                                    height: "16.5px",
+                                    paddingRight: "2px",
+                                  }}
+                                >
+                                  Edit
+                                </span>
+                              </div>
+                              {animeData.Background != "-" && (
+                          <>
+                          <div style={{display:"flex"}}>
+                          <span style={{color:"#000"}}>
+                            <i>{animeData.TitleEnglish}{animeData.TitleEnglish && "\u00A0"}</i>
+                          </span>
+                            <div style={{ marginTop: 0, fontSize: "11px" }}>
+                              {animeData.Background?.split("\n").map(
+                                (paragraph, index) => (
+                                  <p
+                                    key={index}
+                                    style={{
+                                      color: "#000",
+                                      lineHeight: "1.5em",
+                                      margin: "0 0 16.5px 0",
+                                    }}
+                                  >
+                                    {paragraph}
+                                  </p>
+                                )
+                              )}
+                            </div>
                             </div>
                           </>
                         )}
