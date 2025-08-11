@@ -4334,7 +4334,7 @@ function MyAnimeList({ match }) {
                           <>
                           <div style={{display:"flex"}}>
                           <span style={{color:"#000"}}>
-                            <i>{animeData.TitleEnglish}{animeData.TitleEnglish && "\u00A0"}</i>
+                            <i>{animeData.TitleJapanese}{animeData.TitleJapanese && "\u00A0"}</i>
                           </span>
                             <div style={{ marginTop: 0, fontSize: "11px" }}>
                               {animeData.Background?.split("\n").map(
