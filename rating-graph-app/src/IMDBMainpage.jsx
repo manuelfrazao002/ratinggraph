@@ -976,6 +976,7 @@ function SeriesPage() {
                         WebkitTextStroke: "0.5px white",
                         paddingLeft: 8,
                         margin: 0,
+                        color: "white"
                       }}
                     >
                       {Number(data.NextEpisodeSeason) === 1 &&
