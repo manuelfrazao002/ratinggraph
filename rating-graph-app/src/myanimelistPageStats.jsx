@@ -262,9 +262,10 @@ function MyAnimeList({ match }) {
                           alt={animeData.Title}
                           width={225}
                           height={350}
+                          style={{objectFit: "cover"}}
                         />
                       </div>
-                      {animeData.BeginningDate === "?" && (
+                      {animeData.Status === "Not yet aired" && (
                         <img
                           src={NotifyStart}
                           alt=""
