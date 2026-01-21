@@ -281,7 +281,12 @@ function parseVoteCount(voteStr) {
                     alignItems: "center",
                   }}
                 >
+                  {filterAnime(sortedData).length ===! 1 &&
                   <p style={{ color: "black" }}>{filterAnime(sortedData).length} Titles</p>
+                  }
+                  {filterAnime(sortedData).length === 1 &&
+                  <p style={{ color: "black" }}>{filterAnime(sortedData).length} Title</p>
+                  }
                   <img src={ListLayout} alt="" style={{ height: "48px" }} />
                 </div>
                 <div style={{ margin: "4px 4px 0px 0px", width: "808px" }}>

@@ -218,7 +218,7 @@ function SeriesPage() {
   return (
     <>
       <GlobalStyle />
-      <div>
+      <div style={{backgroundColor:"#1F1F1F"}}>
         {isTVShow && 
         <Link to={`/imdb/list`}>
           <img src={IMDBNavbar} alt="Rating Graph" />
@@ -976,6 +976,7 @@ function SeriesPage() {
                         WebkitTextStroke: "0.5px white",
                         paddingLeft: 8,
                         margin: 0,
+                        color: "white",
                       }}
                     >
                       {Number(data.NextEpisodeSeason) === 1 &&
