@@ -41,7 +41,7 @@ function SeriesPage() {
   const [data, setData] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [movies, setMovie] = useState([]);
-    const [coverSrc, setCoverSrc] = useState("");
+  const [coverSrc, setCoverSrc] = useState("");
   const [trailerSrc, setTrailerSrc] = useState("");
 
   const urls = movieMap[movieId];
@@ -78,7 +78,7 @@ function SeriesPage() {
   console.log("movieId da URL:", movieId);
   console.log(
     "Filmes disponíveis:",
-    movies.map((m) => m.id)
+    movies.map((m) => m.id),
   );
 
   if (!urls) return <p>Filme não encontrado</p>;
@@ -185,26 +185,26 @@ function SeriesPage() {
   function formatNumberWatchList(num) {
     if (!num) return "N/A";
 
-  const cleanNum = Number(num.toString().replace(/[, ]+/g, ""));
-  if (isNaN(cleanNum)) return "N/A";
+    const cleanNum = Number(num.toString().replace(/[, ]+/g, ""));
+    if (isNaN(cleanNum)) return "N/A";
 
-  if (cleanNum >= 1_000_000) {
-    const millions = Math.floor(cleanNum / 100_000) / 10;
-    return millions.toFixed(1) + "M";
+    if (cleanNum >= 1_000_000) {
+      const millions = Math.floor(cleanNum / 100_000) / 10;
+      return millions.toFixed(1) + "M";
+    }
+
+    if (cleanNum >= 100_000) {
+      const thousands = Math.floor(cleanNum / 1_000);
+      return thousands + "K";
+    }
+
+    if (cleanNum >= 1_000) {
+      const thousands = Math.floor(cleanNum / 100); // Get 1 decimal without rounding
+      return (thousands / 10).toFixed(1) + "K";
+    }
+
+    return cleanNum.toString();
   }
-
-  if (cleanNum >= 100_000) {
-    const thousands = Math.floor(cleanNum / 1_000);
-    return thousands + "K";
-  }
-
-  if (cleanNum >= 1_000) {
-    const thousands = Math.floor((cleanNum / 100)); // Get 1 decimal without rounding
-    return (thousands / 10).toFixed(1) + "K";
-  }
-
-  return cleanNum.toString();
-}
 
   const userReviewsNumber =
     Number(data.UserReviews?.toString().replace(/[,]+/g, "")) || 0;
@@ -218,17 +218,17 @@ function SeriesPage() {
   return (
     <>
       <GlobalStyle />
-      <div style={{backgroundColor:"#1F1F1F"}}>
-        {isTVShow && 
-        <Link to={`/imdb/list`}>
-          <img src={IMDBNavbar} alt="Rating Graph" />
-        </Link>
-        }
-        {isMovie && 
-        <Link to={`/`}>
-          <img src={IMDBNavbar} alt="Rating Graph" />
-        </Link>
-        }
+      <div style={{ backgroundColor: "#1F1F1F" }}>
+        {isTVShow && (
+          <Link to={`/imdb/list`}>
+            <img src={IMDBNavbar} alt="Rating Graph" />
+          </Link>
+        )}
+        {isMovie && (
+          <Link to={`/`}>
+            <img src={IMDBNavbar} alt="Rating Graph" />
+          </Link>
+        )}
         <main style={{ width: "1280px", margin: "0 auto" }}>
           <div
             style={{
@@ -510,8 +510,8 @@ function SeriesPage() {
                       data.PopStatus === "up"
                         ? ArrowUp
                         : data.PopStatus === "down"
-                        ? ArrowDown
-                        : ArrowStay
+                          ? ArrowDown
+                          : ArrowStay
                     }
                     alt=""
                     style={{ marginRight: "4px" }}
@@ -660,7 +660,6 @@ function SeriesPage() {
                         width: 54,
                         height: 54,
                         borderRadius: "50%",
-                        backgroundColor: "rgba(0,0,0,0.5)",
                         border: "3px solid white", // borda branca
                         display: "flex",
                         justifyContent: "center",
@@ -668,7 +667,7 @@ function SeriesPage() {
                         filter: "drop-shadow(0 0 4px rgba(0,0,0,0.7))",
                         transition: "background-color 0.3s ease",
                         position: "relative",
-                        top: "-1px",
+                        top: "0px",
                       }}
                     >
                       <svg
@@ -678,10 +677,10 @@ function SeriesPage() {
                         viewBox="0 0 24 24"
                         fill="currentColor"
                         role="presentation"
-                        style={{ transform: "rotate(-90deg)", color:"white"}}
+                        style={{ transform: "rotate(-90deg)", color: "white"}}
                       >
                         <path fill="none" d="M0 0h24v24H0V0z"></path>
-                        <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
+                        <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"/>
                       </svg>
                     </div>
 
@@ -693,8 +692,9 @@ function SeriesPage() {
                         userSelect: "none",
                         textShadow: "0 0 5px rgba(0,0,0,0.7)",
                         position: "relative",
-                        top: "-2px",
+                        top: "-1px",
                         left: "-4px",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                       }}
                     >
                       Play trailer
@@ -703,7 +703,7 @@ function SeriesPage() {
                       style={{
                         color: "white",
                         position: "relative",
-                        top: "1px",
+                        top: "2px",
                         left: "-7px",
                       }}
                     >
@@ -744,16 +744,17 @@ function SeriesPage() {
                 <img
                   src={VideoImg}
                   alt=""
-                  style={{ width: "32px", marginBottom: 15 }}
+                  style={{ width: "32px", marginBottom: 14 }}
                 />
                 <br />
                 <p
                   style={{
-                    fontSize: "0.71rem",
-                    letterSpacing: "2px",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.16667em",
                     position: "relative",
                     top: "-9px",
-                    WebkitTextStroke: "0.5px white",
+                    fontWeight: "600",
+                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                   }}
                 >
                   {data.Videos}
@@ -780,16 +781,17 @@ function SeriesPage() {
                 <img
                   src={ImgsSquares}
                   alt=""
-                  style={{ width: "32px", marginBottom: 15 }}
+                  style={{ width: "32px", marginBottom: 14 }}
                 />
                 <br />
                 <p
                   style={{
-                    fontSize: "0.71rem",
-                    letterSpacing: "2px",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.16667em",
                     position: "relative",
                     top: "-9px",
-                    WebkitTextStroke: "0.5px white",
+                    fontWeight: "600",
+                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                   }}
                 >
                   {data.Photos}
@@ -813,60 +815,65 @@ function SeriesPage() {
                 marginTop: "10px",
               }}
             >
-              <div style={{
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  margin: "0px 0 12px 0"
-}}>
-  {(data?.Genres
-    ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
-      data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
-      .map(genre => genre.trim())
-      .filter(genre => genre)
-    : []).map((genre, index) => (
-      <div 
-        key={index}
-        style={{
-          border: "1px solid #6F6F68",
-          borderRadius: "20px",
-          padding: "3px 12px",
-          margin: "4px 8px 4px 0",
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "transparent",
-          transition: "all 0.2s ease",
-          cursor: "pointer",
-          ":hover": {
-            borderColor: "#F5C518",
-            backgroundColor: "rgba(245, 197, 24, 0.1)",
-            boxShadow: "0 0 0 1px #F5C518"
-          }
-        }}
-      >
-        <span style={{
-          color: "white",
-          fontSize: "0.9rem",
-          fontWeight: 400,
-          letterSpacing: "0.03px",
-          whiteSpace: "nowrap",
-          transition: "color 0.2s ease",
-          ":hover": {
-            color: "#F5C518"
-          }
-        }}>
-          {genre}
-        </span>
-      </div>
-    ))}
-</div>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  margin: "0px 0 12px 0",
+                }}
+              >
+                {(data?.Genres
+                  ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
+                    data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
+                      .map((genre) => genre.trim())
+                      .filter((genre) => genre)
+                  : []
+                ).map((genre, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      border: "1px solid #6F6F68",
+                      borderRadius: "20px",
+                      padding: "3px 12px",
+                      margin: "4px 8px 4px 0",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "transparent",
+                      transition: "all 0.2s ease",
+                      cursor: "pointer",
+                      ":hover": {
+                        borderColor: "#F5C518",
+                        backgroundColor: "rgba(245, 197, 24, 0.1)",
+                        boxShadow: "0 0 0 1px #F5C518",
+                      },
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "white",
+                        fontSize: "0.9rem",
+                        fontWeight: 400,
+                        letterSpacing: "0.03px",
+                        whiteSpace: "nowrap",
+                        transition: "color 0.2s ease",
+                        ":hover": {
+                          color: "#F5C518",
+                        },
+                      }}
+                    >
+                      {genre}
+                    </span>
+                  </div>
+                ))}
+              </div>
               <div
                 style={{
                   marginTop: "5px",
                   color: "white",
                   borderBottom: "1px solid #4B4B4B",
-                  paddingBottom: "13px",
+                  paddingBottom: "12px",
                 }}
               >
                 {data.Synopsis}
@@ -878,6 +885,8 @@ function SeriesPage() {
                   alignItems: "center",
                   borderBottom: "1px solid #4B4B4B",
                   lineHeight: "1",
+                  fontSize: "15.5px",
+                  height: "49.283px",
                 }}
               >
                 <p
@@ -915,23 +924,32 @@ function SeriesPage() {
               )}
               <div
                 style={{
-                  display: "flex",
-                  gap: 14,
                   alignItems: "center",
                   borderBottom: "1px solid #4B4B4B",
                   lineHeight: "1",
+                  height: "49.283px",
                 }}
               >
-                <p
+                <div
                   style={{
-                    fontWeight: "bold",
-                    color: "white",
-                    letterSpacing: "0.2px",
+                    display: "flex",
+                    gap: 14,
+                    position: "relative",
+                    top: "2px",
+                    fontSize: "15.5px",
                   }}
                 >
-                  Stars
-                </p>
-                <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
+                  <p
+                    style={{
+                      fontWeight: "bold",
+                      color: "white",
+                      letterSpacing: "0.2px",
+                    }}
+                  >
+                    Stars
+                  </p>
+                  <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
+                </div>
               </div>
               <div>
                 <img src={IMDBPro} alt="" />
@@ -941,13 +959,14 @@ function SeriesPage() {
             <div
               style={{
                 width: "358.617px",
-                height: "204px",
+                height: "max-content",
                 display: "grid",
                 alignItems: "center",
                 justifyContent: "flex-start",
                 position: "relative",
                 left: "-24px",
                 alignContent: "center",
+                marginTop: "5px",
               }}
             >
               {isTVShow && data.NextEpisode?.trim() ? (
@@ -971,29 +990,34 @@ function SeriesPage() {
                   <div>
                     <p
                       style={{
-                        fontSize: "0.71rem",
-                        letterSpacing: "2px",
-                        WebkitTextStroke: "0.5px white",
+                        fontSize: "0.75rem",
+                        letterSpacing: "0.16667em",
                         paddingLeft: 8,
                         margin: 0,
                         color: "white",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontWeight: 600,
+                        lineHeight:"1rem",
                       }}
                     >
                       {Number(data.NextEpisodeSeason) === 1 &&
                       Number(data.NextEpisodeNumber) === 1
                         ? "SERIES PREMIERE"
                         : Number(data.NextEpisodeNumber) === 1
-                        ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
-                        : "NEXT EPISODE"}
+                          ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
+                          : "NEXT EPISODE"}
                     </p>
                     <p
                       style={{
-                        fontSize: "14px",
-                        letterSpacing: "1px",
+                        fontSize: "0.875rem",
+                        letterSpacing: "0.01786em",
                         position: "relative",
                         color: "white",
                         paddingLeft: 8,
                         margin: 0,
+                        lineHeight:"1.25rem",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontWeight: 400,
                       }}
                     >
                       {data.NextEpisode}
@@ -1049,7 +1073,7 @@ function SeriesPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  minWidth: "310.617px",
+                  minWidth: "max-content",
                   maxHeight: "48px",
                   backgroundColor: "#F5C518",
                   borderRadius: 50,
@@ -1057,13 +1081,17 @@ function SeriesPage() {
               >
                 <div
                   style={{
-                    paddingRight: 10,
-                    paddingLeft: 10,
+                    paddingRight: 6,
+                    paddingLeft: 4,
                     color: "black",
                     fontSize: 24,
+                    display: "flex",
+                    position: "relative",
+                    left: "2px",
                   }}
                 >
-                  <p>+</p>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path></svg>
+                  
                 </div>
                 <div
                   style={{
@@ -1080,20 +1108,24 @@ function SeriesPage() {
                       margin: 0,
                       color: "black",
                       fontWeight: 700,
-                      fontFamily: "Arial, sans-serif",
-                      fontSize: 14,
+                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      fontSize: 14.2,
                       letterSpacing: 0.2,
-                      marginBottom: -1.5,
+                      marginBottom: "-1.8px",
                     }}
                   >
-                    Add to watchlist
+                    Add to Watchlist
                   </p>
                   <p
                     style={{
                       margin: 0,
                       color: "black",
-                      fontSize: 12,
-                      letterSpacing: 0.2,
+                      fontSize: "0.75em",
+                      letterSpacing: "0.03333em",
+                      position: "relative",
+                      bottom: "1.2px",
+                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      fontWeight: 400,
                     }}
                   >
                     Added by {formatNumberWatchList(data.WatchlistNumber)} users
@@ -1104,19 +1136,21 @@ function SeriesPage() {
                     margin: "0 auto",
                     display: "flex",
                     justifyContent: "center",
-                    width: "48px"
+                    width: "48px",
                   }}
                 >
                   <ChevronDown
                     size={20}
-                    style={{ color: "black", WebkitTextStroke: "0.9px black" }}
+                    style={{ color: "black", WebkitTextStroke: "0.9px black"}}
                   />
                 </div>
               </div>
               {hasVotes && (
-              <div style={{ minWidth: "48px", marginTop: 8 }}>
-                <img src={MarkedWatched} alt="" />
-              </div> )}
+                <>
+                <div style={{ minWidth: "48px", marginTop: 8 }}>
+                  <img src={MarkedWatched} alt="" />
+                </div>
+              
               <div
                 style={{
                   display: "flex",
@@ -1187,8 +1221,8 @@ function SeriesPage() {
                               Number(data.Metascore) >= 61
                                 ? "#54A72A"
                                 : Number(data.Metascore) >= 40
-                                ? "#ffcc33"
-                                : "#ff0000",
+                                  ? "#ffcc33"
+                                  : "#ff0000",
                             color: "white",
                             padding: "2px 2px",
                             width: "18.1px",
@@ -1210,6 +1244,8 @@ function SeriesPage() {
                   </>
                 )}
               </div>
+              </>
+              )}
             </div>
           </section>
         </main>
