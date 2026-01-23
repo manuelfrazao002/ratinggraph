@@ -77,7 +77,10 @@ export default function VotesChart() {
             votes,
             title: row["TitleName"],
             year: row["Year"],
-            trend: parseInt(row["Trend"].replace(/,/g, ""), 10) || 0,
+            trend:
+  row["Trend"] === "-" || row["Trend"] === "" || row["Trend"] == null
+    ? "-"
+    : parseInt(row["Trend"].replace(/,/g, ""), 10),
             rating: parseFloat(row["Average Rating"]),
           });
         });

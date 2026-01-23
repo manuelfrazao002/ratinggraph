@@ -76,7 +76,10 @@ export default function RatingChart() {
             title: row["TitleName"],
             votes: parseInt(row["Votes"].replace(/,/g, "")) || 0,
             year: row["Year"],
-            trend: parseInt(row["Trend"].replace(/,/g, "")) || 0,
+            trend:
+  row["Trend"] === "-" || row["Trend"] === "" || row["Trend"] == null
+    ? "-"
+    : parseInt(row["Trend"].replace(/,/g, ""), 10),
           });
         });
 
@@ -332,11 +335,9 @@ if (episodeCount >= 90) {
       <div style="color:#333; margin-top:4px;">
         <div>${ep?.title || "Unknown"}</div>
         <br/>
-        <div><span>Trend:</span> <span style="font-weight:bold;">${ep?.trend.toLocaleString()}</span></div>
+        <div><span>Trend:</span> <span style="font-weight:bold;">${ep?.trend.toLocaleString() ?? "-"}</span></div>
         <div><span>Total votes:</span> <span style="font-weight:bold;">${ep?.votes.toLocaleString()}</span></div>
-        <div><span>Average Rating:</span> <span style="font-weight:bold;">${ep?.rating.toFixed(
-          1
-        )}</span></div>
+        <div><span>Average Rating:</span> <span style="font-weight:bold;">${ep?.rating.toFixed(1)}</span></div>
       </div>
     `;
           }
