@@ -16,9 +16,7 @@ import { Link } from "react-router-dom";
 
 import { getShowCoverSrc } from "./ShowImageSrc";
 
-  const urls = movies
-    .map((movie) => movieMap[movie.id]?.[0])
-    .filter(Boolean);
+const urls = movies.map((movie) => movieMap[movie.id]?.[0]).filter(Boolean);
 
 function RatingList() {
   const [seriesData, setSeriesData] = useState([]);
@@ -27,7 +25,7 @@ function RatingList() {
   const [data, setData] = useState([]);
   const [coverImages, setCoverImages] = useState({});
 
-    // Load cover images dynamically
+  // Load cover images dynamically
   useEffect(() => {
     const loadCoverImages = async () => {
       const covers = {};
@@ -40,65 +38,67 @@ function RatingList() {
     };
     loadCoverImages();
   }, []);
-  
 
   useEffect(() => {
-  // Obter todas as chaves (IDs dos filmes) do movieMap
-  const movieIds = Object.keys(movieMap);
-  
-  // Criar array de URLs alternando entre índice 0 e 2 para cada filme
-  const urls = movieIds.flatMap(movieId => {
-    // Verificar se existem os CSVs necessários (índices 0 e 2)
-    if (movieMap[movieId][0] && movieMap[movieId][2]) {
-      return [movieMap[movieId][0], movieMap[movieId][2]];
-    }
-    // Se algum CSV estiver faltando, retornar apenas os disponíveis
-    return movieMap[movieId].filter(url => url);
-  });
+    // Obter todas as chaves (IDs dos filmes) do movieMap
+    const movieIds = Object.keys(movieMap);
 
-  Promise.all(
-    urls.map((url) =>
-      url ? // Só processar URLs válidas
-        fetch(url)
-          .then((res) => res.text())
-          .then(
-            (csv) =>
-              new Promise((resolve) =>
-                Papa.parse(csv, {
-                  header: true,
-                  complete: (results) => resolve(results.data),
-                  error: (err) => {
-                    console.error("Erro ao carregar CSV", err);
-                    resolve([]);
-                  },
-                })
-              )
-          ) : Promise.resolve([]) // Para URLs vazias, retornar array vazio
-    )
-  ).then((resultsArrays) => {
-    // Agora precisamos combinar os dados correspondentes (0 e 2)
-    const combinedData = [];
-    let movieIndex = 0;
-    
-    for (let i = 0; i < resultsArrays.length; i += 2) {
-      const movieId = movieIds[movieIndex];
-      const data0 = resultsArrays[i] || []; // CSV 0
-      const data2 = i+1 < resultsArrays.length ? resultsArrays[i+1] || [] : []; // CSV 2
-      
-      // Combinar os dados - assumindo que cada CSV tem apenas uma linha relevante
-      const combined = {
-        ...(data0[0] || {}), // pega o primeiro item do CSV 0
-        ...(data2[0] || {}), // combina com o primeiro item do CSV 2
-        movieId: movieId
-      };
-      
-      combinedData.push(combined);
-      movieIndex++;
-    }
-    
-    setData(combinedData);
-  });
-}, []);
+    // Criar array de URLs alternando entre índice 0 e 2 para cada filme
+    const urls = movieIds.flatMap((movieId) => {
+      // Verificar se existem os CSVs necessários (índices 0 e 2)
+      if (movieMap[movieId][0] && movieMap[movieId][2]) {
+        return [movieMap[movieId][0], movieMap[movieId][2]];
+      }
+      // Se algum CSV estiver faltando, retornar apenas os disponíveis
+      return movieMap[movieId].filter((url) => url);
+    });
+
+    Promise.all(
+      urls.map(
+        (url) =>
+          url // Só processar URLs válidas
+            ? fetch(url)
+                .then((res) => res.text())
+                .then(
+                  (csv) =>
+                    new Promise((resolve) =>
+                      Papa.parse(csv, {
+                        header: true,
+                        complete: (results) => resolve(results.data),
+                        error: (err) => {
+                          console.error("Erro ao carregar CSV", err);
+                          resolve([]);
+                        },
+                      }),
+                    ),
+                )
+            : Promise.resolve([]), // Para URLs vazias, retornar array vazio
+      ),
+    ).then((resultsArrays) => {
+      // Agora precisamos combinar os dados correspondentes (0 e 2)
+      const combinedData = [];
+      let movieIndex = 0;
+
+      for (let i = 0; i < resultsArrays.length; i += 2) {
+        const movieId = movieIds[movieIndex];
+        const data0 = resultsArrays[i] || []; // CSV 0
+        const data2 =
+          i + 1 < resultsArrays.length ? resultsArrays[i + 1] || [] : []; // CSV 2
+
+        // Combinar os dados - assumindo que cada CSV tem apenas uma linha relevante
+        const combined = {
+          ...(data0[0] || {}), // pega o primeiro item do CSV 0
+          ...(data2[0] || {}), // combina com o primeiro item do CSV 2
+          movieId: movieId,
+        };
+
+        combinedData.push(combined);
+        movieIndex++;
+      }
+
+      setData(combinedData);
+    });
+  }, []);
 
   const GlobalStyle = createGlobalStyle`
     #root {
@@ -112,8 +112,8 @@ function RatingList() {
     let valueA = a["Trend"]; // Alterado para sempre ordenar por Trend
     let valueB = b["Trend"]; // Alterado para sempre ordenar por Trend
 
-      valueA = Number(String(valueA).replace(/,/g, ""));
-  valueB = Number(String(valueB).replace(/,/g, ""));
+    valueA = Number(String(valueA).replace(/,/g, ""));
+    valueB = Number(String(valueB).replace(/,/g, ""));
 
     // Special handling for formatted "Votes"
     if (sortKey === "Votes") {
@@ -208,99 +208,102 @@ function RatingList() {
               Movie franchises, Directors and Writers.
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginTop: "0",
-                padding: "0 4px 4px",
-                flexWrap: "wrap",
-              }}
-            >
-              {sortedData.map((movie, index) => {
+            {data.Runtime < 7 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginTop: "0",
+                  padding: "0 4px 4px",
+                  flexWrap: "wrap",
+                }}
+              >
+                {sortedData.map((movie, index) => {
                   console.log(`Filme: ${movie.Title}`, {
-    Trend: movie.Trend,
-    AverageRating: movie.AverageRating,
-    TodosOsDados: movie // Mostra todos os dados do filme
-  });
-                return (
-                  <div
-                  key={movie.movieId}
-                    style={{
-                      position: "relative",
-                      margin: "0 4px 8px",
-                    }}
-                  >
+                    Trend: movie.Trend,
+                    AverageRating: movie.AverageRating,
+                    TodosOsDados: movie, // Mostra todos os dados do filme
+                  });
+                  return (
                     <div
-                      key={index}
+                      key={movie.movieId}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
+                        position: "relative",
+                        margin: "0 4px 8px",
                       }}
                     >
-                      <li
+                      <div
+                        key={index}
                         style={{
                           display: "flex",
-                          gap: "8px",
                           alignItems: "center",
-                          margin: 0,
-                          padding: 0,
-                          listStyle: "none",
-                          
+                          justifyContent: "space-between",
                         }}
                       >
-                        <Link
-                          key={movie.movieId}
-                          to={`/ratinggraph/${movie.movieId}`}
+                        <li
+                          style={{
+                            display: "flex",
+                            gap: "8px",
+                            alignItems: "center",
+                            margin: 0,
+                            padding: 0,
+                            listStyle: "none",
+                          }}
                         >
-                          <div
-                            style={{
-                              position: "relative",
-                              height: "196px",
-                            }}
+                          <Link
+                            key={movie.movieId}
+                            to={`/ratinggraph/${movie.movieId}`}
                           >
-                            <img
-                              src={coverImages[movie.movieId]}
-                              alt={movie.Title}
-                              style={{
-                                width: "134px",
-                                height: "196px",
-                                objectFit: "cover",
-                                backgroundColor: "#000",
-                              }}
-                            />
                             <div
                               style={{
-                                position: "absolute",
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                background: "rgba(0,0,0,.5)",
-                                color: "#fff",
-                                padding: "6px",
-                                fontSize: "12px",
-                                textAlign: "center",
-                                lineHeight: "17px",
-                                textShadow: "1px 1px 0px rgba(0,0,0,.1)",
+                                position: "relative",
+                                height: "196px",
+                              }}
+                            >
+                              <img
+                                src={coverImages[movie.movieId]}
+                                alt={movie.Title}
+                                style={{
+                                  width: "134px",
+                                  height: "196px",
+                                  objectFit: "cover",
+                                  backgroundColor: "#000",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  background: "rgba(0,0,0,.5)",
+                                  color: "#fff",
+                                  padding: "6px",
+                                  fontSize: "12px",
+                                  textAlign: "center",
+                                  lineHeight: "17px",
+                                  textShadow: "1px 1px 0px rgba(0,0,0,.1)",
                                   whiteSpace: "nowrap",
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
                                   height: "auto",
-                              }}
-                            >
-                                <b style={{lineHeight: "22px"}}>{movie.Title}</b>
-                              <div>Trend: {movie.Trend}</div>
-                              <div>Average Rating: {movie.AverageRating}</div>
+                                }}
+                              >
+                                <b style={{ lineHeight: "22px" }}>
+                                  {movie.Title}
+                                </b>
+                                <div>Trend: {movie.Trend}</div>
+                                <div>Average Rating: {movie.AverageRating}</div>
+                              </div>
                             </div>
-                          </div>
-                        </Link>
-                      </li>
+                          </Link>
+                        </li>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           <footer style={{ marginBottom: "6px" }}>

@@ -747,8 +747,8 @@ export default function Episodes() {
                             position: "relative",
                             left: "0px",
                             top: "0px",
-                            fontFamily:"Roboto,Helvetica,Arial,sans-serif",
-                            lineHeight:"1.25rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            lineHeight: "1.25rem",
                           }}
                         >
                           {nextEpisode.Title}

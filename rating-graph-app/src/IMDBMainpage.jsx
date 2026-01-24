@@ -37,8 +37,25 @@ import MarkedWatched from "./imgs/imdb/markwatched.png";
 //More to Explore
 import MoreToExplore from "./imgs/imdb/moretoexplore.png";
 
+//Small Icon
+import SmallIcon from "./imgs/imdb/smallicon.png";
+
+//Footer
 import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
+
+import NextEpisode from "./components/NextEpisode.jsx";
+import RecentAndTopEpisodes from "./components/RecentandTopEpisodes.jsx";
+
+import Video1 from "./imgs/imdb/video1.png";
+import Video2 from "./imgs/imdb/video2.png";
+
+//Images for section Images
+import Img1 from "./imgs/imdb/imgs/img1.jpg";
+import Img2 from "./imgs/imdb/imgs/img2.jpg";
+import Img3 from "./imgs/imdb/imgs/img3.jpg";
+import Img4 from "./imgs/imdb/imgs/img4.jpg";
+import Img5 from "./imgs/imdb/imgs/img5.jpg";
 
 //Data
 import { movieMap } from "./data/MovieMap";
@@ -51,6 +68,9 @@ function SeriesPage() {
   const [movies, setMovie] = useState([]);
   const [coverSrc, setCoverSrc] = useState("");
   const [trailerSrc, setTrailerSrc] = useState("");
+  const [allEpisodes, setAllEpisodes] = useState([]);
+  const [nextEpisode, setNextEpisode] = useState(null);
+  const [recentAndTopEpisodes, setRecentAndTopEpisodes] = useState([]);
 
   const urls = movieMap[movieId];
 
@@ -69,6 +89,107 @@ function SeriesPage() {
         });
       });
   }, [movieId]);
+
+  useEffect(() => {
+    if (!urls || urls.length < 2) return;
+
+    fetch(urls[1])
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const episodes = results.data;
+
+            episodes.forEach((ep) => {
+              ep.Votes2 = ep.Votes2?.replace(/,/g, "") || "0";
+            });
+
+            setAllEpisodes(episodes);
+          },
+          error: (err) => console.error("Erro episódios CSV", err),
+        });
+      });
+  }, [movieId]);
+
+  useEffect(() => {
+    if (!allEpisodes.length) return;
+
+    const now = new Date();
+
+    const futureEpisodes = allEpisodes
+      .map((ep) => ({
+        ...ep,
+        parsedDate: new Date(ep.Date),
+      }))
+      .filter((ep) => !isNaN(ep.parsedDate) && ep.parsedDate > now)
+      .sort((a, b) => a.parsedDate - b.parsedDate);
+
+    setNextEpisode(futureEpisodes[0] || null);
+  }, [allEpisodes]);
+
+  useEffect(() => {
+    if (!allEpisodes.length) return;
+
+    const now = new Date();
+    const daysAgo30 = new Date(now);
+    daysAgo30.setDate(now.getDate() - 30);
+
+    const validEpisodes = allEpisodes.filter((ep) => {
+      const rating = parseFloat(ep["Average Rating 2"]);
+      const votes = parseInt(ep.Votes2);
+      const hasSynopsis = ep.Synopsis?.trim();
+
+      return (
+        ep.Date &&
+        !isNaN(new Date(ep.Date)) &&
+        (hasSynopsis || rating > 0 || votes > 0)
+      );
+    });
+
+    if (!validEpisodes.length) {
+      setRecentAndTopEpisodes([]);
+      return;
+    }
+
+    // ✅ Most Recent:
+    // tenta últimos 30 dias, senão usa o mais recente disponível
+    let mostRecent =
+      validEpisodes
+        .filter((ep) => new Date(ep.Date) >= daysAgo30)
+        .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0] ||
+      validEpisodes.sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
+
+    // ✅ Top Rated (pode ser o mesmo se só existir um)
+    const topRated =
+      validEpisodes
+        .filter((ep) => ep !== mostRecent)
+        .sort((a, b) => {
+          const scoreA =
+            parseFloat(a["Average Rating 2"] || 0) *
+            Math.log((parseInt(a.Votes2) || 0) + 1);
+          const scoreB =
+            parseFloat(b["Average Rating 2"] || 0) *
+            Math.log((parseInt(b.Votes2) || 0) + 1);
+          return scoreB - scoreA;
+        })[0] || mostRecent;
+
+    setRecentAndTopEpisodes([
+      {
+        ...mostRecent,
+        isMostRecent: true,
+        isTopRated: false,
+      },
+      {
+        ...topRated,
+        isMostRecent: false,
+        isTopRated: true,
+      },
+    ]);
+  }, [allEpisodes]);
+
+  console.log("Recent & Top Episodes:", recentAndTopEpisodes);
 
   // Load cover and trailer images dynamically
   useEffect(() => {
@@ -439,13 +560,14 @@ function SeriesPage() {
                           >
                             <span
                               style={{
-                                fontSize: "18.5px",
+                                fontSize: "1.25rem",
                                 color: "white",
-                                letterSpacing: "0.5px",
+                                letterSpacing: "0.0125em",
                                 position: "relative",
                                 top: "1px",
-                                left: "-1px",
+                                paddingRight: "0.125rem",
                                 fontWeight: "bold",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                               }}
                             >
                               {data.Rating}
@@ -464,13 +586,16 @@ function SeriesPage() {
 
                           <span
                             style={{
-                              fontSize: "0.72rem",
+                              fontSize: "0.75rem",
                               color: "#BCBCBC",
                               position: "relative",
                               top: "-4px",
                               left: "-1px",
-                              letterSpacing: "0.8px",
+                              letterSpacing: "0.03333em",
+                              lineHeight: "1rem",
+                              fontWeight: "400",
                               WebkitTextStroke: "0.1px #BCBCBC",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             }}
                           >
                             {formatVotes(data.Votes) || "N/A"}
@@ -827,6 +952,7 @@ function SeriesPage() {
                   justifyContent: "space-between",
                   flexDirection: "row",
                   alignItems: "center",
+                  paddingBottom: "12px",
                 }}
               >
                 <div
@@ -974,7 +1100,18 @@ function SeriesPage() {
                         Stars
                       </p>
                       <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
+                      <ChevronRight
+                      size={20}
+                      style={{
+                        color: isHovered ? "#F5C518" : "white",
+                        transition: "color 0.2s ease",
+                        cursor: "pointer",
+                        marginLeft: "auto",
+                        alignSelf:"center"
+                      }}
+                    />
                     </div>
+                    
                   </div>
                   <div>
                     <img src={IMDBPro} alt="" />
@@ -1094,6 +1231,90 @@ function SeriesPage() {
                       </div>
                     </div>
                   ) : null}
+                  {data.Status > 0 && (
+                    <div>
+                      <div style={{ width: "118.333px" }}>
+                        <p
+                          style={{
+                            margin: "0 0 0.25rem 0",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: "600",
+                            letterSpacing: "0.16667em",
+                            lineHeight: "1rem",
+                            textTransform: "uppercase",
+                            fontSize: "0.625rem",
+                            color: "rgb(245,197,24)",
+                            height: "1rem",
+                            overflow: "hidden",
+                            textWrap: "nowrap",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          STREAMING
+                        </p>
+                        <img
+                          width="116.333px"
+                          height="65.4333px"
+                          src={SmallIcon}
+                          alt=""
+                          style={{ marginBottom: "-6px", marginTop: "1px" }}
+                        />
+                        <p
+                          style={{
+                            color: "rgb(255,255,255,0.7)",
+                            fontSize: "0.625rem",
+                            lineHeight: "1rem",
+                            textAlign: "center",
+                            margin: "0",
+                          }}
+                        >
+                          {data.Streaming}
+                        </p>
+                      </div>
+                      <div
+                        style={{
+                          marginBottom: "24px",
+                          padding: "0 16px 0 16px",
+                          color: "rgb(87,153,239)",
+                          display: "flex",
+                          alignItems: "center",
+                          height: "36px",
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          class="ipc-icon ipc-icon--settings ipc-btn__icon ipc-btn__icon--pre"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                          style={{
+                            position: "relative",
+                            right: "6px",
+                          }}
+                        >
+                          <path fill="none" d="M0 0h24v24H0V0z"></path>
+                          <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0014 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path>
+                        </svg>
+                        <span
+                          style={{
+                            cursor: "pointer",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            lineHeight: "1.25rem",
+                            letterSpacing: "0.02em",
+                            textTransform: "none",
+                            position: "relative",
+                            right: "2px",
+                          }}
+                        >
+                          Set your preferred services
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div
                     style={{
                       display: "flex",
@@ -1203,21 +1424,31 @@ function SeriesPage() {
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: "6px",
                             }}
                           >
                             <span
                               style={{
-                                fontWeight: 700,
-                                fontFamily: "Arial, sans-serif",
+                                fontWeight: 600,
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                                 textAlign: "right",
                                 display: "inline-block",
-                                fontSize: 16,
+                                fontSize: "1rem",
+                                letterSpacing: "0.00937em",
+                                lineHeight: "1.25rem",
+                                marginRight: "0.25rem",
                               }}
                             >
                               {formatNumber(userReviewsNumber)}
                             </span>
-                            <span style={{ fontSize: "14px" }}>
+                            <span
+                              style={{
+                                fontSize: "0.875rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: 400,
+                                letterSpacing: "0.01786em",
+                                lineHeight: "1.25rem",
+                              }}
+                            >
                               User reviews
                             </span>
                           </div>
@@ -1228,20 +1459,31 @@ function SeriesPage() {
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              gap: "6px",
                             }}
                           >
                             <span
                               style={{
-                                fontWeight: 700,
-                                fontFamily: "Arial, sans-serif",
+                                fontWeight: 600,
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                                 textAlign: "right",
                                 display: "inline-block",
+                                fontSize: "1rem",
+                                letterSpacing: "0.00937em",
+                                lineHeight: "1.25rem",
+                                marginRight: "0.25rem",
                               }}
                             >
                               {formatNumber(criticReviewsNumber)}
                             </span>
-                            <span style={{ fontSize: "14px" }}>
+                            <span
+                              style={{
+                                fontSize: "0.875rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: 400,
+                                letterSpacing: "0.01786em",
+                                lineHeight: "1.25rem",
+                              }}
+                            >
                               Critic reviews
                             </span>
                           </div>
@@ -1305,7 +1547,7 @@ function SeriesPage() {
                 boxSizing: "border-box",
                 color: "black",
                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                display:"flex",
+                display: "flex",
               }}
             >
               <div
@@ -1352,68 +1594,67 @@ function SeriesPage() {
                         }}
                       >
                         {data.TopRatedPos > 0 && (
-                        <div
-                          style={{
-                            backgroundColor: "rgba(245, 197, 24)",
-                            height: "49.2833px",
-                            width: "max-content",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <a
-                            href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                          <div
                             style={{
-                              color: "black",
-                              textDecoration: "none",
-                              fontSize: "1rem",
-                              fontWeight: "600",
-                              letterSpacing: "0.00937em",
-                              lineHeight: "1.25rem",
-                              textTransform: "none",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              padding: "12px 7.5px 12px 12px",
-                              zIndex: 1,
+                              backgroundColor: "rgba(245, 197, 24)",
+                              height: "49.2833px",
                               width: "max-content",
+                              display: "flex",
+                              alignItems: "center",
                             }}
                           >
-                            {" "}
-                            Top rated TV #{data.TopRatedPos}
-                          </a>
-                        </div>
+                            <a
+                              href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                              style={{
+                                color: "black",
+                                textDecoration: "none",
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                letterSpacing: "0.00937em",
+                                lineHeight: "1.25rem",
+                                textTransform: "none",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                padding: "12px 7.5px 12px 12px",
+                                zIndex: 1,
+                                width: "max-content",
+                              }}
+                            >
+                              {" "}
+                              Top rated TV #{data.TopRatedPos}
+                            </a>
+                          </div>
                         )}
 
                         {data.TopRatedPos < 1 && (
-                        <div
-                          style={{
-                            backgroundColor: "rgba(245, 197, 24)",
-                            height: "49.2833px",
-                            minWidth:"24px",
-                            width: "max-content",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <a
-                            href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                          <div
                             style={{
-                              color: "black",
-                              textDecoration: "none",
-                              fontSize: "1rem",
-                              fontWeight: "600",
-                              letterSpacing: "0.00937em",
-                              lineHeight: "1.25rem",
-                              textTransform: "none",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              padding: "12px 7.5px 12px 12px",
-                              zIndex: 1,
+                              backgroundColor: "rgba(245, 197, 24)",
+                              height: "49.2833px",
+                              minWidth: "24px",
                               width: "max-content",
+                              display: "flex",
+                              alignItems: "center",
                             }}
                           >
-                          </a>
-                        </div>
+                            <a
+                              href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                              style={{
+                                color: "black",
+                                textDecoration: "none",
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                letterSpacing: "0.00937em",
+                                lineHeight: "1.25rem",
+                                textTransform: "none",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                padding: "12px 7.5px 12px 12px",
+                                zIndex: 1,
+                                width: "max-content",
+                              }}
+                            ></a>
+                          </div>
                         )}
-                        
+
                         <div
                           style={{
                             aspectRatio: "0.364 / 1",
@@ -1596,6 +1837,7 @@ function SeriesPage() {
                       style={{
                         display: "flex",
                         alignItems: "center",
+                        marginBottom: "30px",
                       }}
                     >
                       <div
@@ -1608,52 +1850,496 @@ function SeriesPage() {
                         }}
                       />
                       <div>
-                        <Link to={`/episodepage/${movieId}`} style={{display:"flex", alignItems:"center", color:"black", cursor:"pointer",}}onMouseEnter={() => setHovered(true)}
-  onMouseLeave={() => setHovered(false)}>
-                      <h3
-                        style={{
-                          padding: "0 0 0 10px",
-                          margin: 0,
-                          fontSize: "1.5rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          letterSpacing:"normal",
-                          lineHeight:"1.2em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Episodes
-                      </h3>
+                        <Link
+                          to={`/episodepage/${movieId}`}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            color: "black",
+                            cursor: "pointer",
+                          }}
+                          onMouseEnter={() => setHovered(true)}
+                          onMouseLeave={() => setHovered(false)}
+                        >
+                          <h3
+                            style={{
+                              padding: "0 0 0 10px",
+                              margin: 0,
+                              fontSize: "1.5rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              letterSpacing: "normal",
+                              lineHeight: "1.2em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Episodes
+                          </h3>
+                          <span
+                            style={{
+                              paddingLeft: "12px",
+                              color: "rgb(0,0,0,.54)",
+                              fontSize: "0.875rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontWeight: "400",
+                              alignSelf: "center",
+                              letterSpacing: "0.01786em",
+                              lineHeight: "unset",
+                              marginRight: "2px",
+                            }}
+                          >
+                            {data.Episodes}
+                          </span>
+                          <svg
+                            width="19.2"
+                            height="19.2"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{
+                              color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                              transition: "color 0.2s ease",
+                            }}
+                          >
+                            <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                          </svg>
+                        </Link>
+                      </div>
+                    </div>
+                    <NextEpisode
+                      nextEpisode={nextEpisode}
+                      coverSrc={coverSrc}
+                    />
+                    <RecentAndTopEpisodes episodes={recentAndTopEpisodes} />
+                    <div
+                      style={{
+                        marginTop: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
                       <span
                         style={{
-                          paddingLeft: "12px",
-                          color: "rgb(0,0,0,.54)",
-                          fontSize: "0.875rem",
+                          marginRight: "12px",
+                          color: "black",
                           fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontWeight: "400",
-                          alignSelf: "center",
-                          letterSpacing: "0.01786em",
-                          lineHeight: "unset",
-                          marginRight:"2px"
+                          fontSize: "0.75rem",
+                          fontWeight: "600",
+                          letterSpacing: "0.16667em",
+                          lineHeight: "1rem",
+                          textTransform: "uppercase",
                         }}
                       >
-                        {data.Episodes}
+                        Browse episodes
                       </span>
-                      <svg
-                        width="19.2"
-                        height="19.2"
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        role="presentation"
+                      <span
                         style={{
-    color: hovered ? "#F5C518" : "rgba(0,0,0)",
-    transition: "color 0.2s ease",
-  }}
+                          padding: "0 12px 0 12px",
+                          cursor: "pointer",
+                          color: "rgb(14,99,190)",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25rem",
+                          letterSpacing: "0.02em",
+                        }}
                       >
-                        <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
-                      </svg>
-                      </Link>
+                        Top-rated
+                      </span>
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "0 12px 0 12px",
+                          cursor: "pointer",
+                          color: "rgb(14,99,190)",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25rem",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {data.Seasons} season{data.Seasons > 1 ? "s" : ""}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          class="ipc-icon ipc-icon--arrow-drop-down ipc-simple-select__icon--post"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path fill="none" d="M0 0h24v24H0V0z"></path>
+                          <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
+                        </svg>
+                      </span>
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "0 12px 0 12px",
+                          cursor: "pointer",
+                          color: "rgb(14,99,190)",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25rem",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {data.Years} year{data.Years > 1 ? "s" : ""}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          class="ipc-icon ipc-icon--arrow-drop-down ipc-simple-select__icon--post"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path fill="none" d="M0 0h24v24H0V0z"></path>
+                          <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
+                        </svg>
+                      </span>
+                    </div>
+                  </section>
+
+                  {/*Videos*/}
+                  <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "block",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "20px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "28.8px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgb(245, 197, 24)",
+                            maxHeight: "28.8px",
+                          }}
+                        />
+                        <div>
+                          <Link
+                            to={`/episodepage/${movieId}`}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              color: "black",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={() => setHovered(true)}
+                            onMouseLeave={() => setHovered(false)}
+                          >
+                            <h3
+                              style={{
+                                padding: "0 0 0 10px",
+                                margin: 0,
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Videos
+                            </h3>
+                            <span
+                              style={{
+                                paddingLeft: "12px",
+                                color: "rgb(0,0,0,.54)",
+                                fontSize: "0.875rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "400",
+                                alignSelf: "center",
+                                letterSpacing: "0.01786em",
+                                lineHeight: "unset",
+                                marginRight: "2px",
+                              }}
+                            >
+                              {data.Videos2}
+                            </span>
+                            <svg
+                              width="19.2"
+                              height="19.2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                              style={{
+                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                transition: "color 0.2s ease",
+                              }}
+                            >
+                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                            </svg>
+                          </Link>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          position: "relative",
+                          left: "-24px",
+                        }}
+                      >
+                        <img src={Video1} alt="" />
+                        <img src={Video2} alt="" />
+                      </div>
+                    </div>
+                  </section>
+
+                  {/*Images*/}
+                  <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "block",
+                        marginBottom: "30px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "20px",
+                          width: "808px",
+                          height: "38.4px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "28.8px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgb(245, 197, 24)",
+                            maxHeight: "28.8px",
+                          }}
+                        />
+                        <div>
+                          <Link
+                            to={`/episodepage/${movieId}`}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              color: "black",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={() => setHovered(true)}
+                            onMouseLeave={() => setHovered(false)}
+                          >
+                            <h3
+                              style={{
+                                padding: "0 0 0 10px",
+                                margin: 0,
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Photos
+                            </h3>
+                            <span
+                              style={{
+                                paddingLeft: "12px",
+                                color: "rgb(0,0,0,.54)",
+                                fontSize: "0.875rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "400",
+                                alignSelf: "center",
+                                letterSpacing: "0.01786em",
+                                lineHeight: "unset",
+                                marginRight: "2px",
+                              }}
+                            >
+                              {data.Photos2}
+                            </span>
+                            <svg
+                              width="19.2"
+                              height="19.2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                              style={{
+                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                transition: "color 0.2s ease",
+                              }}
+                            >
+                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                            </svg>
+                          </Link>
+                        </div>
+                        <div
+                          style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "rgb(14,99,190)",
+                            cursor: "pointer",
+                            padding: "0 16px 0 16px"
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{
+                              marginRight: "4px",
+                            }}
+                          >
+                            <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                          </svg>
+                          <span
+                            style={{
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              lineHeight: "1.25rem",
+                              letterSpacing: ".02em",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              position: "relative",
+                              top: "1px",
+                            }}
+                          >
+                            Add photo
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexFlow: "row",
+                            gap: "1rem",
+                            marginBottom: "1rem",
+                          }}
+                        >
+                          <img
+                            src={Img1}
+                            style={{
+                              width: "396px",
+                              height: "162.5px",
+                              borderRadius: "0.75rem",
+                              objectFit: "cover",
+                              objectPosition: "15% 15%",
+                              cursor: "pointer",
+                            }}
+                          />
+                          <img
+                            src={Img2}
+                            style={{
+                              width: "396px",
+                              height: "162.5px",
+                              borderRadius: "0.75rem",
+                              objectFit: "cover",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexFlow: "row",
+                            gap: "1rem",
+                            marginBottom: "1rem",
+                          }}
+                        >
+                          <img
+                            src={Img3}
+                            style={{
+                              width: "338.333px",
+                              height: "149.817px",
+                              borderRadius: "0.75rem",
+                              objectFit: "cover",
+                              objectPosition: "15% 15%",
+                              cursor: "pointer",
+                            }}
+                          />
+                          <img
+                            src={Img4}
+                            style={{
+                              width: "338.333px",
+                              height: "149.817px",
+                              borderRadius: "0.75rem",
+                              objectFit: "cover",
+                              objectPosition: "20% 20%",
+                              cursor: "pointer",
+                            }}
+                          />
+                          <div
+                            style={{
+                              position: "relative",
+                              width: "100px",
+                              height: "149.817px",
+                              borderRadius: "0.75rem",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <img
+                              src={Img5}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                objectPosition: "70% 70%",
+                                cursor: "pointer",
+                              }}
+                            />
+
+                            {/* Overlay */}
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                background: "rgba(0,0,0,0.5)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "white",
+                                fontWeight: 600,
+                                fontSize: "0.875rem",
+                                textAlign: "center",
+                                borderRadius: "0.75rem",
+                                pointerEvents: "none",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                lineHeight: "1.25rem",
+                                letterSpacing: "normal",
+                              }}
+                            >
+                              + {formatVotes(data.Photos2)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </section>
@@ -1661,16 +2347,23 @@ function SeriesPage() {
               </div>
 
               {/* Aside */}
-              <div style={{padding:"24px 0 24px 12px", width:"412px", justifyContent:"center", display:"flex"}}>
-                <img src={MoreToExplore} alt=""/>
+              <div
+                style={{
+                  padding: "24px 0 24px 12px",
+                  width: "412px",
+                  justifyContent: "center",
+                  display: "flex",
+                }}
+              >
+                <img src={MoreToExplore} alt="" />
               </div>
             </div>
           </div>
         </main>
         <div style={{ backgroundColor: "black", marginTop: 24 }}>
-                <img src={Footer1} alt="" style={{ position: "relative" }} />
-                <img src={Footer2} alt="" />
-              </div>
+          <img src={Footer1} alt="" style={{ position: "relative" }} />
+          <img src={Footer2} alt="" />
+        </div>
       </div>
     </>
   );
