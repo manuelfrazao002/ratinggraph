@@ -34,12 +34,20 @@ import SmallArrowUp from "./imgs/imdb/smallarrowup.png";
 
 import MarkedWatched from "./imgs/imdb/markwatched.png";
 
+//More to Explore
+import MoreToExplore from "./imgs/imdb/moretoexplore.png";
+
+import Footer1 from "./imgs/imdb/footer1.png";
+import Footer2 from "./imgs/imdb/footer2.png";
+
+//Data
 import { movieMap } from "./data/MovieMap";
 
 function SeriesPage() {
   const { movieId } = useParams();
   const [data, setData] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [movies, setMovie] = useState([]);
   const [coverSrc, setCoverSrc] = useState("");
   const [trailerSrc, setTrailerSrc] = useState("");
@@ -218,7 +226,7 @@ function SeriesPage() {
   return (
     <>
       <GlobalStyle />
-      <div style={{ backgroundColor: "#1F1F1F" }}>
+      <div>
         {isTVShow && (
           <Link to={`/imdb/list`}>
             <img src={IMDBNavbar} alt="Rating Graph" />
@@ -229,1026 +237,1440 @@ function SeriesPage() {
             <img src={IMDBNavbar} alt="Rating Graph" />
           </Link>
         )}
-        <main style={{ width: "1280px", margin: "0 auto" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              paddingLeft: "22px",
-              paddingRight: "12px",
-              position: "relative",
-              top: "-8px",
-            }}
-          >
-            {/* Only show the Episode Guide link for TV Series */}
-            {isTVShow && (
-              <Link to={`/episodepage/${movieId}`}>
-                <div
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    textDecoration: "none",
-                    transition: "background-color 0.2s ease",
-                  }}
-                >
-                  <p
-                    style={{
-                      marginRight: "12px",
-                      alignItems: "center",
-                      display: "flex",
-                    }}
-                  >
-                    <img src={EpisodeGuide} alt="" />
-                  </p>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginLeft: -2,
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 14,
-                        color: "#C0C0C0",
-                        marginRight: "6px",
-                      }}
-                    >
-                      {data.Episodes}
-                    </p>
-                    <ChevronRight
-                      size={20}
-                      style={{
-                        color: isHovered ? "#F5C518" : "white",
-                        transition: "color 0.2s ease",
-                      }}
-                    />
-                  </div>
-                </div>
-              </Link>
-            )}
-
-            {/* The UpInfo image always shows, regardless of type */}
-            <img
-              src={UpInfo}
-              alt="Up Info"
-              style={{
-                height: 48,
-                marginLeft: "auto", // Ensures it stays right-aligned
-                marginTop: 1,
-              }}
-            />
-          </div>
-          {data.Type === "Movie" && (
-            <div style={{ width: "12px", height: "2px" }}></div>
-          )}
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              margin: "0 auto",
-              width: "1232px",
-            }}
-          >
-            <div style={{ display: "block" }}>
-              <h1
-                style={{
-                  color: "white",
-                  fontWeight: "normal",
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  marginTop: -13,
-                  marginBottom: 0,
-                  height: 58,
-                  fontSize: "48px",
-                  position: "relative",
-                  top: "3px",
-                }}
-              >
-                {data.Title}
-              </h1>
+        <main>
+          <div style={{ backgroundColor: "#1F1F1F", width: "100%" }}>
+            <div style={{ margin: "0 auto", width: "1280px" }}>
               <div
                 style={{
-                  color: "#C0C0C0",
-                  marginBottom: "9px",
-                  fontSize: "0.9rem",
-                  marginTop: -3,
-                  fontWeight: "lighter",
-                  position: "relative",
-                  top: "1px",
-                  WebkitTextStroke: "0.1px #C0C0C0",
                   display: "flex",
+                  justifyContent: "space-between",
+                  paddingLeft: "22px",
+                  paddingRight: "12px",
+                  position: "relative",
+                  top: "-8px",
                 }}
               >
-                {!isMovie && (
-                  <>
-                    {data.Type}
-                    <span style={{ fontWeight: "bold", margin: "0 7px" }}>
-                      ·
-                    </span>
-                  </>
-                )}
-                {data.BeginingYear}
-                {data.Type === "TV Series" && `—${data.EndingYear || ""}`}
-                <span style={{ fontWeight: "bold", margin: "0 7px" }}>·</span>
-                {data.AgeRating}
-                {!isMovie && (
-                  <>
-                    {hasVotes && (
-                      <div>
-                        <span style={{ fontWeight: "bold", margin: "0 7px" }}>
-                          ·
-                        </span>
-                        {data.EpDuration}
-                      </div>
-                    )}
-                  </>
-                )}
-                {!isTVShow && (
-                  <>
-                    <div>
-                      <span style={{ fontWeight: "bold", margin: "0 7px" }}>
-                        ·
-                      </span>
-                      {data.MovieDuration}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/*Aside */}
-            <div
-              style={{
-                height: "66px",
-                padding: 0,
-                margin: 0,
-                display: "flex",
-                position: "relative",
-                top: "-7px",
-              }}
-            >
-              {hasVotes && (
-                <div style={{ paddingRight: 25, margin: "0 auto" }}>
-                  <img src={IMDBRating} alt="" />
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <img
-                      src={StarImdb}
-                      alt=""
-                      width={32}
-                      height={32}
-                      style={{
-                        marginRight: "0.2rem",
-                        position: "relative",
-                        top: "-1px",
-                        left: "-1.3px",
-                      }}
-                    />
+                {/* Only show the Episode Guide link for TV Series */}
+                {isTVShow && (
+                  <Link to={`/episodepage/${movieId}`}>
                     <div
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
                       style={{
                         display: "flex",
-                        flexDirection: "column",
-                        position: "relative",
-                        top: "-5px",
+                        alignItems: "center",
+                        textDecoration: "none",
+                        transition: "background-color 0.2s ease",
                       }}
                     >
-                      <div
+                      <p
                         style={{
+                          marginRight: "12px",
+                          alignItems: "center",
                           display: "flex",
-                          justifyContent: "center",
-                          alignItems: "baseline",
                         }}
                       >
-                        <span
-                          style={{
-                            fontSize: "18.5px",
-                            color: "white",
-                            letterSpacing: "0.5px",
-                            position: "relative",
-                            top: "1px",
-                            left: "-1px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {data.Rating}
-                        </span>
-                        <span
-                          style={{
-                            color: "#BCBCBC",
-                            fontSize: 15,
-                            WebkitTextStroke: "0.1px #BCBCBC",
-                            letterSpacing: "0.5px",
-                          }}
-                        >
-                          /10
-                        </span>
-                      </div>
-
-                      <span
-                        style={{
-                          fontSize: "0.72rem",
-                          color: "#BCBCBC",
-                          position: "relative",
-                          top: "-4px",
-                          left: "-1px",
-                          letterSpacing: "0.8px",
-                          WebkitTextStroke: "0.1px #BCBCBC",
-                        }}
-                      >
-                        {formatVotes(data.Votes) || "N/A"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {hasVotes && (
-                <div style={{ paddingRight: 18 }}>
-                  <img src={YourRating} alt="" />
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      position: "relative",
-                      top: "-2px",
-                    }}
-                  >
-                    <img
-                      src={RateIMDB}
-                      alt=""
-                      style={{ position: "relative", left: "-1px" }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div style={{ marginRight: "5px" }}>
-                <img
-                  src={Popularity}
-                  alt=""
-                  style={{
-                    display: "flex",
-                    margin: "0 auto",
-                    paddingBottom: "8px",
-                    alignContent: "center",
-                    position: "relative",
-                    top: "1px",
-                  }}
-                />
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "relative",
-                    top: "-2px",
-                  }}
-                >
-                  <img
-                    src={
-                      data.PopStatus === "up"
-                        ? ArrowUp
-                        : data.PopStatus === "down"
-                          ? ArrowDown
-                          : ArrowStay
-                    }
-                    alt=""
-                    style={{ marginRight: "4px" }}
-                  />
-
-                  {/* Popularidade sempre visível */}
-                  <span
-                    style={{
-                      marginRight: "10px",
-                      fontSize: "19px",
-                      letterSpacing: "1.5px",
-                      position: "relative",
-                      top: "1px",
-                      fontWeight: "bold",
-                      color: "white",
-                    }}
-                  >
-                    {data.Popularity}
-                  </span>
-
-                  {/* Condicional para SmallArrowUp */}
-                  {data.PopStatus !== "stay" && (
-                    <div
-                      style={{
-                        paddingRight: "3px",
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <img
-                        src={SmallArrowUp}
-                        alt=""
-                        style={{
-                          width: "8px",
-                          position: "relative",
-                          top: "0.109rem",
-                          transform:
-                            data.PopStatus === "down"
-                              ? "rotate(180deg)"
-                              : "rotate(0deg)",
-                          transformOrigin: "center center",
-                          transition: "transform 0.3s ease",
-                          display: "block",
-                        }}
-                      />
-                    </div>
-                  )}
-                  {/* Texto PopUp aparece só se PopStatus diferente de "stay" */}
-                  {data.PopStatus !== "stay" && (
-                    <span
-                      style={{
-                        color: "#A4AAB5",
-                        WebkitTextStroke: "0.18px #A4AAB5",
-                        letterSpacing: "0.5px",
-                        position: "relative",
-                        top: "2px",
-                      }}
-                    >
-                      {data.PopUp}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Poster */}
-          <section
-            style={{
-              display: "flex",
-              justifyContent: "space-evenly",
-              width: "1232px",
-              margin: "0 auto",
-            }}
-          >
-            <div>
-              <img
-                src={coverSrc}
-                alt=""
-                loading="lazy"
-                style={{
-                  width: "278.267px",
-                  height: "414.667px",
-                  objectFit: "cover",
-                  borderRadius: 12,
-                }}
-              />
-            </div>
-            <div style={{ margin: "0 auto", position: "relative" }}>
-              <img
-                src={trailerSrc}
-                alt=""
-                style={{
-                  width: "737.2px",
-                  height: "414.667px",
-                  objectFit: "cover",
-                  borderRadius: 12,
-                  display: "block",
-                  objectPosition: "12% 12%",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "737.2px",
-                  height: "414.667px",
-                  borderRadius: 12,
-                  cursor: "pointer",
-                  backgroundColor: "rgba(0,0,0,0.3)",
-                  transition: "background-color 0.3s ease",
-                  // Não precisa do flex center aqui mais porque vamos posicionar só no canto
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.5)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.3)")
-                }
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 20, // afastamento do canto inferior
-                    left: 20, // afastamento do canto esquerdo
-                    display: "flex",
-                    alignItems: "center",
-                    // espaço entre o círculo e o texto
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      position: "relative",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: 12,
-                      top: "4px",
-                      left: "-4px",
-                    }}
-                  >
-                    {/* Círculo com borda branca */}
-                    <div
-                      style={{
-                        width: 54,
-                        height: 54,
-                        borderRadius: "50%",
-                        border: "3px solid white", // borda branca
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        filter: "drop-shadow(0 0 4px rgba(0,0,0,0.7))",
-                        transition: "background-color 0.3s ease",
-                        position: "relative",
-                        top: "0px",
-                      }}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="150"
-                        height="150"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        role="presentation"
-                        style={{ transform: "rotate(-90deg)", color: "white"}}
-                      >
-                        <path fill="none" d="M0 0h24v24H0V0z"></path>
-                        <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"/>
-                      </svg>
-                    </div>
-
-                    {/* Texto ao lado */}
-                    <span
-                      style={{
-                        color: "white",
-                        fontSize: 24,
-                        userSelect: "none",
-                        textShadow: "0 0 5px rgba(0,0,0,0.7)",
-                        position: "relative",
-                        top: "-1px",
-                        left: "-4px",
-                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                      }}
-                    >
-                      Play trailer
-                    </span>
-                    <span
-                      style={{
-                        color: "white",
-                        position: "relative",
-                        top: "2px",
-                        left: "-7px",
-                      }}
-                    >
-                      {data.trailerDuration}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Botões vídeos/fotos */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                maxHeight: "414.667px",
-              }}
-            >
-              <button
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#f5c518",
-                  border: "none",
-                  color: "white",
-                  fontWeight: "",
-                  cursor: "pointer",
-                  borderRadius: "12px",
-                  backgroundColor: "#313131",
-                  width: "208.533px",
-                  height: "205.333px",
-                  paddingTop: 30,
-                }}
-              >
-                <img
-                  src={VideoImg}
-                  alt=""
-                  style={{ width: "32px", marginBottom: 14 }}
-                />
-                <br />
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.16667em",
-                    position: "relative",
-                    top: "-9px",
-                    fontWeight: "600",
-                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  }}
-                >
-                  {data.Videos}
-                </p>
-              </button>
-              <button
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#f5c518",
-                  border: "none",
-                  color: "white",
-                  fontWeight: "",
-                  cursor: "pointer",
-                  borderRadius: "12px",
-                  backgroundColor: "#313131",
-                  width: "208.533px",
-                  height: "205.333px",
-                  paddingTop: 30,
-                }}
-              >
-                <img
-                  src={ImgsSquares}
-                  alt=""
-                  style={{ width: "32px", marginBottom: 14 }}
-                />
-                <br />
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    letterSpacing: "0.16667em",
-                    position: "relative",
-                    top: "-9px",
-                    fontWeight: "600",
-                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  }}
-                >
-                  {data.Photos}
-                </p>
-              </button>
-            </div>
-          </section>
-
-          <section
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                width: "813.25px",
-                paddingLeft: "24px",
-                marginTop: "10px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  margin: "0px 0 12px 0",
-                }}
-              >
-                {(data?.Genres
-                  ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
-                    data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
-                      .map((genre) => genre.trim())
-                      .filter((genre) => genre)
-                  : []
-                ).map((genre, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      border: "1px solid #6F6F68",
-                      borderRadius: "20px",
-                      padding: "3px 12px",
-                      margin: "4px 8px 4px 0",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: "transparent",
-                      transition: "all 0.2s ease",
-                      cursor: "pointer",
-                      ":hover": {
-                        borderColor: "#F5C518",
-                        backgroundColor: "rgba(245, 197, 24, 0.1)",
-                        boxShadow: "0 0 0 1px #F5C518",
-                      },
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: "white",
-                        fontSize: "0.9rem",
-                        fontWeight: 400,
-                        letterSpacing: "0.03px",
-                        whiteSpace: "nowrap",
-                        transition: "color 0.2s ease",
-                        ":hover": {
-                          color: "#F5C518",
-                        },
-                      }}
-                    >
-                      {genre}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div
-                style={{
-                  marginTop: "5px",
-                  color: "white",
-                  borderBottom: "1px solid #4B4B4B",
-                  paddingBottom: "12px",
-                }}
-              >
-                {data.Synopsis}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 14,
-                  alignItems: "center",
-                  borderBottom: "1px solid #4B4B4B",
-                  lineHeight: "1",
-                  fontSize: "15.5px",
-                  height: "49.283px",
-                }}
-              >
-                <p
-                  style={{
-                    fontWeight: "bold",
-                    color: "white",
-                    letterSpacing: "0.2px",
-                  }}
-                >
-                  Creators
-                </p>
-                <p style={{}}>{renderListWithDotSeparator(data.Creators)}</p>
-              </div>
-              {!isTVShow && (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 14,
-                    alignItems: "center",
-                    borderBottom: "1px solid #4B4B4B",
-                    lineHeight: "1",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontWeight: "bold",
-                      color: "white",
-                      letterSpacing: "0.2px",
-                    }}
-                  >
-                    Writers
-                  </p>
-                  <p style={{}}>{renderListWithDotSeparator(data.Writers)}</p>
-                </div>
-              )}
-              <div
-                style={{
-                  alignItems: "center",
-                  borderBottom: "1px solid #4B4B4B",
-                  lineHeight: "1",
-                  height: "49.283px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 14,
-                    position: "relative",
-                    top: "2px",
-                    fontSize: "15.5px",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontWeight: "bold",
-                      color: "white",
-                      letterSpacing: "0.2px",
-                    }}
-                  >
-                    Stars
-                  </p>
-                  <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
-                </div>
-              </div>
-              <div>
-                <img src={IMDBPro} alt="" />
-              </div>
-            </div>
-
-            <div
-              style={{
-                width: "358.617px",
-                height: "max-content",
-                display: "grid",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                position: "relative",
-                left: "-24px",
-                alignContent: "center",
-                marginTop: "5px",
-              }}
-            >
-              {isTVShow && data.NextEpisode?.trim() ? (
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    paddingRight: 24,
-                    marginBottom: 16,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "4px",
-                      height: "36px",
-                      borderRadius: "12px",
-                      backgroundColor: "#F5C518",
-                      maxHeight: 36,
-                    }}
-                  />
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "0.75rem",
-                        letterSpacing: "0.16667em",
-                        paddingLeft: 8,
-                        margin: 0,
-                        color: "white",
-                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                        fontWeight: 600,
-                        lineHeight:"1rem",
-                      }}
-                    >
-                      {Number(data.NextEpisodeSeason) === 1 &&
-                      Number(data.NextEpisodeNumber) === 1
-                        ? "SERIES PREMIERE"
-                        : Number(data.NextEpisodeNumber) === 1
-                          ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
-                          : "NEXT EPISODE"}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.875rem",
-                        letterSpacing: "0.01786em",
-                        position: "relative",
-                        color: "white",
-                        paddingLeft: 8,
-                        margin: 0,
-                        lineHeight:"1.25rem",
-                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                        fontWeight: 400,
-                      }}
-                    >
-                      {data.NextEpisode}
-                    </p>
-                  </div>
-                </div>
-              ) : data.Type === "Movie" && data.NextEpisode ? (
-                <div
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    paddingRight: 24,
-                    marginBottom: 16,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "4px",
-                      height: "36px",
-                      borderRadius: "12px",
-                      backgroundColor: "#F5C518",
-                      maxHeight: 36,
-                    }}
-                  />
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "0.71rem",
-                        letterSpacing: "2px",
-                        WebkitTextStroke: "0.5px white",
-                        paddingLeft: 8,
-                        margin: 0,
-                      }}
-                    >
-                      COMING SOON
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        letterSpacing: "1px",
-                        position: "relative",
-                        color: "white",
-                        paddingLeft: 8,
-                        margin: 0,
-                      }}
-                    >
-                      Releases {data.NextEpisode}
-                    </p>
-                  </div>
-                </div>
-              ) : null}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  minWidth: "max-content",
-                  maxHeight: "48px",
-                  backgroundColor: "#F5C518",
-                  borderRadius: 50,
-                }}
-              >
-                <div
-                  style={{
-                    paddingRight: 6,
-                    paddingLeft: 4,
-                    color: "black",
-                    fontSize: 24,
-                    display: "flex",
-                    position: "relative",
-                    left: "2px",
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path></svg>
-                  
-                </div>
-                <div
-                  style={{
-                    minWidth: "275px",
-                    minHeight: "48px",
-                    borderRight: "2px solid #AB8A11",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      color: "black",
-                      fontWeight: 700,
-                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                      fontSize: 14.2,
-                      letterSpacing: 0.2,
-                      marginBottom: "-1.8px",
-                    }}
-                  >
-                    Add to Watchlist
-                  </p>
-                  <p
-                    style={{
-                      margin: 0,
-                      color: "black",
-                      fontSize: "0.75em",
-                      letterSpacing: "0.03333em",
-                      position: "relative",
-                      bottom: "1.2px",
-                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                      fontWeight: 400,
-                    }}
-                  >
-                    Added by {formatNumberWatchList(data.WatchlistNumber)} users
-                  </p>
-                </div>
-                <div
-                  style={{
-                    margin: "0 auto",
-                    display: "flex",
-                    justifyContent: "center",
-                    width: "48px",
-                  }}
-                >
-                  <ChevronDown
-                    size={20}
-                    style={{ color: "black", WebkitTextStroke: "0.9px black"}}
-                  />
-                </div>
-              </div>
-              {hasVotes && (
-                <>
-                <div style={{ minWidth: "48px", marginTop: 8 }}>
-                  <img src={MarkedWatched} alt="" />
-                </div>
-              
-              <div
-                style={{
-                  display: "flex",
-                  gap: "20px",
-                  color: "#5799EF",
-                  marginTop: 12,
-                  flexWrap: "wrap",
-                }}
-              >
-                {hasVotes && userReviewsNumber > 0 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontFamily: "Arial, sans-serif",
-                        textAlign: "right",
-                        display: "inline-block",
-                        fontSize: 16,
-                      }}
-                    >
-                      {formatNumber(userReviewsNumber)}
-                    </span>
-                    <span style={{ fontSize: "14px" }}>User reviews</span>
-                  </div>
-                )}
-
-                {hasVotes && criticReviewsNumber > 0 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        fontFamily: "Arial, sans-serif",
-                        textAlign: "right",
-                        display: "inline-block",
-                      }}
-                    >
-                      {formatNumber(criticReviewsNumber)}
-                    </span>
-                    <span style={{ fontSize: "14px" }}>Critic reviews</span>
-                  </div>
-                )}
-
-                {!isTVShow && (
-                  <>
-                    {hasVotes && criticReviewsNumber > 0 && (
+                        <img src={EpisodeGuide} alt="" />
+                      </p>
                       <div
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          gap: "6px",
+                          marginLeft: -2,
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 14,
+                            color: "#C0C0C0",
+                            marginRight: "6px",
+                          }}
+                        >
+                          {data.Episodes}
+                        </p>
+                        <ChevronRight
+                          size={20}
+                          style={{
+                            color: isHovered ? "#F5C518" : "white",
+                            transition: "color 0.2s ease",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </Link>
+                )}
+
+                {/* The UpInfo image always shows, regardless of type */}
+                <img
+                  src={UpInfo}
+                  alt="Up Info"
+                  style={{
+                    height: 48,
+                    marginLeft: "auto", // Ensures it stays right-aligned
+                    marginTop: 1,
+                  }}
+                />
+              </div>
+              {data.Type === "Movie" && (
+                <div style={{ width: "12px", height: "2px" }}></div>
+              )}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  margin: "0 auto",
+                  width: "1232px",
+                }}
+              >
+                <div style={{ display: "block" }}>
+                  <h1
+                    style={{
+                      color: "white",
+                      fontWeight: "normal",
+                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      marginTop: -13,
+                      marginBottom: 0,
+                      height: 58,
+                      fontSize: "48px",
+                      position: "relative",
+                      top: "3px",
+                    }}
+                  >
+                    {data.Title}
+                  </h1>
+                  <div
+                    style={{
+                      color: "#C0C0C0",
+                      marginBottom: "9px",
+                      fontSize: "0.9rem",
+                      marginTop: -3,
+                      fontWeight: "lighter",
+                      position: "relative",
+                      top: "1px",
+                      WebkitTextStroke: "0.1px #C0C0C0",
+                      display: "flex",
+                    }}
+                  >
+                    {!isMovie && (
+                      <>
+                        {data.Type}
+                        <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                          ·
+                        </span>
+                      </>
+                    )}
+                    {data.BeginingYear}
+                    {data.Type === "TV Series" && `—${data.EndingYear || ""}`}
+                    <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                      ·
+                    </span>
+                    {data.AgeRating}
+                    {!isMovie && (
+                      <>
+                        {hasVotes && (
+                          <div>
+                            <span
+                              style={{ fontWeight: "bold", margin: "0 7px" }}
+                            >
+                              ·
+                            </span>
+                            {data.EpDuration}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {!isTVShow && (
+                      <>
+                        <div>
+                          <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                            ·
+                          </span>
+                          {data.MovieDuration}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/*Aside */}
+                <div
+                  style={{
+                    height: "66px",
+                    padding: 0,
+                    margin: 0,
+                    display: "flex",
+                    position: "relative",
+                    top: "-7px",
+                  }}
+                >
+                  {hasVotes && (
+                    <div style={{ paddingRight: 25, margin: "0 auto" }}>
+                      <img src={IMDBRating} alt="" />
+                      <div
+                        style={{ display: "flex", justifyContent: "center" }}
+                      >
+                        <img
+                          src={StarImdb}
+                          alt=""
+                          width={32}
+                          height={32}
+                          style={{
+                            marginRight: "0.2rem",
+                            position: "relative",
+                            top: "-1px",
+                            left: "-1.3px",
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            position: "relative",
+                            top: "-5px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "baseline",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: "18.5px",
+                                color: "white",
+                                letterSpacing: "0.5px",
+                                position: "relative",
+                                top: "1px",
+                                left: "-1px",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {data.Rating}
+                            </span>
+                            <span
+                              style={{
+                                color: "#BCBCBC",
+                                fontSize: 15,
+                                WebkitTextStroke: "0.1px #BCBCBC",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              /10
+                            </span>
+                          </div>
+
+                          <span
+                            style={{
+                              fontSize: "0.72rem",
+                              color: "#BCBCBC",
+                              position: "relative",
+                              top: "-4px",
+                              left: "-1px",
+                              letterSpacing: "0.8px",
+                              WebkitTextStroke: "0.1px #BCBCBC",
+                            }}
+                          >
+                            {formatVotes(data.Votes) || "N/A"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {hasVotes && (
+                    <div style={{ paddingRight: 18 }}>
+                      <img src={YourRating} alt="" />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          position: "relative",
+                          top: "-2px",
+                        }}
+                      >
+                        <img
+                          src={RateIMDB}
+                          alt=""
+                          style={{ position: "relative", left: "-1px" }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ marginRight: "5px" }}>
+                    <img
+                      src={Popularity}
+                      alt=""
+                      style={{
+                        display: "flex",
+                        margin: "0 auto",
+                        paddingBottom: "8px",
+                        alignContent: "center",
+                        position: "relative",
+                        top: "1px",
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        position: "relative",
+                        top: "-2px",
+                      }}
+                    >
+                      <img
+                        src={
+                          data.PopStatus === "up"
+                            ? ArrowUp
+                            : data.PopStatus === "down"
+                              ? ArrowDown
+                              : ArrowStay
+                        }
+                        alt=""
+                        style={{ marginRight: "4px" }}
+                      />
+
+                      {/* Popularidade sempre visível */}
+                      <span
+                        style={{
+                          marginRight: "10px",
+                          fontSize: "19px",
+                          letterSpacing: "1.5px",
+                          position: "relative",
+                          top: "1px",
+                          fontWeight: "bold",
+                          color: "white",
+                        }}
+                      >
+                        {data.Popularity}
+                      </span>
+
+                      {/* Condicional para SmallArrowUp */}
+                      {data.PopStatus !== "stay" && (
+                        <div
+                          style={{
+                            paddingRight: "3px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <img
+                            src={SmallArrowUp}
+                            alt=""
+                            style={{
+                              width: "8px",
+                              position: "relative",
+                              top: "0.109rem",
+                              transform:
+                                data.PopStatus === "down"
+                                  ? "rotate(180deg)"
+                                  : "rotate(0deg)",
+                              transformOrigin: "center center",
+                              transition: "transform 0.3s ease",
+                              display: "block",
+                            }}
+                          />
+                        </div>
+                      )}
+                      {/* Texto PopUp aparece só se PopStatus diferente de "stay" */}
+                      {data.PopStatus !== "stay" && (
+                        <span
+                          style={{
+                            color: "#A4AAB5",
+                            WebkitTextStroke: "0.18px #A4AAB5",
+                            letterSpacing: "0.5px",
+                            position: "relative",
+                            top: "2px",
+                          }}
+                        >
+                          {data.PopUp}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Poster */}
+              <section
+                style={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  width: "1232px",
+                  margin: "0 auto",
+                }}
+              >
+                <div>
+                  <img
+                    src={coverSrc}
+                    alt=""
+                    loading="lazy"
+                    style={{
+                      width: "278.267px",
+                      height: "414.667px",
+                      objectFit: "cover",
+                      borderRadius: 12,
+                    }}
+                  />
+                </div>
+                <div style={{ margin: "0 auto", position: "relative" }}>
+                  <img
+                    src={trailerSrc}
+                    alt=""
+                    style={{
+                      width: "737.2px",
+                      height: "414.667px",
+                      objectFit: "cover",
+                      borderRadius: 12,
+                      display: "block",
+                      objectPosition: "12% 12%",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "737.2px",
+                      height: "414.667px",
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      backgroundColor: "rgba(0,0,0,0.3)",
+                      transition: "background-color 0.3s ease",
+                      // Não precisa do flex center aqui mais porque vamos posicionar só no canto
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(0,0,0,0.5)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        "rgba(0,0,0,0.3)")
+                    }
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 20, // afastamento do canto inferior
+                        left: 20, // afastamento do canto esquerdo
+                        display: "flex",
+                        alignItems: "center",
+                        // espaço entre o círculo e o texto
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          position: "relative",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: 12,
+                          top: "4px",
+                          left: "-4px",
+                        }}
+                      >
+                        {/* Círculo com borda branca */}
+                        <div
+                          style={{
+                            width: 54,
+                            height: 54,
+                            borderRadius: "50%",
+                            border: "3px solid white", // borda branca
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            filter: "drop-shadow(0 0 4px rgba(0,0,0,0.7))",
+                            transition: "background-color 0.3s ease",
+                            position: "relative",
+                            top: "0px",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="150"
+                            height="150"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{
+                              transform: "rotate(-90deg)",
+                              color: "white",
+                            }}
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
+                          </svg>
+                        </div>
+
+                        {/* Texto ao lado */}
+                        <span
+                          style={{
+                            color: "white",
+                            fontSize: 24,
+                            userSelect: "none",
+                            textShadow: "0 0 5px rgba(0,0,0,0.7)",
+                            position: "relative",
+                            top: "-1px",
+                            left: "-4px",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          }}
+                        >
+                          Play trailer
+                        </span>
+                        <span
+                          style={{
+                            color: "white",
+                            position: "relative",
+                            top: "2px",
+                            left: "-7px",
+                          }}
+                        >
+                          {data.trailerDuration}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botões vídeos/fotos */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    maxHeight: "414.667px",
+                  }}
+                >
+                  <button
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#f5c518",
+                      border: "none",
+                      color: "white",
+                      fontWeight: "",
+                      cursor: "pointer",
+                      borderRadius: "12px",
+                      backgroundColor: "#313131",
+                      width: "208.533px",
+                      height: "205.333px",
+                      paddingTop: 30,
+                    }}
+                  >
+                    <img
+                      src={VideoImg}
+                      alt=""
+                      style={{ width: "32px", marginBottom: 14 }}
+                    />
+                    <br />
+                    <p
+                      style={{
+                        fontSize: "0.75rem",
+                        letterSpacing: "0.16667em",
+                        position: "relative",
+                        top: "-9px",
+                        fontWeight: "600",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      }}
+                    >
+                      {data.Videos}
+                    </p>
+                  </button>
+                  <button
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#f5c518",
+                      border: "none",
+                      color: "white",
+                      fontWeight: "",
+                      cursor: "pointer",
+                      borderRadius: "12px",
+                      backgroundColor: "#313131",
+                      width: "208.533px",
+                      height: "205.333px",
+                      paddingTop: 30,
+                    }}
+                  >
+                    <img
+                      src={ImgsSquares}
+                      alt=""
+                      style={{ width: "32px", marginBottom: 14 }}
+                    />
+                    <br />
+                    <p
+                      style={{
+                        fontSize: "0.75rem",
+                        letterSpacing: "0.16667em",
+                        position: "relative",
+                        top: "-9px",
+                        fontWeight: "600",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      }}
+                    >
+                      {data.Photos}
+                    </p>
+                  </button>
+                </div>
+              </section>
+
+              <section
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: "813.25px",
+                    paddingLeft: "24px",
+                    marginTop: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                      margin: "0px 0 12px 0",
+                    }}
+                  >
+                    {(data?.Genres
+                      ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
+                        data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
+                          .map((genre) => genre.trim())
+                          .filter((genre) => genre)
+                      : []
+                    ).map((genre, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          border: "1px solid #6F6F68",
+                          borderRadius: "20px",
+                          padding: "3px 12px",
+                          margin: "4px 8px 4px 0",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "transparent",
+                          transition: "all 0.2s ease",
+                          cursor: "pointer",
+                          ":hover": {
+                            borderColor: "#F5C518",
+                            backgroundColor: "rgba(245, 197, 24, 0.1)",
+                            boxShadow: "0 0 0 1px #F5C518",
+                          },
                         }}
                       >
                         <span
                           style={{
-                            backgroundColor:
-                              Number(data.Metascore) >= 61
-                                ? "#54A72A"
-                                : Number(data.Metascore) >= 40
-                                  ? "#ffcc33"
-                                  : "#ff0000",
                             color: "white",
-                            padding: "2px 2px",
-                            width: "18.1px",
-                            height: "20px",
-                            fontWeight: 700,
-                            fontFamily: "Arial, sans-serif",
-                            textAlign: "center",
-                            display: "flex", // Changed to flex
-                            alignItems: "center", // Vertical centering
-                            justifyContent: "center", // Horizontal centering
-                            lineHeight: 1,
+                            fontSize: "0.9rem",
+                            fontWeight: 400,
+                            letterSpacing: "0.03px",
+                            whiteSpace: "nowrap",
+                            transition: "color 0.2s ease",
+                            ":hover": {
+                              color: "#F5C518",
+                            },
                           }}
                         >
-                          {formatNumber(metascoreReviewsNumber)}
+                          {genre}
                         </span>
-                        <span style={{ fontSize: "14px" }}>Metascore</span>
                       </div>
-                    )}
-                  </>
-                )}
-              </div>
-              </>
-              )}
+                    ))}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "5px",
+                      color: "white",
+                      borderBottom: "1px solid #4B4B4B",
+                      paddingBottom: "12px",
+                    }}
+                  >
+                    {data.Synopsis}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 14,
+                      alignItems: "center",
+                      borderBottom: "1px solid #4B4B4B",
+                      lineHeight: "1",
+                      fontSize: "15.5px",
+                      height: "49.283px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontWeight: "bold",
+                        color: "white",
+                        letterSpacing: "0.2px",
+                      }}
+                    >
+                      Creators
+                    </p>
+                    <p style={{}}>
+                      {renderListWithDotSeparator(data.Creators)}
+                    </p>
+                  </div>
+                  {!isTVShow && (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 14,
+                        alignItems: "center",
+                        borderBottom: "1px solid #4B4B4B",
+                        lineHeight: "1",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontWeight: "bold",
+                          color: "white",
+                          letterSpacing: "0.2px",
+                        }}
+                      >
+                        Writers
+                      </p>
+                      <p style={{}}>
+                        {renderListWithDotSeparator(data.Writers)}
+                      </p>
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      alignItems: "center",
+                      borderBottom: "1px solid #4B4B4B",
+                      lineHeight: "1",
+                      height: "49.283px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 14,
+                        position: "relative",
+                        top: "2px",
+                        fontSize: "15.5px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontWeight: "bold",
+                          color: "white",
+                          letterSpacing: "0.2px",
+                        }}
+                      >
+                        Stars
+                      </p>
+                      <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <img src={IMDBPro} alt="" />
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    width: "358.617px",
+                    height: "max-content",
+                    display: "grid",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    position: "relative",
+                    left: "-24px",
+                    alignContent: "center",
+                    marginTop: "5px",
+                  }}
+                >
+                  {isTVShow && data.NextEpisode?.trim() ? (
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        paddingRight: 24,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "4px",
+                          height: "36px",
+                          borderRadius: "12px",
+                          backgroundColor: "#F5C518",
+                          maxHeight: 36,
+                        }}
+                      />
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "0.75rem",
+                            letterSpacing: "0.16667em",
+                            paddingLeft: 8,
+                            margin: 0,
+                            color: "white",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: 600,
+                            lineHeight: "1rem",
+                          }}
+                        >
+                          {Number(data.NextEpisodeSeason) === 1 &&
+                          Number(data.NextEpisodeNumber) === 1
+                            ? "SERIES PREMIERE"
+                            : Number(data.NextEpisodeNumber) === 1
+                              ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
+                              : "NEXT EPISODE"}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "0.875rem",
+                            letterSpacing: "0.01786em",
+                            position: "relative",
+                            color: "white",
+                            paddingLeft: 8,
+                            margin: 0,
+                            lineHeight: "1.25rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: 400,
+                          }}
+                        >
+                          {data.NextEpisode}
+                        </p>
+                      </div>
+                    </div>
+                  ) : data.Type === "Movie" && data.NextEpisode ? (
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        paddingRight: 24,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "4px",
+                          height: "36px",
+                          borderRadius: "12px",
+                          backgroundColor: "#F5C518",
+                          maxHeight: 36,
+                        }}
+                      />
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "0.71rem",
+                            letterSpacing: "2px",
+                            WebkitTextStroke: "0.5px white",
+                            paddingLeft: 8,
+                            margin: 0,
+                          }}
+                        >
+                          COMING SOON
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "14px",
+                            letterSpacing: "1px",
+                            position: "relative",
+                            color: "white",
+                            paddingLeft: 8,
+                            margin: 0,
+                          }}
+                        >
+                          Releases {data.NextEpisode}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      minWidth: "max-content",
+                      maxHeight: "48px",
+                      backgroundColor: "#F5C518",
+                      borderRadius: 50,
+                    }}
+                  >
+                    <div
+                      style={{
+                        paddingRight: 6,
+                        paddingLeft: 4,
+                        color: "black",
+                        fontSize: 24,
+                        display: "flex",
+                        position: "relative",
+                        left: "2px",
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        role="presentation"
+                      >
+                        <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                      </svg>
+                    </div>
+                    <div
+                      style={{
+                        minWidth: "275px",
+                        minHeight: "48px",
+                        borderRight: "2px solid #AB8A11",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: 0,
+                          color: "black",
+                          fontWeight: 700,
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: 14.2,
+                          letterSpacing: 0.2,
+                          marginBottom: "-1.8px",
+                        }}
+                      >
+                        Add to Watchlist
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          color: "black",
+                          fontSize: "0.75em",
+                          letterSpacing: "0.03333em",
+                          position: "relative",
+                          bottom: "1.2px",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontWeight: 400,
+                        }}
+                      >
+                        Added by {formatNumberWatchList(data.WatchlistNumber)}{" "}
+                        users
+                      </p>
+                    </div>
+                    <div
+                      style={{
+                        margin: "0 auto",
+                        display: "flex",
+                        justifyContent: "center",
+                        width: "48px",
+                      }}
+                    >
+                      <ChevronDown
+                        size={20}
+                        style={{
+                          color: "black",
+                          WebkitTextStroke: "0.9px black",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  {hasVotes && (
+                    <>
+                      <div style={{ minWidth: "48px", marginTop: 8 }}>
+                        <img src={MarkedWatched} alt="" />
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "20px",
+                          color: "#5799EF",
+                          marginTop: 12,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {hasVotes && userReviewsNumber > 0 && (
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontWeight: 700,
+                                fontFamily: "Arial, sans-serif",
+                                textAlign: "right",
+                                display: "inline-block",
+                                fontSize: 16,
+                              }}
+                            >
+                              {formatNumber(userReviewsNumber)}
+                            </span>
+                            <span style={{ fontSize: "14px" }}>
+                              User reviews
+                            </span>
+                          </div>
+                        )}
+
+                        {hasVotes && criticReviewsNumber > 0 && (
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontWeight: 700,
+                                fontFamily: "Arial, sans-serif",
+                                textAlign: "right",
+                                display: "inline-block",
+                              }}
+                            >
+                              {formatNumber(criticReviewsNumber)}
+                            </span>
+                            <span style={{ fontSize: "14px" }}>
+                              Critic reviews
+                            </span>
+                          </div>
+                        )}
+
+                        {!isTVShow && (
+                          <>
+                            {hasVotes && criticReviewsNumber > 0 && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    backgroundColor:
+                                      Number(data.Metascore) >= 61
+                                        ? "#54A72A"
+                                        : Number(data.Metascore) >= 40
+                                          ? "#ffcc33"
+                                          : "#ff0000",
+                                    color: "white",
+                                    padding: "2px 2px",
+                                    width: "18.1px",
+                                    height: "20px",
+                                    fontWeight: 700,
+                                    fontFamily: "Arial, sans-serif",
+                                    textAlign: "center",
+                                    display: "flex", // Changed to flex
+                                    alignItems: "center", // Vertical centering
+                                    justifyContent: "center", // Horizontal centering
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  {formatNumber(metascoreReviewsNumber)}
+                                </span>
+                                <span style={{ fontSize: "14px" }}>
+                                  Metascore
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </section>
             </div>
-          </section>
+          </div>
+
+          {/* Bottom Section - Top TV Shows */}
+          <div style={{ backgroundColor: "#FFFFFF", width: "100%" }}>
+            <div
+              style={{
+                maxWidth: "1280px",
+                backgroundColor: "white",
+                margin: "0 auto",
+                boxSizing: "border-box",
+                color: "black",
+                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                display:"flex",
+              }}
+            >
+              <div
+                style={{
+                  width: "856px",
+                }}
+              >
+                <section
+                  style={{
+                    minHeight: "50vh",
+                    overflowX: "clip",
+                    position: "relative",
+                    background: "#FFFFFF",
+                    color: "black",
+                    margin: "0",
+                    padding: "0",
+                  }}
+                >
+                  {/*Top Rated */}
+                  {(data.AwardsWon > 0 ||
+                    data.AwardsNom > 0 ||
+                    data.Wins > 0 ||
+                    data.Nom > 0) && (
+                    <section
+                      style={{
+                        paddingTop: "24px",
+                        paddingBottom: "24px",
+                        width: "856px",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "806px",
+                          marginLeft: "24px",
+                          marginRight: "24px",
+                          borderWidth: "1px",
+                          borderStyle: "solid",
+                          borderRadius: "4px",
+                          borderImage: "none",
+                          borderColor: "rgb(245, 197, 24)",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {data.TopRatedPos > 0 && (
+                        <div
+                          style={{
+                            backgroundColor: "rgba(245, 197, 24)",
+                            height: "49.2833px",
+                            width: "max-content",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <a
+                            href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                            style={{
+                              color: "black",
+                              textDecoration: "none",
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              letterSpacing: "0.00937em",
+                              lineHeight: "1.25rem",
+                              textTransform: "none",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              padding: "12px 7.5px 12px 12px",
+                              zIndex: 1,
+                              width: "max-content",
+                            }}
+                          >
+                            {" "}
+                            Top rated TV #{data.TopRatedPos}
+                          </a>
+                        </div>
+                        )}
+
+                        {data.TopRatedPos < 1 && (
+                        <div
+                          style={{
+                            backgroundColor: "rgba(245, 197, 24)",
+                            height: "49.2833px",
+                            minWidth:"24px",
+                            width: "max-content",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <a
+                            href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                            style={{
+                              color: "black",
+                              textDecoration: "none",
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              letterSpacing: "0.00937em",
+                              lineHeight: "1.25rem",
+                              textTransform: "none",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              padding: "12px 7.5px 12px 12px",
+                              zIndex: 1,
+                              width: "max-content",
+                            }}
+                          >
+                          </a>
+                        </div>
+                        )}
+                        
+                        <div
+                          style={{
+                            aspectRatio: "0.364 / 1",
+                            height: "49.283px",
+                            backgroundColor: "rgb(245,197,24)",
+                            transform: "skewX(-20deg) translateX(-50%)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            width: "625.867px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              paddingLeft: "1rem",
+                              display: "flex",
+                              paddingTop: "12px",
+                              paddingBottom: "12px",
+                              paddingRight: "26px",
+                              alignItems: "end",
+                            }}
+                          >
+                            {(data.AwardsWon > 0 ||
+                              data.AwardsNom > 0 ||
+                              data.Wins > 0 ||
+                              data.Nom > 0) && (
+                              <div>
+                                {data.AwardsWon > 0 && (
+                                  <a
+                                    href=""
+                                    style={{
+                                      cursor: "pointer",
+                                      color: "black",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      paddingRight: "0.75rem",
+                                      textAlign: "start",
+                                      fontWeight: "600",
+                                      letterSpacing: "0.00937em",
+                                      fontSize: "1rem",
+                                      lineHeight: "1.5rem",
+                                    }}
+                                  >
+                                    Won {data.AwardsWon} Primetime Emmy
+                                    {data.AwardsWon > 1 ? "s" : ""}
+                                  </a>
+                                )}
+
+                                {data.AwardsWon < 1 && data.AwardsNom > 0 && (
+                                  <a
+                                    href=""
+                                    style={{
+                                      cursor: "pointer",
+                                      color: "black",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      paddingRight: "0.75rem",
+                                      textAlign: "start",
+                                      fontWeight: "600",
+                                      letterSpacing: "0.00937em",
+                                      fontSize: "1rem",
+                                      lineHeight: "1.5rem",
+                                    }}
+                                  >
+                                    Nominated for {data.AwardsNom} Primetime
+                                    Emmy
+                                    {data.AwardsNom > 1 ? "s" : ""}
+                                  </a>
+                                )}
+
+                                {data.AwardsWon < 1 && data.AwardsNom < 1 && (
+                                  <a
+                                    href=""
+                                    style={{
+                                      cursor: "pointer",
+                                      color: "black",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      paddingRight: "0.75rem",
+                                      textAlign: "start",
+                                      fontWeight: "600",
+                                      letterSpacing: "0.00937em",
+                                      fontSize: "1rem",
+                                      lineHeight: "1.5rem",
+                                    }}
+                                  >
+                                    Awards
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                            <div style={{ cursor: "pointer" }}>
+                              {data.Wins > 0 && data.Nom > 0 ? (
+                                <a
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    cursor: "pointer",
+                                    letterSpacing: "0.03125em",
+                                    fontWeight: "400",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                  }}
+                                >
+                                  {data.Wins} win{data.Wins > 1 ? "s" : ""} &{" "}
+                                  {data.Nom} nomination{data.Nom > 1 ? "s" : ""}{" "}
+                                  total
+                                </a>
+                              ) : data.Wins > 0 ? (
+                                <a
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    cursor: "pointer",
+                                    letterSpacing: "0.03125em",
+                                    fontWeight: "400",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                  }}
+                                >
+                                  {data.Wins} win{data.Wins > 1 ? "s" : ""}{" "}
+                                  total
+                                </a>
+                              ) : data.Nom > 0 ? (
+                                <a
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    cursor: "pointer",
+                                    letterSpacing: "0.03125em",
+                                    fontWeight: "400",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                  }}
+                                >
+                                  {data.Nom} nomination{data.Nom > 1 ? "s" : ""}{" "}
+                                  total
+                                </a>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/*Episodes*/}
+                  <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "4px",
+                          height: "28.8px",
+                          borderRadius: "12px",
+                          backgroundColor: "rgb(245, 197, 24)",
+                          maxHeight: "28.8px",
+                        }}
+                      />
+                      <div>
+                        <Link to={`/episodepage/${movieId}`} style={{display:"flex", alignItems:"center", color:"black", cursor:"pointer",}}onMouseEnter={() => setHovered(true)}
+  onMouseLeave={() => setHovered(false)}>
+                      <h3
+                        style={{
+                          padding: "0 0 0 10px",
+                          margin: 0,
+                          fontSize: "1.5rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          letterSpacing:"normal",
+                          lineHeight:"1.2em",
+                          fontWeight: "600",
+                        }}
+                      >
+                        Episodes
+                      </h3>
+                      <span
+                        style={{
+                          paddingLeft: "12px",
+                          color: "rgb(0,0,0,.54)",
+                          fontSize: "0.875rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontWeight: "400",
+                          alignSelf: "center",
+                          letterSpacing: "0.01786em",
+                          lineHeight: "unset",
+                          marginRight:"2px"
+                        }}
+                      >
+                        {data.Episodes}
+                      </span>
+                      <svg
+                        width="19.2"
+                        height="19.2"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        role="presentation"
+                        style={{
+    color: hovered ? "#F5C518" : "rgba(0,0,0)",
+    transition: "color 0.2s ease",
+  }}
+                      >
+                        <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                      </svg>
+                      </Link>
+                      </div>
+                    </div>
+                  </section>
+                </section>
+              </div>
+
+              {/* Aside */}
+              <div style={{padding:"24px 0 24px 12px", width:"412px", justifyContent:"center", display:"flex"}}>
+                <img src={MoreToExplore} alt=""/>
+              </div>
+            </div>
+          </div>
         </main>
+        <div style={{ backgroundColor: "black", marginTop: 24 }}>
+                <img src={Footer1} alt="" style={{ position: "relative" }} />
+                <img src={Footer2} alt="" />
+              </div>
       </div>
     </>
   );

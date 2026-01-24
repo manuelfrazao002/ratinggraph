@@ -57,7 +57,7 @@ export default function Episodes() {
   const [allEpisodes, setAllEpisodes] = useState([]);
   const [coverSrc, setCoverSrc] = useState("");
 
-    // Load cover image dynamically
+  // Load cover image dynamically
   useEffect(() => {
     const loadCover = async () => {
       if (movieId) {
@@ -188,7 +188,7 @@ export default function Episodes() {
               .filter(
                 (ep) =>
                   ep["Average Rating 2"] &&
-                  !isNaN(parseFloat(ep["Average Rating 2"]))
+                  !isNaN(parseFloat(ep["Average Rating 2"])),
               )
               .sort((a, b) => {
                 const ratingDiff =
@@ -201,7 +201,7 @@ export default function Episodes() {
 
             // Guardar identificadores dos top episódios (por temporada + título)
             const topSet = new Set(
-              top10.map((ep) => `${ep.Season}-${ep.Title}`)
+              top10.map((ep) => `${ep.Season}-${ep.Title}`),
             );
             setTopEpisodesSet(topSet);
             setTopEpisodes(top10);
@@ -415,12 +415,13 @@ export default function Episodes() {
                   fontWeight: "",
                   margin: 0,
                   paddingBottom: 0,
-                  letterSpacing: 0.1,
-                  fontFamily: '"HelveticaNeue", Helvetica, Arial, sans-serif',
-                  fontSize: "0.96rem",
+                  letterSpacing: "0.00937em",
+                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                  fontSize: "1rem",
                   position: "relative",
                   left: "-1px",
                   top: "1px",
+                  lineHeight: "1.25rem",
                 }}
               >
                 {activeTab === "Top-rated"
@@ -687,7 +688,11 @@ export default function Episodes() {
                   }}
                 >
                   <img
-                    src={nextEpisode.Image?.startsWith("http") ? nextEpisode.Image : coverSrc}
+                    src={
+                      nextEpisode.Image?.startsWith("http")
+                        ? nextEpisode.Image
+                        : coverSrc
+                    }
                     alt="Next Episode"
                     style={{
                       width: "224px",
@@ -711,8 +716,8 @@ export default function Episodes() {
                         Number(nextEpisode.number) === 1
                           ? "SERIES PREMIERE"
                           : Number(nextEpisode.number) === 1
-                          ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
-                          : "NEXT EPISODE"}
+                            ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
+                            : "NEXT EPISODE"}
                       </h2>
                     </div>
                     <div style={{ display: "flex", marginTop: 10 }}>
@@ -737,11 +742,13 @@ export default function Episodes() {
                             margin: 0,
                             paddingTop: 1,
                             paddingBottom: 2.5,
-                            letterSpacing: 0.7,
-                            fontSize: "0.95rem",
+                            letterSpacing: "0.00937em",
+                            fontSize: "1rem",
                             position: "relative",
                             left: "0px",
                             top: "0px",
+                            fontFamily:"Roboto,Helvetica,Arial,sans-serif",
+                            lineHeight:"1.25rem",
                           }}
                         >
                           {nextEpisode.Title}
@@ -801,18 +808,20 @@ export default function Episodes() {
                       );
                     });
 
+                    const hasOnlyOneEpisode = validEpisodes.length === 1;
+
                     // Separar episódios recentes e top-rated
                     const recentEpisode = validEpisodes
-  .filter((ep) => new Date(ep.Date) >= daysAgo30)
-  .sort((a, b) => {
-    const dateDiff = new Date(b.Date) - new Date(a.Date);
-    if (dateDiff !== 0) return dateDiff;
-    
-    // Se as datas forem iguais, ordenar por número do episódio (se disponível)
-    const aEpNum = parseInt(a.Number || "0");
-    const bEpNum = parseInt(b.Number || "0");
-    return bEpNum - aEpNum;
-  })[0];
+                      .filter((ep) => new Date(ep.Date) >= daysAgo30)
+                      .sort((a, b) => {
+                        const dateDiff = new Date(b.Date) - new Date(a.Date);
+                        if (dateDiff !== 0) return dateDiff;
+
+                        // Se as datas forem iguais, ordenar por número do episódio (se disponível)
+                        const aEpNum = parseInt(a.Number || "0");
+                        const bEpNum = parseInt(b.Number || "0");
+                        return bEpNum - aEpNum;
+                      })[0];
 
                     // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
                     const topRatedEpisodes = validEpisodes
@@ -833,23 +842,41 @@ export default function Episodes() {
 
                     let episodesToShow = [];
 
-                    if (recentEpisode) {
+                    if (hasOnlyOneEpisode) {
+                      const ep = validEpisodes[0];
+
+                      episodesToShow.push({
+                        ...ep,
+                        isTopRated: false, // first card = Most Recent
+                        isMostRecent: true,
+                      });
+
+                      episodesToShow.push({
+                        ...ep,
+                        isTopRated: true, // second card = Top Rated
+                        isMostRecent: false,
+                      });
+                    } else if (recentEpisode) {
                       episodesToShow.push({
                         ...recentEpisode,
                         isTopRated: false,
+                        isMostRecent: true,
                       });
+
                       if (topRatedEpisodes[0]) {
                         episodesToShow.push({
                           ...topRatedEpisodes[0],
                           isTopRated: true,
+                          isMostRecent: false,
                         });
                       }
                     } else {
                       episodesToShow = topRatedEpisodes
-                        .filter((ep) => ep) // garante que não tenha undefined
+                        .filter(Boolean)
                         .map((ep) => ({
                           ...ep,
                           isTopRated: true,
+                          isMostRecent: false,
                         }));
                     }
 
@@ -988,7 +1015,7 @@ export default function Episodes() {
                                 {parseFloat(episode["Average Rating 2"]) === 10
                                   ? "10"
                                   : parseFloat(
-                                      episode["Average Rating 2"]
+                                      episode["Average Rating 2"],
                                     ).toFixed(1)}
                               </p>
                               <p style={{ color: "#757575" }}>/10</p>
@@ -1195,8 +1222,8 @@ export default function Episodes() {
                             backgroundColor: isActive
                               ? "#F5C518"
                               : isHovered
-                              ? "#EBEBEB"
-                              : "transparent",
+                                ? "#EBEBEB"
+                                : "transparent",
                             color: "black",
                             fontWeight: "bold",
                             userSelect: "none",
@@ -1220,7 +1247,7 @@ export default function Episodes() {
                         index={index}
                         isLast={index === currentEpisodes.length - 1}
                       />
-                    )
+                    ),
                   )}
                 </div>
               )}
