@@ -47,6 +47,7 @@ export default function NextEpisode({ nextEpisode, coverSrc }) {
               marginBottom: 0,
               color: "#000",
               letterSpacing: "2.2px",
+              marginTop:"0px"
             }}
           >
             {isSeriesPremiere
