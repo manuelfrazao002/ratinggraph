@@ -205,7 +205,7 @@ app.post(
 app.post(
   "/upload/stars/:movieId",
   authenticate,
-  uploadStaff.single("image"),
+  uploadStars.single("image"),
   handleSingleUpload,
 );
 app.post(
