@@ -2951,15 +2951,7 @@ function SeriesPage() {
                                 width: "808px",
                               }}
                             >
-                              Reviewers say '{data.Title}' is acclaimed for its
-                              intricate plot, complex characters, and stunning
-                              cinematography. The show is lauded for its high
-                              production value, detailed world-building, and
-                              intelligent dialogue. Many appreciate the faithful
-                              adaptation of Manuel G. Frazão's books. However,
-                              the final seasons faced criticism for rushed
-                              storytelling and inconsistent character arcs,
-                              though earlier seasons are highly regarded.
+                              {data.Summary}
                             </div>
                             <div
                               style={{
