@@ -2922,7 +2922,7 @@ function SeriesPage() {
                             )}
                           </div>
                         </div>
-                        {data.Runtime > 30 && (<>
+                        {data.Runtime > 30 && (
                         <div>
                           <h3
                             style={{
@@ -2936,8 +2936,11 @@ function SeriesPage() {
                           >
                             Summary
                           </h3>
-                        </div>
+                        </div>                        
+                      )}
+                      
                         <div>
+                          {data.Runtime > 30 && (
                           <div>
                             <div
                               style={{
@@ -2979,6 +2982,8 @@ function SeriesPage() {
                               </span>
                             </div>
                           </div>
+                          )}
+                          {data.Runtime > 30 && (
                           <div
                             style={{
                               marginBottom: "16px",
@@ -2990,6 +2995,8 @@ function SeriesPage() {
                               neutral={data.NeutralTheme}
                             />
                           </div>
+                          )}
+                          {data.UserReviews > 2 && (                        
                           <div>
                             <h3
                               style={{
@@ -3011,8 +3018,8 @@ function SeriesPage() {
                               }}
                             />
                           </div>
-                        </div>
-                        </>)}
+                          )}
+                        </div>                        
                       </div>
                     </section>
                   )}
