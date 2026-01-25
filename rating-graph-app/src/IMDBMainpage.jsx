@@ -46,6 +46,9 @@ import Footer2 from "./imgs/imdb/footer2.png";
 
 import NextEpisode from "./components/NextEpisode.jsx";
 import RecentAndTopEpisodes from "./components/RecentandTopEpisodes.jsx";
+import CastList from "./components/CastList.jsx";
+import RatingsBarChart from "./components/RatingsBarChart.jsx";
+import ThemesChips from "./components/ThemeChips.jsx";
 
 import Video1 from "./imgs/imdb/video1.png";
 import Video2 from "./imgs/imdb/video2.png";
@@ -56,6 +59,10 @@ import Img2 from "./imgs/imdb/imgs/img2.jpg";
 import Img3 from "./imgs/imdb/imgs/img3.jpg";
 import Img4 from "./imgs/imdb/imgs/img4.jpg";
 import Img5 from "./imgs/imdb/imgs/img5.jpg";
+
+import FeaturedReviews from "./imgs/imdb/featuredreviews.png";
+import MoreLikeThis from "./imgs/imdb/morelikethis.png";
+import RelatedInterests from "./imgs/imdb/relatedinterests.png";
 
 //Data
 import { movieMap } from "./data/MovieMap";
@@ -71,8 +78,25 @@ function SeriesPage() {
   const [allEpisodes, setAllEpisodes] = useState([]);
   const [nextEpisode, setNextEpisode] = useState(null);
   const [recentAndTopEpisodes, setRecentAndTopEpisodes] = useState([]);
+  const [cast, setCast] = useState([]);
 
   const urls = movieMap[movieId];
+
+  useEffect(() => {
+    if (!urls || urls.length < 5) return;
+
+    fetch(urls[4]) // 👈 índice das Stars
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            setCast(results.data);
+          },
+        });
+      });
+  }, [movieId]);
 
   useEffect(() => {
     if (!urls || urls.length === 0) return;
@@ -84,6 +108,7 @@ function SeriesPage() {
           header: true,
           complete: (results) => {
             setData(results.data[0]);
+            console.log("CSV RAW DATA:", results.data[0]);
           },
           error: (err) => console.error("Erro ao carregar CSV", err),
         });
@@ -191,6 +216,30 @@ function SeriesPage() {
 
   console.log("Recent & Top Episodes:", recentAndTopEpisodes);
 
+  const ratingsBreakdown = React.useMemo(() => {
+    if (!data) return null;
+
+    const result = {};
+
+    Object.keys(data).forEach((key) => {
+      const trimmedKey = key.trim();
+
+      // só aceita "1" até "10"
+      if (/^(10|[1-9])$/.test(trimmedKey)) {
+        const value = Number(String(data[key]).replace(/[^\d]/g, ""));
+
+        result[trimmedKey] = isNaN(value) ? 0 : value;
+      }
+    });
+
+    // garante que todos existem
+    for (let i = 1; i <= 10; i++) {
+      if (!(i in result)) result[i] = 0;
+    }
+
+    return result;
+  }, [data]);
+
   // Load cover and trailer images dynamically
   useEffect(() => {
     const loadImages = async () => {
@@ -285,6 +334,25 @@ function SeriesPage() {
     ));
   }
 
+  function renderListWithDotSeparator2(list) {
+    if (!list) return null;
+
+    const items = Array.isArray(list)
+      ? list
+      : list.split(",").map((item) => item.trim());
+
+    const limitedItems = items.slice(0, 3);
+
+    return limitedItems.map((item, index) => (
+      <React.Fragment key={index}>
+        <span style={{ color: "#0e63be" }}>{item}</span>
+        {index < limitedItems.length - 1 && (
+          <span style={{ color: "black", margin: "0 6px" }}>·</span>
+        )}
+      </React.Fragment>
+    ));
+  }
+
   function formatNumber(num) {
     if (!num) return "N/A";
 
@@ -309,6 +377,49 @@ function SeriesPage() {
     }
 
     return cleanNum.toString();
+  }
+
+  function formatNumberNoRound(num) {
+    if (!num) return "N/A";
+
+    const cleanNum = Number(num.toString().replace(/[, ]+/g, ""));
+    if (isNaN(cleanNum)) return "N/A";
+
+    if (cleanNum >= 1_000_000) {
+      // Trunca para 1 casa decimal, sem arredondar
+      const millions = Math.trunc(cleanNum / 100_000) / 10;
+      return millions.toString().replace(/\.0$/, "") + "M";
+    }
+
+    if (cleanNum >= 100_000) {
+      // Trunca milhares (sem arredondar)
+      const thousands = Math.trunc(cleanNum / 1_000);
+      return thousands + "K";
+    }
+
+    if (cleanNum >= 1_000) {
+      // Trunca para 1 casa decimal
+      const thousands = Math.trunc((cleanNum / 1_000) * 10) / 10;
+      return thousands.toString().replace(/\.0$/, "") + "K";
+    }
+
+    return cleanNum.toString();
+  }
+
+  function formatToK(num) {
+    if (!num) return "N/A";
+
+    const cleanNum = Number(num.toString().replace(/[, ]+/g, ""));
+    if (isNaN(cleanNum)) return "N/A";
+
+    if (cleanNum < 1_000) {
+      return cleanNum.toString();
+    }
+
+    // Trunca para 1 casa decimal (sem arredondar)
+    const value = Math.trunc((cleanNum / 1_000) * 10) / 10;
+
+    return value.toString().replace(/\.0$/, "") + "K";
   }
 
   function formatNumberWatchList(num) {
@@ -1101,17 +1212,16 @@ function SeriesPage() {
                       </p>
                       <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
                       <ChevronRight
-                      size={20}
-                      style={{
-                        color: isHovered ? "#F5C518" : "white",
-                        transition: "color 0.2s ease",
-                        cursor: "pointer",
-                        marginLeft: "auto",
-                        alignSelf:"center"
-                      }}
-                    />
+                        size={20}
+                        style={{
+                          color: isHovered ? "#F5C518" : "white",
+                          transition: "color 0.2s ease",
+                          cursor: "pointer",
+                          marginLeft: "auto",
+                          alignSelf: "center",
+                        }}
+                      />
                     </div>
-                    
                   </div>
                   <div>
                     <img src={IMDBPro} alt="" />
@@ -2200,7 +2310,7 @@ function SeriesPage() {
                             alignItems: "center",
                             color: "rgb(14,99,190)",
                             cursor: "pointer",
-                            padding: "0 16px 0 16px"
+                            padding: "0 16px 0 16px",
                           }}
                         >
                           <svg
@@ -2343,6 +2453,576 @@ function SeriesPage() {
                       </div>
                     </div>
                   </section>
+
+                  {/*Stars*/}
+                  <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "block",
+                        marginBottom: "24px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "20px",
+                          width: "808px",
+                          height: "38.4px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "28.8px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgb(245, 197, 24)",
+                            maxHeight: "28.8px",
+                          }}
+                        />
+                        <div>
+                          <Link
+                            to={`/episodepage/${movieId}`}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              color: "black",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={() => setHovered(true)}
+                            onMouseLeave={() => setHovered(false)}
+                          >
+                            <h3
+                              style={{
+                                padding: "0 0 0 10px",
+                                margin: 0,
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Top Cast
+                            </h3>
+                            <span
+                              style={{
+                                paddingLeft: "12px",
+                                color: "rgb(0,0,0,.54)",
+                                fontSize: "0.875rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "400",
+                                alignSelf: "center",
+                                letterSpacing: "0.01786em",
+                                lineHeight: "unset",
+                                marginRight: "2px",
+                              }}
+                            >
+                              {data.Cast}
+                            </span>
+                            <svg
+                              width="19.2"
+                              height="19.2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                              style={{
+                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                transition: "color 0.2s ease",
+                              }}
+                            >
+                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                            </svg>
+                          </Link>
+                        </div>
+                        <div
+                          style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "rgb(0,0,0,.54)",
+                            cursor: "pointer",
+                            padding: "0 16px 0 16px",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{ marginRight: "4px" }}
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                          </svg>
+                          <span
+                            style={{
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              lineHeight: "1.25rem",
+                              letterSpacing: ".02em",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              position: "relative",
+                              top: "1px",
+                            }}
+                          >
+                            Edit
+                          </span>
+                        </div>
+                      </div>
+                      <CastList cast={cast} />
+                    </div>
+                    <div
+                      style={{
+                        width: "808px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Creators
+                        </span>
+                        <span>
+                          {renderListWithDotSeparator2(data.Creators)}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          All cast & crew
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderBottomWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderBottomStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Production, box office & more at IMDbPro
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--launch"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path d="M16 16.667H8A.669.669 0 0 1 7.333 16V8c0-.367.3-.667.667-.667h3.333c.367 0 .667-.3.667-.666C12 6.3 11.7 6 11.333 6h-4C6.593 6 6 6.6 6 7.333v9.334C6 17.4 6.6 18 7.333 18h9.334C17.4 18 18 17.4 18 16.667v-4c0-.367-.3-.667-.667-.667-.366 0-.666.3-.666.667V16c0 .367-.3.667-.667.667zm-2.667-10c0 .366.3.666.667.666h1.727L9.64 13.42a.664.664 0 1 0 .94.94l6.087-6.087V10c0 .367.3.667.666.667.367 0 .667-.3.667-.667V6h-4c-.367 0-.667.3-.667.667z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/*User Reviews*/}
+                  {data.UserReviews > 0 && (
+                    <section
+                      style={{
+                        padding: "24px",
+                        width: "856px",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "block",
+                          marginBottom: "30px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "20px",
+                            width: "808px",
+                            height: "38.4px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "4px",
+                              height: "28.8px",
+                              borderRadius: "12px",
+                              backgroundColor: "rgb(245, 197, 24)",
+                              maxHeight: "28.8px",
+                            }}
+                          />
+                          <div>
+                            <Link
+                              to={`/episodepage/${movieId}`}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                color: "black",
+                                cursor: "pointer",
+                              }}
+                              onMouseEnter={() => setHovered(true)}
+                              onMouseLeave={() => setHovered(false)}
+                            >
+                              <h3
+                                style={{
+                                  padding: "0 0 0 10px",
+                                  margin: 0,
+                                  fontSize: "1.5rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  letterSpacing: "normal",
+                                  lineHeight: "1.2em",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                User reviews
+                              </h3>
+                              <span
+                                style={{
+                                  paddingLeft: "12px",
+                                  color: "rgb(0,0,0,.54)",
+                                  fontSize: "0.875rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontWeight: "400",
+                                  alignSelf: "center",
+                                  letterSpacing: "0.01786em",
+                                  lineHeight: "unset",
+                                  marginRight: "2px",
+                                }}
+                              >
+                                {formatNumberNoRound(data.UserReviews)}
+                              </span>
+                              <svg
+                                width="19.2"
+                                height="19.2"
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                                style={{
+                                  color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                  transition: "color 0.2s ease",
+                                }}
+                              >
+                                <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                              </svg>
+                            </Link>
+                          </div>
+                          <div
+                            style={{
+                              marginLeft: "auto",
+                              display: "flex",
+                              alignItems: "center",
+                              color: "rgb(14,99,190)",
+                              cursor: "pointer",
+                              padding: "0 8px 0 8px",
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                              style={{
+                                marginRight: "4px",
+                              }}
+                            >
+                              <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                            </svg>
+                            <span
+                              style={{
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "0.875rem",
+                                fontWeight: "600",
+                                lineHeight: "1.25rem",
+                                letterSpacing: ".02em",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                position: "relative",
+                                top: "1px",
+                              }}
+                            >
+                              Review
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            width: "808px",
+                            maxHeight: "84px",
+                            alignItems: "stretch",
+                            flexDirection: "row",
+                            gap: "1.5rem",
+                            marginBottom: "16px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "block",
+                              width: "max-content",
+                              textAlign: "center",
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "flex",
+                                height: "max-content",
+                                alignItems: "center",
+                              }}
+                            >
+                              <svg
+                                style={{
+                                  color: "#f5c518",
+                                  marginRight: "9px",
+                                }}
+                                width="60"
+                                height="48"
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="ipc-icon ipc-icon--star-inline"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                              >
+                                <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path>
+                              </svg>
+                              <span
+                                style={{
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "3.75rem",
+                                  fontWeight: "300",
+                                  letterSpacing: "normal",
+                                  lineHeight: "3.75rem",
+                                }}
+                              >
+                                {data.Rating}
+                              </span>
+                            </span>
+                            <span
+                              style={{
+                                color: "rgb(0,0,0,0.54)",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                fontWeight: "400",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.03125em",
+                                display: "flex",
+                                alignContent: "center",
+                                justifyContent: "center",
+                                height: "24px",
+                              }}
+                            >
+                              {formatToK(data.Votes)}
+                            </span>
+                          </div>
+                          <div>
+                            {ratingsBreakdown && (
+                              <RatingsBarChart ratings={ratingsBreakdown} />
+                            )}
+                          </div>
+                        </div>
+                        {data.Runtime > 30 && (<>
+                        <div>
+                          <h3
+                            style={{
+                              margin: "0 0 16px 0",
+                              fontSize: "1.5rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              letterSpacing: "normal",
+                              lineHeight: "1.2em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Summary
+                          </h3>
+                        </div>
+                        <div>
+                          <div>
+                            <div
+                              style={{
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.03125em",
+                                width: "808px",
+                              }}
+                            >
+                              Reviewers say '{data.Title}' is acclaimed for its
+                              intricate plot, complex characters, and stunning
+                              cinematography. The show is lauded for its high
+                              production value, detailed world-building, and
+                              intelligent dialogue. Many appreciate the faithful
+                              adaptation of Manuel G. Frazão's books. However,
+                              the final seasons faced criticism for rushed
+                              storytelling and inconsistent character arcs,
+                              though earlier seasons are highly regarded.
+                            </div>
+                            <div
+                              style={{
+                                marginTop: "0.75rem",
+                                marginBottom: "16px",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "400",
+                                  lineHeight: "1.25rem",
+                                  letterSpacing: "0.01786em",
+                                  color: "rgb(0,0,0,0.54)",
+                                }}
+                              >
+                                AI-generated from the text of user reviews
+                              </span>
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              marginBottom: "16px",
+                            }}
+                          >
+                            <ThemesChips
+                              positive={data.PositiveTheme}
+                              negative={data.NegativeTheme}
+                              neutral={data.NeutralTheme}
+                            />
+                          </div>
+                          <div>
+                            <h3
+                              style={{
+                                margin: "0 0 0 0",
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Featured reviews
+                            </h3>
+                            <img
+                              src={FeaturedReviews}
+                              alt=""
+                              style={{
+                                marginLeft: "-24px",
+                              }}
+                            />
+                          </div>
+                        </div>
+                        </>)}
+                      </div>
+                    </section>
+                  )}
+                  
+                  <section>
+                    <img src={MoreLikeThis} alt="" />
+                  </section>
+                  <section>
+                    <img src={RelatedInterests} alt="" />
+                  </section>
                 </section>
               </div>
 
@@ -2350,12 +3030,15 @@ function SeriesPage() {
               <div
                 style={{
                   padding: "24px 0 24px 12px",
-                  width: "412px",
                   justifyContent: "center",
                   display: "flex",
+                  width:"412px"
                 }}
               >
-                <img src={MoreToExplore} alt="" />
+                <img src={MoreToExplore} alt="" style={{
+                  width: "364px",
+                  height:"max-content"
+                }}/>
               </div>
             </div>
           </div>
