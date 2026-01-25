@@ -207,8 +207,6 @@ function RatingList() {
               Browse the most relevant search results for TV shows, Movies,
               Movie franchises, Directors and Writers.
             </div>
-
-            {data.Runtime < 7 && (
               <div
                 style={{
                   display: "flex",
@@ -303,7 +301,6 @@ function RatingList() {
                   );
                 })}
               </div>
-            )}
           </section>
 
           <footer style={{ marginBottom: "6px" }}>
