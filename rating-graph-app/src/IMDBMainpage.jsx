@@ -2987,6 +2987,7 @@ function SeriesPage() {
                           <div
                             style={{
                               marginBottom: "16px",
+                              width:"808px",
                             }}
                           >
                             <ThemesChips
