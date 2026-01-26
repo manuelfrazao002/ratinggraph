@@ -2446,7 +2446,7 @@ function SeriesPage() {
                                 letterSpacing: "normal",
                               }}
                             >
-                              + {formatVotes(data.Photos2)}
+                              + {formatVotes(data.Photos2 - 4)}
                             </div>
                           </div>
                         </div>
