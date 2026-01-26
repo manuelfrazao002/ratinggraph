@@ -150,8 +150,8 @@ const VotesOverTime = () => {
       setY1Max(vMax);
       setY1Step(vStep);
 
-      const radius = Math.max(0, 6 - data.length / 50);
-      const borderWidth = Math.max(2, 3 - data.length / 50);
+      const radius = Math.max(0, 3 - data.length / 50);
+      const borderWidth = Math.max(1, 2 - data.length / 50);
 
       // Maintain original dataset configuration
       setChartData({
@@ -186,6 +186,7 @@ const VotesOverTime = () => {
             cubicInterpolationMode: "monotone",
             tension: 1,
             spanGaps: true,
+            pointStyle: "rectRot",
           },
         ],
         tooltipsMap: data,
@@ -341,6 +342,30 @@ const VotesOverTime = () => {
       legend: {
         display: true,
         position: "bottom",
+        labels: {
+          usePointStyle: true, // ⭐ ESSENCIAL
+          padding: 20,
+
+          generateLabels(chart) {
+            return chart.data.datasets.map((ds, i) => ({
+              text: ds.label,
+
+              fillStyle: ds.borderColor,
+              strokeStyle: ds.borderColor,
+              lineWidth: ds.borderWidth || 2,
+
+              hidden: !chart.isDatasetVisible(i),
+              datasetIndex: i,
+
+              // símbolo no meio da linha
+              pointStyle: ds.pointStyle || "circle",
+
+              // controla o “preview” da linha
+              boxWidth: 32,
+              boxHeight: 10,
+            }));
+          },
+        },
       },
     },
   };
