@@ -22,7 +22,7 @@ ChartJS.register(
   PointElement,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
 );
 
 /* -----------------------------
@@ -51,6 +51,16 @@ function buildNiceAxis(minValue, maxValue, tickCount = 8) {
 }
 
 function buildNiceVotesAxis(minVotes, maxVotes, tickCount = 8) {
+  // 🟢 caso especial: apenas um valor
+  if (minVotes === maxVotes) {
+    const step = Math.pow(10, Math.floor(Math.log10(minVotes || 1)));
+
+    const min = minVotes - step * Math.floor(tickCount / 2);
+    const max = min + step * (tickCount - 1);
+
+    return { min, max, step };
+  }
+
   const range = maxVotes - minVotes;
   const roughStep = range / (tickCount - 1);
   const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
@@ -101,7 +111,7 @@ const VotesOverTime = () => {
               row["Episodes"] &&
               row["Total Votes"] &&
               row["Average Votes"] &&
-              row["Average Rating"]
+              row["Average Rating"],
         )
         .map((row) => ({
           dateISO: new Date(row["Date2"]).toISOString().split("T")[0],
@@ -117,10 +127,11 @@ const VotesOverTime = () => {
       /* -------- y2 (Rating) -------- */
 
       const ratings = data.map((d) => d.averageRating);
-      const { min: rMin, max: rMax, step: rStep } = buildNiceAxis(
-        Math.min(...ratings),
-        Math.max(...ratings)
-      );
+      const {
+        min: rMin,
+        max: rMax,
+        step: rStep,
+      } = buildNiceAxis(Math.min(...ratings), Math.max(...ratings));
 
       setY2Min(rMin);
       setY2Max(rMax);
@@ -129,10 +140,11 @@ const VotesOverTime = () => {
       /* -------- y1 (Votes) -------- */
 
       const votes = data.map((d) => d.totalVotes);
-      const { min: vMin, max: vMax, step: vStep } = buildNiceVotesAxis(
-        Math.min(...votes),
-        Math.max(...votes)
-      );
+      const {
+        min: vMin,
+        max: vMax,
+        step: vStep,
+      } = buildNiceVotesAxis(Math.min(...votes), Math.max(...votes));
 
       setY1Min(vMin);
       setY1Max(vMax);
@@ -141,44 +153,44 @@ const VotesOverTime = () => {
       const radius = Math.max(0, 6 - data.length / 50);
       const borderWidth = Math.max(2, 3 - data.length / 50);
 
-        // Maintain original dataset configuration
-        setChartData({
-          labels: data.map((d) => d.dateISO),
-          datasets: [
-            {
-              label: "Total Votes",
-              data: data.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
-              yAxisID: "y1",
-              borderColor: "#F7A35C",
-              pointBackgroundColor: "#F7A35C",
-              pointBorderColor: "#F7A35C",
-              fill: false,
-              pointRadius: radius,
-              pointHoverRadius: radius,
-              borderWidth,
-              cubicInterpolationMode: "monotone",
-              tension: 1,
-              spanGaps: true,
-            },
-            {
-              label: "Average Rating",
-              data: data.map((d) => ({ x: d.dateISO, y: d.averageRating })),
-              yAxisID: "y2",
-              borderColor: "#F15C80",
-              pointBackgroundColor: "#F15C80",
-              pointBorderColor: "#F15C80",
-              fill: false,
-              pointRadius: radius,
-              pointHoverRadius: radius,
-              borderWidth,
-              cubicInterpolationMode: "monotone",
-              tension: 1,
-              spanGaps: true,
-            },
-          ],
-          tooltipsMap: data,
-          isMovie,
-        });
+      // Maintain original dataset configuration
+      setChartData({
+        labels: data.map((d) => d.dateISO),
+        datasets: [
+          {
+            label: "Total Votes",
+            data: data.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
+            yAxisID: "y1",
+            borderColor: "#F7A35C",
+            pointBackgroundColor: "#F7A35C",
+            pointBorderColor: "#F7A35C",
+            fill: false,
+            pointRadius: radius,
+            pointHoverRadius: radius,
+            borderWidth,
+            cubicInterpolationMode: "monotone",
+            tension: 1,
+            spanGaps: true,
+          },
+          {
+            label: "Average Rating",
+            data: data.map((d) => ({ x: d.dateISO, y: d.averageRating })),
+            yAxisID: "y2",
+            borderColor: "#F15C80",
+            pointBackgroundColor: "#F15C80",
+            pointBorderColor: "#F15C80",
+            fill: false,
+            pointRadius: radius,
+            pointHoverRadius: radius,
+            borderWidth,
+            cubicInterpolationMode: "monotone",
+            tension: 1,
+            spanGaps: true,
+          },
+        ],
+        tooltipsMap: data,
+        isMovie,
+      });
     };
 
     fetchCSV();
@@ -259,7 +271,10 @@ const VotesOverTime = () => {
         max: y2Max,
         ticks: {
           stepSize: y2Step,
-          callback: (v) => v.toFixed(1),
+          callback: (v) => {
+            const n = Number(v);
+            return Number.isInteger(n) ? n.toString() : n.toFixed(1);
+          },
         },
         grid: {
           drawOnChartArea: false,
