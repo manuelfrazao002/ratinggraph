@@ -25,127 +25,160 @@ ChartJS.register(
   TimeScale
 );
 
+/* -----------------------------
+   Helpers para eixos “nice”
+----------------------------- */
+
+function getRatingStep(range) {
+  if (range <= 1.5) return 0.5;
+  if (range <= 3) return 1;
+  return 2;
+}
+
+function buildNiceAxis(minValue, maxValue, tickCount = 8) {
+  const range = maxValue - minValue;
+  const step = getRatingStep(range);
+
+  const center = (minValue + maxValue) / 2;
+  const alignedCenter = Math.round(center / step) * step;
+
+  const halfRange = (tickCount / 2) * step;
+
+  const niceMin = Number((alignedCenter - halfRange + step).toFixed(2));
+  const niceMax = Number((alignedCenter + halfRange).toFixed(2));
+
+  return { min: niceMin, max: niceMax, step };
+}
+
+function buildNiceVotesAxis(minVotes, maxVotes, tickCount = 8) {
+  const range = maxVotes - minVotes;
+  const roughStep = range / (tickCount - 1);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const step = Math.ceil(roughStep / magnitude) * magnitude;
+
+  const min = Math.floor(minVotes / step) * step;
+  const max = min + step * (tickCount - 1);
+
+  return { min, max, step };
+}
+
+/* ----------------------------- */
+
 const VotesOverTime = () => {
   const { movieId } = useParams();
   const [chartData, setChartData] = useState(null);
+
+  const [y1Min, setY1Min] = useState(null);
+  const [y1Max, setY1Max] = useState(null);
+  const [y1Step, setY1Step] = useState(null);
+
   const [y2Min, setY2Min] = useState(null);
   const [y2Max, setY2Max] = useState(null);
+  const [y2Step, setY2Step] = useState(null);
 
   useEffect(() => {
-    if (!movieId || !movieMap[movieId]) {
-      console.error("movieId inválido");
-      return;
-    }
+    if (!movieId || !movieMap[movieId]) return;
 
     const urls = movieMap[movieId];
+
     const fetchCSV = async () => {
-      try {
-        // First fetch to determine if it's a Movie or TV Show
-        const infoResponse = await fetch(urls[2]);
-        const infoCsv = await infoResponse.text();
-        const infoParsed = Papa.parse(infoCsv, { header: true });
-        const isMovie = infoParsed.data[0]?.Type === "Movie";
+      const infoCsv = await (await fetch(urls[2])).text();
+      const infoParsed = Papa.parse(infoCsv, { header: true });
+      const isMovie = infoParsed.data[0]?.Type === "Movie";
 
-        // Then fetch the chart data
-        const response = await fetch(urls[3]);
-        const rawCsv = await response.text();
-        const cleanCsv = rawCsv.split("\n").slice(1).join("\n");
-        const parsed = Papa.parse(cleanCsv, {
-          header: true,
-          skipEmptyLines: true,
-        });
+      const rawCsv = await (await fetch(urls[3])).text();
+      const parsed = Papa.parse(rawCsv.split("\n").slice(1).join("\n"), {
+        header: true,
+        skipEmptyLines: true,
+      });
 
-        // Process data differently for Movies vs TV Shows
-        const formattedData = parsed.data
-          .filter((row) => {
-            if (isMovie) {
-              return row["Date2"] && row["Total Votes"] && row["Average Rating"];
-            } else {
-              return row["Date2"] && row["Seasons"] && row["Episodes"] && 
-                     row["Total Votes"] && row["Average Votes"] && row["Average Rating"];
-            }
-          })
-          .map((row) => {
-            const baseData = {
-              dateISO: new Date(row["Date2"]).toISOString().split("T")[0],
-              totalVotes: parseInt(row["Total Votes"].replace(/,/g, ""), 10),
-              averageRating: parseFloat(row["Average Rating"]),
-            };
+      const data = parsed.data
+        .filter((row) =>
+          isMovie
+            ? row["Date2"] && row["Total Votes"] && row["Average Rating"]
+            : row["Date2"] &&
+              row["Seasons"] &&
+              row["Episodes"] &&
+              row["Total Votes"] &&
+              row["Average Votes"] &&
+              row["Average Rating"]
+        )
+        .map((row) => ({
+          dateISO: new Date(row["Date2"]).toISOString().split("T")[0],
+          totalVotes: parseInt(row["Total Votes"].replace(/,/g, ""), 10),
+          averageRating: parseFloat(row["Average Rating"]),
+          seasons: row["Seasons"],
+          episodes: row["Episodes"],
+          averageVotes: row["Average Votes"]
+            ? parseInt(row["Average Votes"].replace(/,/g, ""), 10)
+            : null,
+        }));
 
-            if (isMovie) {
-              return {
-                ...baseData,
-              };
-            } else {
-              return {
-                ...baseData,
-                seasons: row["Seasons"],
-                episodes: row["Episodes"],
-                averageVotes: parseFloat(row["Average Votes"].replace(/,/g, "")),
-              };
-            }
-          });
+      /* -------- y2 (Rating) -------- */
 
-        // Calculate rating bounds (keep original appearance)
-        const ratings = formattedData.map((d) => d.averageRating);
-        const minRating = Math.min(...ratings);
-        const maxRating = Math.max(...ratings);
-        setY2Min(Math.floor(minRating - 1));
-        setY2Max(Math.ceil(maxRating + 1));
+      const ratings = data.map((d) => d.averageRating);
+      const { min: rMin, max: rMax, step: rStep } = buildNiceAxis(
+        Math.min(...ratings),
+        Math.max(...ratings)
+      );
 
-        // Keep original point styling calculations
-        const totalPoints = formattedData.length;
-        const maxRadius = 6;
-        const minRadius = 0;
-        const calculatedRadius = Math.max(minRadius, maxRadius - totalPoints / 50);
-        const maxBorderWidth = 3;
-        const minBorderWidth = 2;
-        const calculatedBorderWidth = Math.max(
-          minBorderWidth,
-          maxBorderWidth - totalPoints / 50
-        );
+      setY2Min(rMin);
+      setY2Max(rMax);
+      setY2Step(rStep);
+
+      /* -------- y1 (Votes) -------- */
+
+      const votes = data.map((d) => d.totalVotes);
+      const { min: vMin, max: vMax, step: vStep } = buildNiceVotesAxis(
+        Math.min(...votes),
+        Math.max(...votes)
+      );
+
+      setY1Min(vMin);
+      setY1Max(vMax);
+      setY1Step(vStep);
+
+      const radius = Math.max(0, 6 - data.length / 50);
+      const borderWidth = Math.max(2, 3 - data.length / 50);
 
         // Maintain original dataset configuration
         setChartData({
-          labels: formattedData.map((d) => d.dateISO),
+          labels: data.map((d) => d.dateISO),
           datasets: [
             {
               label: "Total Votes",
-              data: formattedData.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
+              data: data.map((d) => ({ x: d.dateISO, y: d.totalVotes })),
               yAxisID: "y1",
               borderColor: "#F7A35C",
               pointBackgroundColor: "#F7A35C",
               pointBorderColor: "#F7A35C",
               fill: false,
-              pointRadius: calculatedRadius,
-              pointHoverRadius: calculatedRadius + 5,
-              borderWidth: calculatedBorderWidth,
-              cubicInterpolationMode: 'monotone',
+              pointRadius: radius,
+              pointHoverRadius: radius,
+              borderWidth,
+              cubicInterpolationMode: "monotone",
               tension: 1,
               spanGaps: true,
             },
             {
               label: "Average Rating",
-              data: formattedData.map((d) => ({ x: d.dateISO, y: d.averageRating })),
+              data: data.map((d) => ({ x: d.dateISO, y: d.averageRating })),
               yAxisID: "y2",
               borderColor: "#F15C80",
               pointBackgroundColor: "#F15C80",
               pointBorderColor: "#F15C80",
               fill: false,
-              pointRadius: calculatedRadius,
-              pointHoverRadius: calculatedRadius + 5,
-              borderWidth: calculatedBorderWidth,
-              cubicInterpolationMode: 'monotone',
+              pointRadius: radius,
+              pointHoverRadius: radius,
+              borderWidth,
+              cubicInterpolationMode: "monotone",
               tension: 1,
               spanGaps: true,
             },
           ],
-          tooltipsMap: formattedData,
+          tooltipsMap: data,
           isMovie,
         });
-      } catch (error) {
-        console.error("Erro ao carregar CSV:", error);
-      }
     };
 
     fetchCSV();
@@ -166,25 +199,25 @@ const VotesOverTime = () => {
           maxRotation: 180,
           maxTicksLimit: 11,
           autoSkip: true,
-          callback: function(value, index, ticks) {
-    const dataLength = this.chart.data.labels.length; // or this.chart.data.datasets[0].data.length
-    const labelDate = this.getLabelForValue(value);
-    const date = new Date(labelDate);
-    if (isNaN(date)) return labelDate;
-    
-    if (dataLength < 180) {
-        // Format: 05 Jan
-        return date.toLocaleDateString("en-US", {
-            day: "2-digit",
-            month: "short"
-        });
-    } else {
-        // Format: Jan '24
-        const month = date.toLocaleString("en-US", { month: "short" });
-        const year = date.getFullYear().toString().slice(-2);
-        return `${month} '${year}`;
-    }
-}
+          callback: function (value, index, ticks) {
+            const dataLength = this.chart.data.labels.length; // or this.chart.data.datasets[0].data.length
+            const labelDate = this.getLabelForValue(value);
+            const date = new Date(labelDate);
+            if (isNaN(date)) return labelDate;
+
+            if (dataLength < 180) {
+              // Format: 05 Jan
+              return date.toLocaleDateString("en-US", {
+                day: "2-digit",
+                month: "short",
+              });
+            } else {
+              // Format: Jan '24
+              const month = date.toLocaleString("en-US", { month: "short" });
+              const year = date.getFullYear().toString().slice(-2);
+              return `${month} '${year}`;
+            }
+          },
         },
         grid: {
           color: "#E6E6E6",
@@ -193,10 +226,12 @@ const VotesOverTime = () => {
       },
       y1: {
         position: "left",
-        alignToPixels: true,
+        alignTicks: true,
+        min: y1Min,
+        max: y1Max,
         ticks: {
-          count: 5,
-          callback: (val) => (val === 0 ? "0" : `${(val / 1000).toFixed(0)}k`),
+          stepSize: y1Step,
+          callback: (v) => (v === 0 ? "0" : `${(v / 1000).toFixed(0)}k`),
         },
         grid: {
           drawOnChartArea: true,
@@ -219,13 +254,12 @@ const VotesOverTime = () => {
       },
       y2: {
         position: "right",
-        alignToPixels: true,
         alignTicks: true,
-        min: y2Min ?? 0,
-        max: y2Max ?? 10,
+        min: y2Min,
+        max: y2Max,
         ticks: {
-          count: 5,
-          callback: (val) => val.toFixed(1),
+          stepSize: y2Step,
+          callback: (v) => v.toFixed(1),
         },
         grid: {
           drawOnChartArea: false,
@@ -271,17 +305,19 @@ const VotesOverTime = () => {
               `Total Votes: ${d.totalVotes.toLocaleString()}`,
               `Average Rating: ${d.averageRating.toFixed(1)}`,
             ];
-            
+
             if (chartData.isMovie) {
               tooltipLines.splice(1, 0);
             } else {
-              tooltipLines.splice(1, 0, 
+              tooltipLines.splice(
+                1,
+                0,
                 `Seasons: ${d.seasons}`,
                 `Episodes: ${d.episodes}`,
-                `Average Votes: ${d.averageVotes.toLocaleString()}`
+                `Average Votes: ${d.averageVotes.toLocaleString()}`,
               );
             }
-            
+
             return tooltipLines;
           },
           label: () => null,
