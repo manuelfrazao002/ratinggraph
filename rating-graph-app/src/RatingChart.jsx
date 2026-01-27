@@ -164,9 +164,10 @@ export default function RatingChart() {
       const validRatings = dataForSeason.filter((r) => r !== null);
       const average =
         validRatings.reduce((sum, r) => sum + r, 0) / validRatings.length;
+        const roundedAverage = Math.round(average * 10) / 10;
 
       return {
-        label: `Season ${season} (${average.toFixed(1)})`,
+        label: `Season ${season} (${roundedAverage.toFixed(1)})`,
         data: dataForSeason,
         borderColor: "transparent",
         backgroundColor: seasonColors[index % seasonColors.length],
