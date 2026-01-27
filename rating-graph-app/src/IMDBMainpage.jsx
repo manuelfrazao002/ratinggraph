@@ -4072,6 +4072,7 @@ function SeriesPage() {
                         >
                           {data.EpDuration}
                         </span>
+                        {data.epDuration2 > 60 && (
                         <span style={{
                           marginLeft:"0.5rem",
                           color:"rgb(0,0,0,.54)",
@@ -4083,6 +4084,7 @@ function SeriesPage() {
                         }}>
                           ({data.EpDuration2})
                         </span>
+                        )}
                       </div>
                       <div
                         style={{
