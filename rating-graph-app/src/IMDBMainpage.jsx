@@ -49,6 +49,7 @@ import RecentAndTopEpisodes from "./components/RecentandTopEpisodes.jsx";
 import CastList from "./components/CastList.jsx";
 import RatingsBarChart from "./components/RatingsBarChart.jsx";
 import ThemesChips from "./components/ThemeChips.jsx";
+import PlotKeywords from "./components/PlotKeywords.jsx";
 
 import Video1 from "./imgs/imdb/video1.png";
 import Video2 from "./imgs/imdb/video2.png";
@@ -63,6 +64,11 @@ import Img5 from "./imgs/imdb/imgs/img5.jpg";
 import FeaturedReviews from "./imgs/imdb/featuredreviews.png";
 import MoreLikeThis from "./imgs/imdb/morelikethis.png";
 import RelatedInterests from "./imgs/imdb/relatedinterests.png";
+import DidYouKnow from "./imgs/imdb/didyouknow.png";
+import TopPicks from "./imgs/imdb/toppicks.png";
+import RelatedNews from "./imgs/imdb/relatednews.png";
+import ContributeToThisPage from "./imgs/imdb/contributetothispage.png";
+import MoreToExploreSticky from "./imgs/imdb/moretoexploresticky.png";
 
 //Data
 import { movieMap } from "./data/MovieMap";
@@ -341,7 +347,7 @@ function SeriesPage() {
       ? list
       : list.split(",").map((item) => item.trim());
 
-    const limitedItems = items.slice(0, 3);
+    const limitedItems = items;
 
     return limitedItems.map((item, index) => (
       <React.Fragment key={index}>
@@ -1139,24 +1145,34 @@ function SeriesPage() {
                   <div
                     style={{
                       display: "flex",
-                      gap: 14,
                       alignItems: "center",
-                      borderBottom: "1px solid #4B4B4B",
-                      lineHeight: "1",
-                      fontSize: "15.5px",
+                      borderBottom: "1px solid #4B4B4B",                      
                       height: "49.283px",
                     }}
                   >
                     <p
                       style={{
-                        fontWeight: "bold",
+                        paddingRight: "0.75rem",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontSize: "1rem",
+                        lineHeight: "1.5rem",
+                        letterSpacing: "0.00937em",
+                        fontWeight: "600",
                         color: "white",
-                        letterSpacing: "0.2px",
                       }}
                     >
                       Creators
                     </p>
-                    <p style={{}}>
+                    <p
+                      style={{
+                        fontWeight: "400",
+                        letterSpacing: "0.03125em",
+                        wordBreak: "break-word",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontSize: "1rem",
+                        lineHeight: "1.5rem",
+                      }}
+                    >
                       {renderListWithDotSeparator(data.Creators)}
                     </p>
                   </div>
@@ -1164,53 +1180,78 @@ function SeriesPage() {
                     <div
                       style={{
                         display: "flex",
-                        gap: 14,
                         alignItems: "center",
                         borderBottom: "1px solid #4B4B4B",
                         lineHeight: "1",
                       }}
                     >
                       <p
-                        style={{
-                          fontWeight: "bold",
-                          color: "white",
-                          letterSpacing: "0.2px",
-                        }}
+                                              style={{
+                        paddingRight: "0.75rem",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontSize: "1rem",
+                        lineHeight: "1.5rem",
+                        letterSpacing: "0.00937em",
+                        fontWeight: "600",
+                        color: "white",
+                      }}
                       >
                         Writers
                       </p>
-                      <p style={{}}>
+                      <p                       style={{
+                        fontWeight: "400",
+                        letterSpacing: "0.03125em",
+                        wordBreak: "break-word",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontSize: "1rem",
+                        lineHeight: "1.5rem",
+                      }}>
                         {renderListWithDotSeparator(data.Writers)}
                       </p>
                     </div>
                   )}
                   <div
                     style={{
-                      alignItems: "center",
-                      borderBottom: "1px solid #4B4B4B",
-                      lineHeight: "1",
-                      height: "49.283px",
+                      borderBottom: "1px solid #4B4B4B",                      
+                      
                     }}
                   >
                     <div
                       style={{
                         display: "flex",
-                        gap: 14,
-                        position: "relative",
-                        top: "2px",
-                        fontSize: "15.5px",
+                        alignItems:"center",
+                        height: "49.283px",
                       }}
                     >
+                      <div style={{
+                        display:"flex",
+                        alignItems:"center",
+                      }}>
                       <p
-                        style={{
-                          fontWeight: "bold",
-                          color: "white",
-                          letterSpacing: "0.2px",
-                        }}
+                      style={{
+                        paddingRight: "0.75rem",
+                        fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                        fontSize: "1rem",
+                        lineHeight: "1.5rem",
+                        letterSpacing: "0.00937em",
+                        fontWeight: "600",
+                        color: "white",
+                      }}
                       >
                         Stars
                       </p>
-                      <p style={{}}>{renderListWithDotSeparator(data.Stars)}</p>
+                      <p
+                        style={{
+                          fontWeight: "400",
+                          letterSpacing: "0.03125em",
+                          wordBreak: "break-word",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "1rem",
+                        }}
+                      >
+                        {renderListWithDotSeparator(data.Stars)}
+                      </p>
+                      </div>
                       <ChevronRight
                         size={20}
                         style={{
@@ -2614,7 +2655,16 @@ function SeriesPage() {
                         >
                           Creators
                         </span>
-                        <span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                          }}
+                        >
                           {renderListWithDotSeparator2(data.Creators)}
                         </span>
                       </div>
@@ -2923,77 +2973,10 @@ function SeriesPage() {
                           </div>
                         </div>
                         {data.Runtime > 30 && (
-                        <div>
-                          <h3
-                            style={{
-                              margin: "0 0 16px 0",
-                              fontSize: "1.5rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              letterSpacing: "normal",
-                              lineHeight: "1.2em",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Summary
-                          </h3>
-                        </div>                        
-                      )}
-                      
-                        <div>
-                          {data.Runtime > 30 && (
-                          <div>
-                            <div
-                              style={{
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                fontSize: "1rem",
-                                lineHeight: "1.5rem",
-                                letterSpacing: "0.03125em",
-                                width: "808px",
-                              }}
-                            >
-                              {data.Summary}
-                            </div>
-                            <div
-                              style={{
-                                marginTop: "0.75rem",
-                                marginBottom: "16px",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  fontSize: "0.875rem",
-                                  fontWeight: "400",
-                                  lineHeight: "1.25rem",
-                                  letterSpacing: "0.01786em",
-                                  color: "rgb(0,0,0,0.54)",
-                                }}
-                              >
-                                AI-generated from the text of user reviews
-                              </span>
-                            </div>
-                          </div>
-                          )}
-                          {data.Runtime > 30 && (
-                          <div
-                            style={{
-                              marginBottom: "16px",
-                              width:"808px",
-                            }}
-                          >
-                            <ThemesChips
-                              positive={data.PositiveTheme}
-                              negative={data.NegativeTheme}
-                              neutral={data.NeutralTheme}
-                            />
-                          </div>
-                          )}
-                          {data.UserReviews > 2 && (                        
                           <div>
                             <h3
                               style={{
-                                margin: "0 0 0 0",
+                                margin: "0 0 16px 0",
                                 fontSize: "1.5rem",
                                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                                 letterSpacing: "normal",
@@ -3001,49 +2984,1250 @@ function SeriesPage() {
                                 fontWeight: "600",
                               }}
                             >
-                              Featured reviews
+                              Summary
                             </h3>
-                            <img
-                              src={FeaturedReviews}
-                              alt=""
-                              style={{
-                                marginLeft: "-24px",
-                              }}
-                            />
                           </div>
+                        )}
+
+                        <div>
+                          {data.Runtime > 30 && (
+                            <div>
+                              <div
+                                style={{
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "1rem",
+                                  lineHeight: "1.5rem",
+                                  letterSpacing: "0.03125em",
+                                  width: "808px",
+                                }}
+                              >
+                                {data.Summary}
+                              </div>
+                              <div
+                                style={{
+                                  marginTop: "0.75rem",
+                                  marginBottom: "16px",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "0.875rem",
+                                    fontWeight: "400",
+                                    lineHeight: "1.25rem",
+                                    letterSpacing: "0.01786em",
+                                    color: "rgb(0,0,0,0.54)",
+                                  }}
+                                >
+                                  AI-generated from the text of user reviews
+                                </span>
+                              </div>
+                            </div>
                           )}
-                        </div>                        
+                          {data.Runtime > 30 && (
+                            <div
+                              style={{
+                                marginBottom: "16px",
+                                width: "808px",
+                              }}
+                            >
+                              <ThemesChips
+                                positive={data.PositiveTheme}
+                                negative={data.NegativeTheme}
+                                neutral={data.NeutralTheme}
+                              />
+                            </div>
+                          )}
+                          {data.UserReviews > 2 && (
+                            <div>
+                              <h3
+                                style={{
+                                  margin: "0 0 0 0",
+                                  fontSize: "1.5rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  letterSpacing: "normal",
+                                  lineHeight: "1.2em",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Featured reviews
+                              </h3>
+                              <img
+                                src={FeaturedReviews}
+                                alt=""
+                                style={{
+                                  marginLeft: "-24px",
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </section>
                   )}
-                  
+
+                  {/*Related More Like This */}
                   <section>
                     <img src={MoreLikeThis} alt="" />
                   </section>
+
+                  {/*Related Interests*/}
                   <section>
                     <img src={RelatedInterests} alt="" />
                   </section>
+
+                  {/*Storyline*/}
+                  <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "block",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "20px",
+                          width: "808px",
+                          height: "38.4px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "28.8px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgb(245, 197, 24)",
+                            maxHeight: "28.8px",
+                          }}
+                        />
+                        <div>
+                          <h3
+                            style={{
+                              padding: "0 0 0 10px",
+                              margin: 0,
+                              fontSize: "1.5rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              letterSpacing: "normal",
+                              lineHeight: "1.2em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Storyline
+                          </h3>
+                        </div>
+                        <div
+                          style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "rgb(0,0,0,.54)",
+                            cursor: "pointer",
+                            padding: "0 16px 0 16px",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{ marginRight: "4px" }}
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                          </svg>
+                          <span
+                            style={{
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              lineHeight: "1.25rem",
+                              letterSpacing: ".02em",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              position: "relative",
+                              top: "1px",
+                            }}
+                          >
+                            Edit
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span
+                          style={{
+                            color: "rgb(0,0,0,0.87)",
+                            fontSize: "1rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.03125em",
+                            fontWeight: "400",
+                          }}
+                        >
+                          {data.Storyline}
+                        </span>
+                        —
+                        <span
+                          style={{
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.03125em",
+                            color: "rgb(14,99,190)",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          }}
+                        >
+                          {data.StorylineAuthor}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          marginBottom: "16px",
+                          width: "808px",
+                          marginTop: "1rem",
+                        }}
+                      >
+                        <PlotKeywords
+                          keyword={data.PlotKeywords}
+                          total={data.PlotKeywords2}
+                        />
+                      </div>
+                      <div style={{ marginTop: "16px" }}>
+                        <span
+                          style={{
+                            color: "rgb(14,99,190)",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            fontWeight: "400",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.03125em",
+                          }}
+                        >
+                          Plot summary
+                        </span>
+                        <span style={{ color: "black", margin: "0 6px" }}>
+                          ·
+                        </span>
+                        <span
+                          style={{
+                            color: "rgb(14,99,190)",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            fontWeight: "400",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.03125em",
+                          }}
+                        >
+                          Plot synopsis
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        width: "808px",
+                        marginTop: "1rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Taglines
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                          }}
+                        >
+                          {data.Tagline}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Genres
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                          }}
+                        >
+                          {renderListWithDotSeparator2(data.Genres2)}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Certificate
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                          }}
+                        >
+                          {data.AgeRating}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderBottomWidth:"1px",
+                          borderTopStyle: "solid",
+                          borderBottomStyle:"solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Parents guide
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </section>
+
+                  {/*Did You Know*/}
+                  <section style={{
+                    paddingBottom:"24px",
+                    marginBottom:"8px",
+                  }}>
+                    <img src={DidYouKnow} alt="" />
+                  </section>
+
+                   {/*Top Picks*/}
+                  <section>
+                    <img src={TopPicks} alt="" />
+                  </section>
+
+                   {/*Details*/}
+                  <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "block",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "20px",
+                          width: "808px",
+                          height: "38.4px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "28.8px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgb(245, 197, 24)",
+                            maxHeight: "28.8px",
+                          }}
+                        />
+                        <div>
+                            <h3
+                              style={{
+                                padding: "0 0 0 10px",
+                                margin: 0,
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Details
+                            </h3>                           
+                        </div>
+                        <div
+                          style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "rgb(0,0,0,.54)",
+                            cursor: "pointer",
+                            padding: "0 16px 0 16px",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{ marginRight: "4px" }}
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                          </svg>
+                          <span
+                            style={{
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              lineHeight: "1.25rem",
+                              letterSpacing: ".02em",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              position: "relative",
+                              top: "1px",
+                            }}
+                          >
+                            Edit
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        width: "808px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Release date
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          {data.ReleaseDate} {"(United States)"}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Countries of origin
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          {renderListWithDotSeparator2(data.CountriesOrigin)}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Official sites
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          Official Facebook
+                          <svg style={{marginLeft:"0.4em"}} width="10" height="10" xmlns="http://www.w3.org/2000/svg" class="ipc-icon ipc-icon--launch-inline ipc-icon--inline ipc-link__launch-icon" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M21.6 21.6H2.4V2.4h7.2V0H0v24h24v-9.6h-2.4v7.2zM14.4 0v2.4h4.8L7.195 14.49l2.4 2.4L21.6 4.8v4.8H24V0h-9.6z"></path></svg>
+                          <span style={{ color: "black", margin: "0 6px" }}>·</span>
+                          Official Instagram
+                          <svg style={{marginLeft:"0.4em"}} width="10" height="10" xmlns="http://www.w3.org/2000/svg" class="ipc-icon ipc-icon--launch-inline ipc-icon--inline ipc-link__launch-icon" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M21.6 21.6H2.4V2.4h7.2V0H0v24h24v-9.6h-2.4v7.2zM14.4 0v2.4h4.8L7.195 14.49l2.4 2.4L21.6 4.8v4.8H24V0h-9.6z"></path></svg>
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Language
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          {data.Language}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Also known as
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          {data.AlsoKnownAs}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Production companies
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          {renderListWithDotSeparator2(data.ProductionCompanies)}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          borderTopWidth: "1px",
+                          borderBottomWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderBottomStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          See more company credits at IMDbPro
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--launch"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path d="M16 16.667H8A.669.669 0 0 1 7.333 16V8c0-.367.3-.667.667-.667h3.333c.367 0 .667-.3.667-.666C12 6.3 11.7 6 11.333 6h-4C6.593 6 6 6.6 6 7.333v9.334C6 17.4 6.6 18 7.333 18h9.334C17.4 18 18 17.4 18 16.667v-4c0-.367-.3-.667-.667-.667-.366 0-.666.3-.666.667V16c0 .367-.3.667-.667.667zm-2.667-10c0 .366.3.666.667.666h1.727L9.64 13.42a.664.664 0 1 0 .94.94l6.087-6.087V10c0 .367.3.667.666.667.367 0 .667-.3.667-.667V6h-4c-.367 0-.667.3-.667.667z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/*Tech Specs*/}
+                   <section
+                    style={{
+                      padding: "24px",
+                      width: "856px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "block",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "20px",
+                          width: "808px",
+                          height: "38.4px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "28.8px",
+                            borderRadius: "12px",
+                            backgroundColor: "rgb(245, 197, 24)",
+                            maxHeight: "28.8px",
+                          }}
+                        />
+                        <div>
+                          <Link
+                            to={`/episodepage/${movieId}`}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              color: "black",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={() => setHovered(true)}
+                            onMouseLeave={() => setHovered(false)}
+                          >
+                            <h3
+                              style={{
+                                padding: "0 0 0 10px",
+                                margin: 0,
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Tech specs
+                            </h3>
+                            <span
+                              style={{
+                                paddingLeft: "2px",
+                                color: "rgb(0,0,0,.54)",
+                                fontSize: "0.875rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "400",
+                                alignSelf: "center",
+                                letterSpacing: "0.01786em",
+                                lineHeight: "unset",
+                                marginRight: "2px",
+                              }}
+                            >
+                              
+                            </span>
+                            <svg
+                              width="19.2"
+                              height="19.2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                              style={{
+                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                transition: "color 0.2s ease",
+                              }}
+                            >
+                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                            </svg>
+                          </Link>
+                        </div>
+                        <div
+                          style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                            color: "rgb(0,0,0,.54)",
+                            cursor: "pointer",
+                            padding: "0 16px 0 16px",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{ marginRight: "4px" }}
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                          </svg>
+                          <span
+                            style={{
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              lineHeight: "1.25rem",
+                              letterSpacing: ".02em",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              position: "relative",
+                              top: "1px",
+                            }}
+                          >
+                            Edit
+                          </span>
+                        </div>
+                      </div>                      
+                    </div>
+                    <div
+                      style={{
+                        width: "808px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.25rem",
+                          paddingTop: "0.25rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Runtime
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                          }}
+                        >
+                          {data.EpDuration}
+                        </span>
+                        <span style={{
+                          marginLeft:"0.5rem",
+                          color:"rgb(0,0,0,.54)",
+                          fontWeight:"400",
+                          letterSpacing:"0.03125",
+                          fontFamily:"Roboto,Helvetica,Arial,sans-serif",
+                          fontSize:"1rem",
+                          lineHeight:"1.5rem",
+                        }}>
+                          ({data.EpDuration2})
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.25rem",
+                          paddingTop: "0.25rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Color
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          Color
+                        </span>
+                      </div>                      
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.25rem",
+                          paddingTop: "0.25rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Sound mix
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color:"rgb(14,99,190)",
+                          }}
+                        >
+                          Dolby Digital
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.25rem",
+                          paddingTop: "0.25rem",
+                        }}
+                      >
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Aspect ratio
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                          }}
+                        >
+                          2.35 : 1
+                        </span>
+                      </div>                  
+                    </div>
+                  </section>
+
+                  {/*Related news*/}
+                  <section>
+                    <img src={RelatedNews} alt="" />
+                  </section>
+
+                  {/*Contribute to this page*/}
+                  <section>
+                    <img src={ContributeToThisPage} alt="" />
+                  </section>
               </div>
 
               {/* Aside */}
               <div
                 style={{
                   padding: "24px 0 24px 12px",
-                  justifyContent: "center",
-                  display: "flex",
-                  width:"412px"
+                  display: "block",
+                  width: "412px",
+                  position:"relative",
                 }}
               >
-                <img src={MoreToExplore} alt="" style={{
-                  width: "364px",
-                  height:"max-content"
-                }}/>
-              </div>
+                <img
+                  src={MoreToExplore}
+                  alt=""
+                  style={{
+                    width: "364px",
+                    height: "max-content",
+                    margin:"0 24px 0 24px"
+                  }}
+                />
+                <img src={MoreToExploreSticky} alt="" style={{
+                  width: "412px",
+                  position:"sticky",
+                  top: "0px",
+                  marginBottom:"23rem",
+                }} />        
+              </div>              
             </div>
           </div>
         </main>
-        <div style={{ backgroundColor: "black", marginTop: 24 }}>
+        <div style={{ backgroundColor: "black",}}>
           <img src={Footer1} alt="" style={{ position: "relative" }} />
           <img src={Footer2} alt="" />
         </div>
