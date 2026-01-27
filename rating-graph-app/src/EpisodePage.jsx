@@ -272,6 +272,10 @@ export default function Episodes() {
 
   // Componente para renderizar item do episódio (utilizado em Seasons e Years)
   function EpisodeItem({ episode, index, isLast }) {
+    const [isEllipsisHover, setIsEllipsisHover] = React.useState(false);
+    const synopsisRef = React.useRef(null);
+    const [isOverflowing, setIsOverflowing] = React.useState(false);
+    const [isExpanded, setIsExpanded] = React.useState(false);
     const rating = parseFloat(episode["Average Rating 2"]);
     const votes = parseInt(episode.Votes2 || "0", 10);
     const hasRating = !isNaN(rating) && !isNaN(votes) && votes > 0;
@@ -328,6 +332,13 @@ export default function Episodes() {
       activeTab === "Top-rated" ? topEpisodes : currentEpisodes;
     const isLastEpisode =
       episodeList.length === 1 || index === episodeList.length - 1;
+
+    React.useEffect(() => {
+      if (synopsisRef.current) {
+        const { scrollHeight, clientHeight } = synopsisRef.current;
+        setIsOverflowing(scrollHeight > clientHeight);
+      }
+    }, [episode.Synopsis]);
 
     return (
       <div
@@ -446,18 +457,72 @@ export default function Episodes() {
             </div>
 
             {hasSynopsis ? (
-              <p
-                style={{
-                  maxWidth: "597px",
-                  marginBottom: 7,
-                  letterSpacing: 0.4,
-                  marginTop: 12,
-                  position: "relative",
-                  top: 0.02,
-                }}
-              >
-                {episode.Synopsis}
-              </p>
+              <div style={{ position: "relative"}}>
+                {/* SINOPSE (inalterada) */}
+                <p
+                ref={synopsisRef}
+                  style={{
+                    maxWidth: "597px",
+                    marginBottom: 7,
+                    letterSpacing: "0.03125em",
+                    marginTop: 12,
+                    position: "relative",
+                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                    lineHeight: "1.5rem",
+                    overflow: "hidden",
+                    maxHeight: isExpanded ? "fit-content" : "9rem",
+                  }}
+                >
+                  {episode.Synopsis}
+                </p>
+
+                {/* OVERLAY IMDb-style */}
+                {isOverflowing && !isExpanded && (
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0, // alinha com o topo da sinopse
+                    left: 0,
+                    display: "flex",
+                    alignItems: "end",
+                    pointerEvents: "none", // não interfere no texto
+                    height: "3rem",
+                    cursor: "pointer",
+                    width: "100%",
+                    background:
+                      "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,1) 80%, rgba(255,255,255,1) 100%)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      cursor: "pointer",
+                      pointerEvents: "auto", // só o botão é clicável
+                      marginLeft: "-0.2rem",
+                    }}
+                    onMouseEnter={() => setIsEllipsisHover(true)}
+                    onMouseLeave={() => setIsEllipsisHover(false)}
+                    title="More options"
+                    onClick={() => setIsExpanded(true)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      class="ipc-icon ipc-icon--more-horiz ipc-overflowText-overlay__affordance"
+                      viewBox="0 0 24 24"
+                      fill={
+                        isEllipsisHover ? "rgb(245, 197, 24)" : "rgb(0, 0, 0)"
+                      }
+                      role="presentation"
+                    >
+                      <path fill="none" d="M0 0h24v24H0V0z"></path>
+                      <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+                    </svg>
+                  </div>
+                </div>
+                )}
+              </div>
             ) : (
               <img
                 src={AddPlot}
