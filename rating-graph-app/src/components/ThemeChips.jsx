@@ -74,36 +74,7 @@ const ThemesChips = ({ positive = "", negative = "", neutral = "" }) => {
         />
       ))}
 
-      {negatives.map((text, i) => (
-        <Chip
-          key={`n-${i}`}
-          text={text}
-          color="#D92D20"
-          icon={
-            <svg
-                        style={{
-                display:"flex",
-            }}
-              width="24"
-              height="24"
-              xmlns="http://www.w3.org/2000/svg"
-              class="ipc-icon ipc-icon--theme-negative ipc-icon--inline ipc-chip__pre-icon AIThemesChipList_theme_preicon__6mHXn AIThemesChipList_negative__FANMQ"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              role="presentation"
-            >
-              <g clip-path="url(#clip0_407_249008)">
-                <path d="M12.195 22.89C6.289 22.89 1.5 18.1 1.5 12.195 1.5 6.289 6.289 1.5 12.195 1.5 18.1 1.5 22.89 6.289 22.89 12.195c0 5.906-4.789 10.695-10.695 10.695zm0-2.349a8.34 8.34 0 008.346-8.346 8.34 8.34 0 00-8.346-8.347 8.34 8.34 0 00-8.347 8.347 8.34 8.34 0 008.347 8.346zM8.4 13.252c-.646 0-1.108-.4-1.108-1.036 0-.635.452-1.046 1.108-1.046h7.588c.656 0 1.097.41 1.097 1.046 0 .636-.461 1.036-1.097 1.036H8.4z"></path>
-              </g>
-              <defs>
-                <clipPath id="clip0_407_249008">
-                  <path d="M0 0h24v24H0z"></path>
-                </clipPath>
-              </defs>
-            </svg>
-          }
-        />
-      ))}
+
 
       {neutrals.map((text, i) => (
         <Chip
@@ -128,6 +99,37 @@ const ThemesChips = ({ positive = "", negative = "", neutral = "" }) => {
               </g>
               <defs>
                 <clipPath id="clip0_407_248989">
+                  <path d="M0 0h24v24H0z"></path>
+                </clipPath>
+              </defs>
+            </svg>
+          }
+        />
+      ))}
+
+            {negatives.map((text, i) => (
+        <Chip
+          key={`n-${i}`}
+          text={text}
+          color="#D92D20"
+          icon={
+            <svg
+                        style={{
+                display:"flex",
+            }}
+              width="24"
+              height="24"
+              xmlns="http://www.w3.org/2000/svg"
+              class="ipc-icon ipc-icon--theme-negative ipc-icon--inline ipc-chip__pre-icon AIThemesChipList_theme_preicon__6mHXn AIThemesChipList_negative__FANMQ"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              role="presentation"
+            >
+              <g clip-path="url(#clip0_407_249008)">
+                <path d="M12.195 22.89C6.289 22.89 1.5 18.1 1.5 12.195 1.5 6.289 6.289 1.5 12.195 1.5 18.1 1.5 22.89 6.289 22.89 12.195c0 5.906-4.789 10.695-10.695 10.695zm0-2.349a8.34 8.34 0 008.346-8.346 8.34 8.34 0 00-8.346-8.347 8.34 8.34 0 00-8.347 8.347 8.34 8.34 0 008.347 8.346zM8.4 13.252c-.646 0-1.108-.4-1.108-1.036 0-.635.452-1.046 1.108-1.046h7.588c.656 0 1.097.41 1.097 1.046 0 .636-.461 1.036-1.097 1.036H8.4z"></path>
+              </g>
+              <defs>
+                <clipPath id="clip0_407_249008">
                   <path d="M0 0h24v24H0z"></path>
                 </clipPath>
               </defs>
