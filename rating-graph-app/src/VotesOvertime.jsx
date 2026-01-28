@@ -174,8 +174,8 @@ const VotesOverTime = () => {
       setY1Max(vMax);
       setY1Step(vStep);
 
-      const radius = Math.max(0, 3 - data.length / 50);
-      const borderWidth = Math.max(1, 2 - data.length / 50);
+      const radius = Math.max(0, 4 - data.length / 50);
+      const borderWidth = Math.max(2, 3 - data.length / 50);
 
       // Maintain original dataset configuration
       setChartData({
