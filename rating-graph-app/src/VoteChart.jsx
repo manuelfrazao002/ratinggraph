@@ -19,10 +19,10 @@ ChartJS.register(
   CategoryScale,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 );
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import { movieMap } from "./data/MovieMap";
 import { Link } from "react-router-dom";
 
@@ -47,12 +47,12 @@ export default function VotesChart() {
   const [parsedData, setParsedData] = useState([]);
 
   useEffect(() => {
-        if (!movieId || !movieMap[movieId]) {
-              console.error("movieId inválido");
-              return;
-            }
-        
-            const urls = movieMap[movieId];
+    if (!movieId || !movieMap[movieId]) {
+      console.error("movieId inválido");
+      return;
+    }
+
+    const urls = movieMap[movieId];
     fetch(urls[1])
       .then((res) => res.text())
       .then((csvText) => {
@@ -63,7 +63,7 @@ export default function VotesChart() {
             row["Season"] &&
             row["Episode"] &&
             row["Number"] &&
-            row["Votes"]
+            row["Votes"],
         );
 
         const seasons = {};
@@ -78,9 +78,11 @@ export default function VotesChart() {
             title: row["TitleName"],
             year: row["Year"],
             trend:
-  row["Trend"] === "-" || row["Trend"] === "" || row["Trend"] == null
-    ? "-"
-    : parseInt(row["Trend"].replace(/,/g, ""), 10),
+              row["Trend"] === "-" ||
+              row["Trend"] === "" ||
+              row["Trend"] == null
+                ? "-"
+                : parseInt(row["Trend"].replace(/,/g, ""), 10),
             rating: parseFloat(row["Average Rating"]),
           });
         });
@@ -112,18 +114,18 @@ export default function VotesChart() {
   }, []);
 
   const ratingValues = parsedData
-  .map((e) => e.rating)
-  .filter((r) => typeof r === 'number' && !isNaN(r));
+    .map((e) => e.rating)
+    .filter((r) => typeof r === "number" && !isNaN(r));
 
-const minValue = Math.min(...ratingValues);
-const maxValue = Math.max(...ratingValues);
+  const minValue = Math.min(...ratingValues);
+  const maxValue = Math.max(...ratingValues);
 
-let dynamicMin = Math.floor(minValue);
-let dynamicMax = Math.ceil(maxValue);
+  let dynamicMin = Math.floor(minValue);
+  let dynamicMax = Math.ceil(maxValue);
 
-// Only pad if the value is exactly on an integer
-if (minValue === dynamicMin) dynamicMin -= 1;
-if (maxValue === dynamicMax) dynamicMax += 1;
+  // Only pad if the value is exactly on an integer
+  if (minValue === dynamicMin) dynamicMin -= 1;
+  if (maxValue === dynamicMax) dynamicMax += 1;
 
   function linearRegression(data) {
     const filteredData = data
@@ -221,21 +223,24 @@ if (maxValue === dynamicMax) dynamicMax += 1;
 
   const lrGlobal = linearRegression(allVotes);
 
-const globalTrendData = (lrGlobal && Object.keys(seasonData).length >= 2) ? 
-    labels.map((_, i) => lrGlobal.a * i + lrGlobal.b) : 
-    [];
+  const globalTrendData =
+    lrGlobal && Object.keys(seasonData).length >= 2
+      ? labels.map((_, i) => lrGlobal.a * i + lrGlobal.b)
+      : [];
 
-const globalTrendDataset = (Object.keys(seasonData).length >= 2 && globalTrendData.length > 0) ? {
-        label: "Seasons Trendline",
-        data: globalTrendData,
-        borderColor: "#FF0000",
-        borderWidth: 2,
-        borderDash: [10, 5],
-        pointRadius: 0,
-        fill: false,
-        tension: 0,
-      }
-    : null;
+  const globalTrendDataset =
+    Object.keys(seasonData).length >= 2 && globalTrendData.length > 0
+      ? {
+          label: "Seasons Trendline",
+          data: globalTrendData,
+          borderColor: "#FF0000",
+          borderWidth: 2,
+          borderDash: [10, 5],
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+        }
+      : null;
 
   const combinedDatasets = [
     ...datasets,
@@ -243,28 +248,28 @@ const globalTrendDataset = (Object.keys(seasonData).length >= 2 && globalTrendDa
     ...(globalTrendDataset ? [globalTrendDataset] : []),
   ];
 
-let episodeCount = labels.length;
-let minVal, maxVal;
+  let episodeCount = labels.length;
+  let minVal, maxVal;
 
-if (episodeCount === 1) {
-  minVal = 0.5;
-  maxVal = 1.5; // give breathing room for single point
-} else {
-  minVal = 1;
-  maxVal = episodeCount >= 10 ? episodeCount : episodeCount;
-}
+  if (episodeCount === 1) {
+    minVal = 0.5;
+    maxVal = 1.5; // give breathing room for single point
+  } else {
+    minVal = 1;
+    maxVal = episodeCount >= 10 ? episodeCount : episodeCount;
+  }
 
-// Determine step size based on episode count
-let stepSize;
-if (episodeCount >= 90) {
-  stepSize = 10;
-} else if (episodeCount >= 40) {
-  stepSize = 5;
-} else if (episodeCount >= 18) {
-  stepSize = 2;
-} else {
-  stepSize = 1;
-}
+  // Determine step size based on episode count
+  let stepSize;
+  if (episodeCount >= 90) {
+    stepSize = 10;
+  } else if (episodeCount >= 40) {
+    stepSize = 5;
+  } else if (episodeCount >= 18) {
+    stepSize = 2;
+  } else {
+    stepSize = 1;
+  }
 
   const options = {
     responsive: true,
@@ -348,7 +353,7 @@ if (episodeCount >= 90) {
           <div><span>Trend:</span> <span style="font-weight:bold;">${ep?.trend.toLocaleString()}</span></div>
           <div><span>Total votes:</span> <span style="font-weight:bold;">${ep?.votes.toLocaleString()}</span></div>
           <div><span>Average Rating:</span> <span style="font-weight:bold;">${ep?.rating.toFixed(
-            1
+            1,
           )}</span></div>
         </div>
       `;
@@ -407,34 +412,34 @@ if (episodeCount >= 90) {
         },
       },
       x: {
-  min: minVal,
-  max: maxVal,
-  type: "linear",
-  offset: true, // offsets tick labels and data slightly
-  title: {
-    display: true,
-    text: "Episodes",
-    color: "#555",
-    font: { size: 12 },
-    padding: { top: 5 },
-  },
-  grid: {
-    display: true,
-    drawOnChartArea: false,
-    drawTicks: true,
-    tickLength: 6,
-    color: "#CCD6EB",
-    lineWidth: 1,
-  },
-  ticks: {
-    stepSize: stepSize,
-    autoSkip: false,
-    callback: function (value) {
-      return value % stepSize === 0 ? value : "";
-    },
-    font: { size: 11 },
-  },
-}
+        min: minVal,
+        max: maxVal,
+        type: "linear",
+        offset: true, // offsets tick labels and data slightly
+        title: {
+          display: true,
+          text: "Episodes",
+          color: "#555",
+          font: { size: 12 },
+          padding: { top: 5 },
+        },
+        grid: {
+          display: true,
+          drawOnChartArea: false,
+          drawTicks: true,
+          tickLength: 6,
+          color: "#CCD6EB",
+          lineWidth: 1,
+        },
+        ticks: {
+          stepSize: stepSize,
+          autoSkip: false,
+          callback: function (value) {
+            return value % stepSize === 0 ? value : "";
+          },
+          font: { size: 11 },
+        },
+      },
     },
   };
 

@@ -67,31 +67,28 @@ function buildNiceVotesAxis(minVotes, maxVotes, tickCount = 8) {
   const step = niceResidual * magnitude;
   const axisRange = step * (tickCount - 1);
 
-  // centro real dos dados
-  const center = (minVotes + maxVotes) / 2;
+  // 🔑 ancora no mínimo real (não no centro)
+  let min = Math.floor(minVotes / step) * step;
+  let max = min + axisRange;
 
-  // alinha o centro ao step
-  const alignedCenter = Math.round(center / step) * step;
-
-  let min = alignedCenter - axisRange / 2;
-  let max = alignedCenter + axisRange / 2;
-
-  // 🔒 garante que nada será cortado
-  if (min > minVotes) {
-    min -= step * Math.ceil((min - minVotes) / step);
-    max = min + axisRange;
-  }
-
+  // 🔒 garante que o topo contenha os dados
   if (max < maxVotes) {
-    max += step * Math.ceil((maxVotes - max) / step);
-    min = max - axisRange;
+    const shift = Math.ceil((maxVotes - max) / step);
+    min += shift * step;
+    max += shift * step;
   }
 
-  // evita negativos se não fizer sentido
+  // evita negativos
   if (min < 0) {
     min = 0;
     max = axisRange;
   }
+
+  // 🔑 NOVO: nunca cortar dados reais
+if (min > minVotes) {
+  min = Math.floor(minVotes / step) * step;
+  max = min + step * (tickCount - 1);
+}
 
   return { min, max, step };
 }
@@ -263,7 +260,6 @@ const VotesOverTime = () => {
       },
       y1: {
         position: "left",
-        alignTicks: true,
         min: y1Min,
         max: y1Max,
         ticks: {
@@ -291,7 +287,6 @@ const VotesOverTime = () => {
       },
       y2: {
         position: "right",
-        alignTicks: true,
         min: y2Min,
         max: y2Max,
         ticks: {
