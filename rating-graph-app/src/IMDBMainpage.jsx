@@ -3034,9 +3034,9 @@ function SeriesPage() {
                               }}
                             >
                               <ThemesChips
-                                positive={data.PositiveTheme}
-                                negative={data.NegativeTheme}
+                                positive={data.PositiveTheme}                                
                                 neutral={data.NeutralTheme}
+                                negative={data.NegativeTheme}
                               />
                             </div>
                           )}
