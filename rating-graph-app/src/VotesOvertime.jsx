@@ -51,23 +51,47 @@ function buildNiceAxis(minValue, maxValue, tickCount = 8) {
 }
 
 function buildNiceVotesAxis(minVotes, maxVotes, tickCount = 8) {
-  // 🟢 caso especial: apenas um valor
-  if (minVotes === maxVotes) {
-    const step = Math.pow(10, Math.floor(Math.log10(minVotes || 1)));
-
-    const min = minVotes - step * Math.floor(tickCount / 2);
-    const max = min + step * (tickCount - 1);
-
-    return { min, max, step };
-  }
-
   const range = maxVotes - minVotes;
   const roughStep = range / (tickCount - 1);
-  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
-  const step = Math.ceil(roughStep / magnitude) * magnitude;
 
-  const min = Math.floor(minVotes / step) * step;
-  const max = min + step * (tickCount - 1);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const residual = roughStep / magnitude;
+
+  let niceResidual;
+  if (residual <= 1) niceResidual = 1;
+  else if (residual <= 2) niceResidual = 2;
+  else if (residual <= 2.5) niceResidual = 2.5;
+  else if (residual <= 5) niceResidual = 5;
+  else niceResidual = 10;
+
+  const step = niceResidual * magnitude;
+  const axisRange = step * (tickCount - 1);
+
+  // centro real dos dados
+  const center = (minVotes + maxVotes) / 2;
+
+  // alinha o centro ao step
+  const alignedCenter = Math.round(center / step) * step;
+
+  let min = alignedCenter - axisRange / 2;
+  let max = alignedCenter + axisRange / 2;
+
+  // 🔒 garante que nada será cortado
+  if (min > minVotes) {
+    min -= step * Math.ceil((min - minVotes) / step);
+    max = min + axisRange;
+  }
+
+  if (max < maxVotes) {
+    max += step * Math.ceil((maxVotes - max) / step);
+    min = max - axisRange;
+  }
+
+  // evita negativos se não fizer sentido
+  if (min < 0) {
+    min = 0;
+    max = axisRange;
+  }
 
   return { min, max, step };
 }
@@ -342,27 +366,25 @@ const VotesOverTime = () => {
       legend: {
         display: true,
         position: "bottom",
+        align: "center",
         labels: {
-          usePointStyle: true, // ⭐ ESSENCIAL
-          padding: 20,
+          usePointStyle: false, // 🔑 DESLIGA símbolos
+          color: "#444",
+          font: {
+            size: 12,
+            weight: "500",
+          },
 
           generateLabels(chart) {
             return chart.data.datasets.map((ds, i) => ({
               text: ds.label,
 
-              fillStyle: ds.borderColor,
+              fillStyle: ds.borderColor, // cor do retângulo
               strokeStyle: ds.borderColor,
-              lineWidth: ds.borderWidth || 2,
+              lineWidth: 0,
 
               hidden: !chart.isDatasetVisible(i),
               datasetIndex: i,
-
-              // símbolo no meio da linha
-              pointStyle: ds.pointStyle || "circle",
-
-              // controla o “preview” da linha
-              boxWidth: 32,
-              boxHeight: 10,
             }));
           },
         },
