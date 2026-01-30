@@ -367,7 +367,7 @@ export default function Episodes() {
             width: "199px",
             height: "111.933px",
             objectFit: "cover",
-            objectPosition: "20% 20%",
+            objectPosition: "center",
             borderRadius: "12px",
             flexShrink: 0,
             position: "relative",
