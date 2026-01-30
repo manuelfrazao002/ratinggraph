@@ -2062,7 +2062,7 @@ function SeriesPage() {
                       nextEpisode={nextEpisode}
                       coverSrc={coverSrc}
                     />
-                    <RecentAndTopEpisodes episodes={recentAndTopEpisodes} />
+                    <RecentAndTopEpisodes episodes={allEpisodes} />
                     <div
                       style={{
                         marginTop: "20px",

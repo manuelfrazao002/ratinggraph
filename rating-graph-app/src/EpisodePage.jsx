@@ -457,10 +457,10 @@ export default function Episodes() {
             </div>
 
             {hasSynopsis ? (
-              <div style={{ position: "relative"}}>
+              <div style={{ position: "relative" }}>
                 {/* SINOPSE (inalterada) */}
                 <p
-                ref={synopsisRef}
+                  ref={synopsisRef}
                   style={{
                     maxWidth: "597px",
                     marginBottom: 7,
@@ -478,49 +478,49 @@ export default function Episodes() {
 
                 {/* OVERLAY IMDb-style */}
                 {isOverflowing && !isExpanded && (
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 0, // alinha com o topo da sinopse
-                    left: 0,
-                    display: "flex",
-                    alignItems: "end",
-                    pointerEvents: "none", // não interfere no texto
-                    height: "3rem",
-                    cursor: "pointer",
-                    width: "100%",
-                    background:
-                      "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,1) 80%, rgba(255,255,255,1) 100%)",
-                  }}
-                >
                   <div
                     style={{
+                      position: "absolute",
+                      bottom: 0, // alinha com o topo da sinopse
+                      left: 0,
                       display: "flex",
+                      alignItems: "end",
+                      pointerEvents: "none", // não interfere no texto
+                      height: "3rem",
                       cursor: "pointer",
-                      pointerEvents: "auto", // só o botão é clicável
-                      marginLeft: "-0.2rem",
+                      width: "100%",
+                      background:
+                        "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,1) 80%, rgba(255,255,255,1) 100%)",
                     }}
-                    onMouseEnter={() => setIsEllipsisHover(true)}
-                    onMouseLeave={() => setIsEllipsisHover(false)}
-                    title="More options"
-                    onClick={() => setIsExpanded(true)}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      class="ipc-icon ipc-icon--more-horiz ipc-overflowText-overlay__affordance"
-                      viewBox="0 0 24 24"
-                      fill={
-                        isEllipsisHover ? "rgb(245, 197, 24)" : "rgb(0, 0, 0)"
-                      }
-                      role="presentation"
+                    <div
+                      style={{
+                        display: "flex",
+                        cursor: "pointer",
+                        pointerEvents: "auto", // só o botão é clicável
+                        marginLeft: "-0.2rem",
+                      }}
+                      onMouseEnter={() => setIsEllipsisHover(true)}
+                      onMouseLeave={() => setIsEllipsisHover(false)}
+                      title="More options"
+                      onClick={() => setIsExpanded(true)}
                     >
-                      <path fill="none" d="M0 0h24v24H0V0z"></path>
-                      <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
-                    </svg>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        class="ipc-icon ipc-icon--more-horiz ipc-overflowText-overlay__affordance"
+                        viewBox="0 0 24 24"
+                        fill={
+                          isEllipsisHover ? "rgb(245, 197, 24)" : "rgb(0, 0, 0)"
+                        }
+                        role="presentation"
+                      >
+                        <path fill="none" d="M0 0h24v24H0V0z"></path>
+                        <path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path>
+                      </svg>
+                    </div>
                   </div>
-                </div>
                 )}
               </div>
             ) : (
