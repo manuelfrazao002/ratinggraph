@@ -889,8 +889,8 @@ export default function Episodes() {
                       })[0];
 
                     // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
+                    // Pega top rated entre os validEpisodes (exceto o recente para não duplicar)
                     const topRatedEpisodes = validEpisodes
-                      .filter((ep) => ep !== recentEpisode) // evitar duplicata
                       .sort((a, b) => {
                         const ratingA = parseFloat(a["Average Rating 2"]);
                         const votesA = parseInt(a.Votes2);
