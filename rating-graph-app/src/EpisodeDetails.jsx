@@ -268,15 +268,21 @@ function SeriesPageDetails() {
   const loadImages = async () => {
     if (!movieId) return;
 
-    // fallback: cover da série
+    // cover default da série
     let finalCover = getShowCoverSrc(movieId);
 
-    // se houver episódio, tenta imagem do episódio
-    if (episodeData?.Season && episodeData?.Number2) {
-      const seasonNum = `s${episodeData.Season}`;
-      const episodeNum = episodeData.Episode2;
+    if (episodeData?.Season && episodeData?.Number2 && episodeData?.Date3) {
+      const episodeDate = new Date(
+        episodeData.Date3.replace(/\u00A0/g, " ")
+      );
+      const now = new Date();
 
-      finalCover = getEpisodeSrc(movieId, seasonNum, episodeNum);
+      // 👉 só usa cover do episódio se JÁ TIVER IDO AO AR
+      if (!isNaN(episodeDate) && now > episodeDate) {
+        const seasonNum = `s${episodeData.Season}`;
+        const episodeNum = episodeData.Episode2;
+        finalCover = getEpisodeSrc(movieId, seasonNum, episodeNum);
+      }
     }
 
     setCoverSrc(finalCover);
@@ -284,6 +290,7 @@ function SeriesPageDetails() {
 
   loadImages();
 }, [movieId, episodeData]);
+
 
 
   console.log("movieId da URL:", movieId);
