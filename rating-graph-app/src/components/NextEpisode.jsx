@@ -1,8 +1,10 @@
 import React from "react";
+import { useParams, Link } from "react-router-dom";
 import AddBtn from "../imgs/imdb/addbtn.png";
 import AddPlot2 from "../imgs/imdb/addplot2.png";
 
 export default function NextEpisode({ nextEpisode, coverSrc }) {
+  const { movieId, episodeId } = useParams();
   if (!nextEpisode) return null;
 
   const isSeriesPremiere =
@@ -60,6 +62,10 @@ export default function NextEpisode({ nextEpisode, coverSrc }) {
           <div style={{ display: "flex", marginTop: 10 }}>
             <img src={AddBtn} alt="" />
             <div style={{ marginLeft: 12 }}>
+                      <Link
+                        key={nextEpisode.episodeId}
+                        to={`/episodepage/${movieId}/${nextEpisode.episodeId}`}
+                      >
               <h3
                 style={{
                   color: "#212121",
@@ -70,6 +76,7 @@ export default function NextEpisode({ nextEpisode, coverSrc }) {
               >
                 {nextEpisode.Title}
               </h3>
+              </Link>
               <p
                 style={{
                   margin: 0,

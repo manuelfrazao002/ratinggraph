@@ -5,6 +5,7 @@ import SitesList from "./siteslist";
 import RatingsPage from "../src/RatingPage";
 import IMDBMainPage from "./IMDBMainpage";
 import EpisodePage from "./EpisodePage";
+import EpisodeDetails from "./EpisodeDetails";
 import SeriesList from "./SeriesList";
 import RatingList from "./RatingList";
 import MyAnimeList from "./myanimelist";
@@ -21,6 +22,7 @@ function App() {
         <Route path="/ratinggraph/:movieId" element={<RatingsPage />} />
         <Route path="/imdb/:movieId" element={<IMDBMainPage />} />
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
+        <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails />} />
         <Route path="/ratinggraph/list" element={<RatingList />} />
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
         <Route path="/anime/:id" element={<MyAnimeListPageDetails />} />

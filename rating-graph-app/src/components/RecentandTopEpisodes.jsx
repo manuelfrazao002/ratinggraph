@@ -3,8 +3,10 @@ import AddBtn from "../imgs/imdb/addbtn.png";
 import TopRated from "../imgs/imdb/toprated.png";
 import MostRecent from "../imgs/imdb/mostrecent.png";
 import RateEp from "../imgs/imdb/rateep.png";
+import { useParams, Link } from "react-router-dom";
 
 export default function RecentAndTopEpisodes({ episodes }) {
+  const { movieId, episodeId } = useParams();
   if (!Array.isArray(episodes) || episodes.length === 0) return null;
 
   const episodesByYear = episodes.reduce((acc, ep) => {
@@ -15,6 +17,9 @@ export default function RecentAndTopEpisodes({ episodes }) {
     acc[year].push(ep);
     return acc;
   }, {});
+
+  console.log("EPISODE OBJ:", episodes);
+  console.log("episodeId usado no link:", episodes.episodeId);
 
   return (
     <div>
@@ -176,22 +181,27 @@ export default function RecentAndTopEpisodes({ episodes }) {
                   </div>
                   <section>
                     <div>
-                      <p
-                        style={{
-                          color: "#212121",
-                          fontWeight: "bold",
-                          margin: 0,
-                          paddingTop: 1,
-                          paddingBottom: 2.5,
-                          letterSpacing: 0.7,
-                          fontSize: "0.97rem",
-                          position: "relative",
-                          left: "-1px",
-                          top: "1px",
-                        }}
+                      <Link
+                        key={episode.episodeId}
+                        to={`/episodepage/${movieId}/${episode.episodeId}`}
                       >
-                        {episode.Title}
-                      </p>
+                        <p
+                          style={{
+                            color: "#212121",
+                            fontWeight: "bold",
+                            margin: 0,
+                            paddingTop: 1,
+                            paddingBottom: 2.5,
+                            letterSpacing: 0.7,
+                            fontSize: "0.97rem",
+                            position: "relative",
+                            left: "-1px",
+                            top: "1px",
+                          }}
+                        >
+                          {episode.Title}
+                        </p>
+                      </Link>
                     </div>
                     <div>
                       <p

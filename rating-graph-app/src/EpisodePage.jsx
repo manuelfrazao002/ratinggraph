@@ -29,7 +29,7 @@ import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
 
 export default function Episodes() {
-  const { movieId } = useParams();
+  const { movieId, episodeId } = useParams();
   const [episodesBySeason, setEpisodesBySeason] = useState({});
   const [seasonList, setSeasonList] = useState([]);
   const [currentSeasonIndex, setCurrentSeasonIndex] = useState(0);
@@ -420,26 +420,30 @@ export default function Episodes() {
                 height: "15px",
               }}
             >
-              <h3
-                style={{
-                  color: "#212121",
-                  fontWeight: "",
-                  margin: 0,
-                  paddingBottom: 0,
-                  letterSpacing: "0.00937em",
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  fontSize: "1rem",
-                  position: "relative",
-                  left: "-1px",
-                  top: "1px",
-                  lineHeight: "1.25rem",
-                }}
+              <Link
+                key={episode.episodeId}
+                to={`/episodepage/${movieId}/${episode.episodeId}`}
               >
-                {activeTab === "Top-rated"
-                  ? `#${episode.positionNumber} · ${episode.Title}`
-                  : episode.Title}
-              </h3>
-
+                <h3
+                  style={{
+                    color: "#212121",
+                    fontWeight: "",
+                    margin: 0,
+                    paddingBottom: 0,
+                    letterSpacing: "0.00937em",
+                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                    fontSize: "1rem",
+                    position: "relative",
+                    left: "-1px",
+                    top: "1px",
+                    lineHeight: "1.25rem",
+                  }}
+                >
+                  {activeTab === "Top-rated"
+                    ? `#${episode.positionNumber} · ${episode.Title}`
+                    : episode.Title}
+                </h3>
+              </Link>
               <div>
                 <p
                   style={{
@@ -800,24 +804,28 @@ export default function Episodes() {
                           top: "-2px",
                         }}
                       >
-                        <h3
-                          style={{
-                            color: "#212121",
-                            fontWeight: "bold",
-                            margin: 0,
-                            paddingTop: 1,
-                            paddingBottom: 2.5,
-                            letterSpacing: "0.00937em",
-                            fontSize: "1rem",
-                            position: "relative",
-                            left: "0px",
-                            top: "0px",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            lineHeight: "1.25rem",
-                          }}
+                        <Link
+                          to={`/episodepage/${movieId}/${nextEpisode?.episodeId}`}
                         >
-                          {nextEpisode.Title}
-                        </h3>
+                          <h3
+                            style={{
+                              color: "#212121",
+                              fontWeight: "bold",
+                              margin: 0,
+                              paddingTop: 1,
+                              paddingBottom: 2.5,
+                              letterSpacing: "0.00937em",
+                              fontSize: "1rem",
+                              position: "relative",
+                              left: "0px",
+                              top: "0px",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              lineHeight: "1.25rem",
+                            }}
+                          >
+                            {nextEpisode.Title}
+                          </h3>
+                        </Link>
                         <p
                           style={{
                             margin: 0,
@@ -1005,22 +1013,27 @@ export default function Episodes() {
                         </div>
                         <section>
                           <div>
-                            <p
-                              style={{
-                                color: "#212121",
-                                fontWeight: "bold",
-                                margin: 0,
-                                paddingTop: 1,
-                                paddingBottom: 2.5,
-                                letterSpacing: 0.7,
-                                fontSize: "0.97rem",
-                                position: "relative",
-                                left: "-1px",
-                                top: "1px",
-                              }}
+                            <Link
+                              key={episode.episodeId}
+                              to={`/episodepage/${movieId}/${episode.episodeId}`}
                             >
-                              {episode.Title}
-                            </p>
+                              <p
+                                style={{
+                                  color: "#212121",
+                                  fontWeight: "bold",
+                                  margin: 0,
+                                  paddingTop: 1,
+                                  paddingBottom: 2.5,
+                                  letterSpacing: 0.7,
+                                  fontSize: "0.97rem",
+                                  position: "relative",
+                                  left: "-1px",
+                                  top: "1px",
+                                }}
+                              >
+                                {episode.Title}
+                              </p>
+                            </Link>
                           </div>
                           <div>
                             <p
