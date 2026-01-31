@@ -1777,6 +1777,7 @@ function SeriesPageDetails() {
                   )}
 
                   {/*Stars*/}
+                  {episodeData.Votes > 0 && (
                   <section
                     style={{
                       padding: "24px",
@@ -2078,6 +2079,7 @@ function SeriesPageDetails() {
                       </div>
                     </div>
                   </section>
+                  )}
 
                   {/*User Reviews*/}
                   {userReviewsNumber > 0 && (
