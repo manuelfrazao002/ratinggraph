@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import SitesList from "./siteslist";
 import RatingsPage from "../src/RatingPage";
 import IMDBMainPage from "./IMDBMainpage";
@@ -22,7 +23,7 @@ function App() {
         <Route path="/ratinggraph/:movieId" element={<RatingsPage />} />
         <Route path="/imdb/:movieId" element={<IMDBMainPage />} />
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
-        <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails />} />
+        <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails key={location.pathname} />} />
         <Route path="/ratinggraph/list" element={<RatingList />} />
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
         <Route path="/anime/:id" element={<MyAnimeListPageDetails />} />
