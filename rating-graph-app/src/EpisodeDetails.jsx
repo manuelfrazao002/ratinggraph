@@ -1777,7 +1777,7 @@ function SeriesPageDetails() {
                   )}
 
                   {/*Stars*/}
-                  {episodeData?.Votes > 0 && (
+                  {episodeData?.Sum > 0 && (
                   <section
                     style={{
                       padding: "24px",
