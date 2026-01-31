@@ -252,6 +252,34 @@ export default function Episodes() {
     }
   }, [allEpisodes]);
 
+  const goPrevSeason = () => {
+    if (currentSeasonIndex > 0) {
+      setCurrentSeasonIndex((prev) => prev - 1);
+    }
+  };
+
+  const goNextSeason = () => {
+    if (currentSeasonIndex < seasonList.length - 1) {
+      setCurrentSeasonIndex((prev) => prev + 1);
+    }
+  };
+
+  const goPrevYear = () => {
+    if (currentYearIndex > 0) {
+      setCurrentYearIndex((prev) => prev - 1);
+    }
+  };
+
+  const goNextYear = () => {
+    if (currentYearIndex < yearList.length - 1) {
+      setCurrentYearIndex((prev) => prev + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentSeasonIndex, currentYearIndex]);
+
   if (!data) {
     return <p>Loading data...</p>;
   }
@@ -1191,6 +1219,37 @@ export default function Episodes() {
                         />
                       ))
                   )}
+                  <a
+                        href="https://www.imdb.com/search/title/?title_type=tv_episode&sort=num_votes,desc"
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          width:"100&",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                          margin:"0 4px 0 0"
+                        }}
+                      >
+                        <span>Show more</span>
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
+                        </svg>
+                      </a>
                 </div>
               )}
 
@@ -1256,6 +1315,85 @@ export default function Episodes() {
                       isLast={index === currentEpisodes.length - 1}
                     />
                   ))}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      marginTop: "1rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {/* Previous */}
+                    {currentSeasonIndex > 0 && (
+                      <button
+                        onClick={goPrevSeason}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z" />
+                        </svg>
+                        <span>{seasonList[currentSeasonIndex - 1]}</span>
+                      </button>
+                    )}
+
+                    {/* Next */}
+                    {currentSeasonIndex < seasonList.length - 1 && (
+                      <button
+                        onClick={goNextSeason}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <span>{seasonList[currentSeasonIndex + 1]}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1318,15 +1456,92 @@ export default function Episodes() {
 
                   {/* Lista de episódios do ano selecionado */}
                   {(episodesByYear[yearList[currentYearIndex]] || []).map(
-                    (episode, index) => (
+                    (episode, index, list) => (
                       <EpisodeItem
                         key={`${episode.Season}-${episode.Title}`}
                         episode={episode}
                         index={index}
-                        isLast={index === currentEpisodes.length - 1}
+                        isLast={index === list.length - 1} // ✅ lista correta
                       />
                     ),
                   )}
+
+                  {/* Navegação Previous / Next (igual às seasons) */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      marginTop: "1rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {/* Previous */}
+                    {currentYearIndex > 0 && (
+                      <button
+                        onClick={goPrevYear}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z" />
+                        </svg>
+                        <span>{yearList[currentYearIndex - 1]}</span>
+                      </button>
+                    )}
+
+                    {/* Next */}
+                    {currentYearIndex < yearList.length - 1 && (
+                      <button
+                        onClick={goNextYear}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <span>{yearList[currentYearIndex + 1]}</span>
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 

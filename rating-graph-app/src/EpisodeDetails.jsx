@@ -259,20 +259,23 @@ function SeriesPageDetails() {
     });
 }, [movieId]);
 
+const normalize = (v) =>
+  v?.replace(/\u00A0/g, " ").trim();
+
 const episodeCast = React.useMemo(() => {
   if (!cast.length || !episodeCharCount.length || !episodeId) return [];
 
+  // 1️⃣ Set com CharacterId DIRETO do CSV
   const characterIdsInEpisode = new Set(
     episodeCharCount
-      .filter(row => String(row.episodeId) === String(episodeId))
-      .map(row => row["2020"])
-      .filter(Boolean)
-      .map(id => id.trim())
+      .filter(row => row.episodeId === episodeId)
+      .map(row => normalize(row.CharacterId))
   );
 
-  return cast
-    .filter(actor => characterIdsInEpisode.has(actor.CharacterId))
-    .map(({ Episodes, Years, ...actor }) => actor); // 👈 REMOVE AQUI
+  // 2️⃣ Filtra o cast usando o mesmo campo
+  return cast.filter(actor =>
+    characterIdsInEpisode.has(normalize(actor.CharacterId))
+  );
 }, [cast, episodeCharCount, episodeId]);
 
 

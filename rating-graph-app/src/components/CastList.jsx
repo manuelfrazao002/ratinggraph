@@ -54,7 +54,7 @@ export default function CastList({ cast, showEpisodes = true }) {
                   objectFit: "cover",
                   backgroundColor: "#E0E0E0",
                   flexShrink: 0,
-                  objectPosition:"20% 20%",
+                  objectPosition: "20% 20%",
                 }}
               />
               <div
@@ -118,28 +118,27 @@ export default function CastList({ cast, showEpisodes = true }) {
                 {actor.Character}
               </div>
               {showEpisodes && (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      fontSize: "0.875rem",
-      letterSpacing: "0.01786em",
-      fontWeight: "400",
-      lineHeight: "1.25rem",
-      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-    }}
-  >
-    <div style={{ color: "rgb(14,99,190)" }}>
-      {actor.Episodes > 0
-        ? `${actor.Episodes} episode${actor.Episodes > 1 ? "s" : ""}`
-        : "—"}
-    </div>
-    <span style={{ color: "rgb(0,0,0,.54)" }}>
-      &nbsp;• {actor.Years}
-    </span>
-  </div>
-)}
-
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    fontSize: "0.875rem",
+                    letterSpacing: "0.01786em",
+                    fontWeight: "400",
+                    lineHeight: "1.25rem",
+                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                  }}
+                >
+                  <div style={{ color: "rgb(14,99,190)" }}>
+                    {actor.Episodes > 0
+                      ? `${actor.Episodes} episode${actor.Episodes > 1 ? "s" : ""}`
+                      : "—"}
+                  </div>
+                  <span style={{ color: "rgb(0,0,0,.54)" }}>
+                    &nbsp;• {actor.Years}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         ))}
