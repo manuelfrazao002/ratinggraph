@@ -1200,7 +1200,7 @@ function SeriesPageDetails() {
                             }}
                           >
                             {" "}
-                            {episodeData.Data3}{" "}
+                            {episodeData.Date3}{" "}
                           </p>
                         </div>
                       </div>
