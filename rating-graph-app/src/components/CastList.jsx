@@ -4,7 +4,7 @@ import { data } from "react-router-dom";
 
 const MAX_CAST = 18;
 
-export default function CastList({ cast }) {
+export default function CastList({ cast, showEpisodes = true }) {
   if (!Array.isArray(cast) || cast.length === 0) return null;
 
   // ordenar por número de episódios (desc)
@@ -105,7 +105,6 @@ export default function CastList({ cast }) {
               >
                 {actor.Name}
               </div>
-
               <div
                 style={{
                   fontSize: "1rem",
@@ -118,30 +117,29 @@ export default function CastList({ cast }) {
               >
                 {actor.Character}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  fontSize: "0.875rem",
-                  letterSpacing: "0.01786em",
-                  fontWeight: "400",
-                  lineHeight: "1.25rem",
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                }}
-              >
-                <div
-                  style={{
-                    color: "rgb(14,99,190)",
-                  }}
-                >
-                  {actor.Episodes > 0
-                    ? `${actor.Episodes} episode${actor.Episodes > 1 ? "s" : ""}`
-                    : "—"}
-                </div>
-                <span style={{
-                    color:"rgb(0,0,0,.54)"
-                }}>&nbsp;• {actor.Years}</span>
-              </div>
+              {showEpisodes && (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      fontSize: "0.875rem",
+      letterSpacing: "0.01786em",
+      fontWeight: "400",
+      lineHeight: "1.25rem",
+      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+    }}
+  >
+    <div style={{ color: "rgb(14,99,190)" }}>
+      {actor.Episodes > 0
+        ? `${actor.Episodes} episode${actor.Episodes > 1 ? "s" : ""}`
+        : "—"}
+    </div>
+    <span style={{ color: "rgb(0,0,0,.54)" }}>
+      &nbsp;• {actor.Years}
+    </span>
+  </div>
+)}
+
             </div>
           </div>
         ))}

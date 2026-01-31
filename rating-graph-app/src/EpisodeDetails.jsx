@@ -82,6 +82,8 @@ function SeriesPageDetails() {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
+            console.log("⭐ STARS CSV (primeiras 3 linhas):", results.data.slice(0, 3));
+  console.log("⭐ STARS CSV keys:", Object.keys(results.data[0] || {}));
             setCast(results.data);
           },
         });
@@ -238,6 +240,41 @@ function SeriesPageDetails() {
     console.log("PREV:", sortedEpisodes[currentIndex - 1]?.episodeId);
     console.log("NEXT:", sortedEpisodes[currentIndex + 1]?.episodeId);
   }, [allEpisodes, episodeId]);
+
+  useEffect(() => {
+  if (!urls || urls.length < 6) return;
+
+  fetch(urls[5]) // 👈 EpCharCount
+    .then(res => res.text())
+    .then(csv => {
+      Papa.parse(csv, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          console.log("🎭 EPCHARCOUNT CSV (primeiras 5 linhas):", results.data.slice(0, 5));
+  console.log("🎭 EPCHARCOUNT CSV keys:", Object.keys(results.data[0] || {}));
+          setEpisodeCharCount(results.data);
+        },
+      });
+    });
+}, [movieId]);
+
+const episodeCast = React.useMemo(() => {
+  if (!cast.length || !episodeCharCount.length || !episodeId) return [];
+
+  const characterIdsInEpisode = new Set(
+    episodeCharCount
+      .filter(row => String(row.episodeId) === String(episodeId))
+      .map(row => row["2020"])
+      .filter(Boolean)
+      .map(id => id.trim())
+  );
+
+  return cast
+    .filter(actor => characterIdsInEpisode.has(actor.CharacterId))
+    .map(({ Episodes, Years, ...actor }) => actor); // 👈 REMOVE AQUI
+}, [cast, episodeCharCount, episodeId]);
+
 
   const ratingsBreakdown = React.useMemo(() => {
     if (!episodeData) return null;
@@ -1847,7 +1884,7 @@ function SeriesPageDetails() {
                                 marginRight: "2px",
                               }}
                             >
-                              {data.Cast}
+                              {episodeCast.length}
                             </span>
                             <svg
                               width="19.2"
@@ -1907,7 +1944,7 @@ function SeriesPageDetails() {
                           </span>
                         </div>
                       </div>
-                      <CastList cast={cast} />
+                      <CastList cast={episodeCast} showEpisodes={false} />
                     </div>
                     <div
                       style={{
