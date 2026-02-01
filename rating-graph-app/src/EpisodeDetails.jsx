@@ -82,8 +82,14 @@ function SeriesPageDetails() {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
-            console.log("⭐ STARS CSV (primeiras 3 linhas):", results.data.slice(0, 3));
-  console.log("⭐ STARS CSV keys:", Object.keys(results.data[0] || {}));
+            console.log(
+              "⭐ STARS CSV (primeiras 3 linhas):",
+              results.data.slice(0, 3),
+            );
+            console.log(
+              "⭐ STARS CSV keys:",
+              Object.keys(results.data[0] || {}),
+            );
             setCast(results.data);
           },
         });
@@ -242,42 +248,46 @@ function SeriesPageDetails() {
   }, [allEpisodes, episodeId]);
 
   useEffect(() => {
-  if (!urls || urls.length < 6) return;
+    if (!urls || urls.length < 6) return;
 
-  fetch(urls[5]) // 👈 EpCharCount
-    .then(res => res.text())
-    .then(csv => {
-      Papa.parse(csv, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          console.log("🎭 EPCHARCOUNT CSV (primeiras 5 linhas):", results.data.slice(0, 5));
-  console.log("🎭 EPCHARCOUNT CSV keys:", Object.keys(results.data[0] || {}));
-          setEpisodeCharCount(results.data);
-        },
+    fetch(urls[5]) // 👈 EpCharCount
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            console.log(
+              "🎭 EPCHARCOUNT CSV (primeiras 5 linhas):",
+              results.data.slice(0, 5),
+            );
+            console.log(
+              "🎭 EPCHARCOUNT CSV keys:",
+              Object.keys(results.data[0] || {}),
+            );
+            setEpisodeCharCount(results.data);
+          },
+        });
       });
-    });
-}, [movieId]);
+  }, [movieId]);
 
-const normalize = (v) =>
-  v?.replace(/\u00A0/g, " ").trim();
+  const normalize = (v) => v?.replace(/\u00A0/g, " ").trim();
 
-const episodeCast = React.useMemo(() => {
-  if (!cast.length || !episodeCharCount.length || !episodeId) return [];
+  const episodeCast = React.useMemo(() => {
+    if (!cast.length || !episodeCharCount.length || !episodeId) return [];
 
-  // 1️⃣ Set com CharacterId DIRETO do CSV
-  const characterIdsInEpisode = new Set(
-    episodeCharCount
-      .filter(row => row.episodeId === episodeId)
-      .map(row => normalize(row.CharacterId))
-  );
+    // 1️⃣ Set com CharacterId DIRETO do CSV
+    const characterIdsInEpisode = new Set(
+      episodeCharCount
+        .filter((row) => row.episodeId === episodeId)
+        .map((row) => normalize(row.CharacterId)),
+    );
 
-  // 2️⃣ Filtra o cast usando o mesmo campo
-  return cast.filter(actor =>
-    characterIdsInEpisode.has(normalize(actor.CharacterId))
-  );
-}, [cast, episodeCharCount, episodeId]);
-
+    // 2️⃣ Filtra o cast usando o mesmo campo
+    return cast.filter((actor) =>
+      characterIdsInEpisode.has(normalize(actor.CharacterId)),
+    );
+  }, [cast, episodeCharCount, episodeId]);
 
   const ratingsBreakdown = React.useMemo(() => {
     if (!episodeData) return null;
@@ -305,33 +315,29 @@ const episodeCast = React.useMemo(() => {
 
   // Load cover and trailer images dynamically
   useEffect(() => {
-  const loadImages = async () => {
-    if (!movieId) return;
+    const loadImages = async () => {
+      if (!movieId) return;
 
-    // cover default da série
-    let finalCover = getShowCoverSrc(movieId);
+      // cover default da série
+      let finalCover = getShowCoverSrc(movieId);
 
-    if (episodeData?.Season && episodeData?.Number2 && episodeData?.Date3) {
-      const episodeDate = new Date(
-        episodeData.Date3.replace(/\u00A0/g, " ")
-      );
-      const now = new Date();
+      if (episodeData?.Season && episodeData?.Number2 && episodeData?.Date3) {
+        const episodeDate = new Date(episodeData.Date3.replace(/\u00A0/g, " "));
+        const now = new Date();
 
-      // 👉 só usa cover do episódio se JÁ TIVER IDO AO AR
-      if (!isNaN(episodeDate) && now > episodeDate) {
-        const seasonNum = `s${episodeData.Season}`;
-        const episodeNum = episodeData.Episode2;
-        finalCover = getEpisodeSrc(movieId, seasonNum, episodeNum);
+        // 👉 só usa cover do episódio se JÁ TIVER IDO AO AR
+        if (!isNaN(episodeDate) && now > episodeDate) {
+          const seasonNum = `s${episodeData.Season}`;
+          const episodeNum = episodeData.Episode2;
+          finalCover = getEpisodeSrc(movieId, seasonNum, episodeNum);
+        }
       }
-    }
 
-    setCoverSrc(finalCover);
-  };
+      setCoverSrc(finalCover);
+    };
 
-  loadImages();
-}, [movieId, episodeData]);
-
-
+    loadImages();
+  }, [movieId, episodeData]);
 
   console.log("movieId da URL:", movieId);
   console.log(
@@ -570,44 +576,44 @@ const episodeCast = React.useMemo(() => {
         <main>
           <div style={{ backgroundColor: "#1F1F1F", width: "100%" }}>
             <div style={{ margin: "0 auto", width: "1280px" }}>
-                <Link to={`/imdb/${movieId}`}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  color: "white",
-                  cursor: "pointer",
-                  marginLeft: "24px",
-                  padding: "8px 8px 8px 0",
-                  width: "max-content",
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  fontSize: "1rem",
-                  fontWeight: "400",
-                  lineHeight: "1.5rem",
-                  letterSpacing: "0.03125em",
-                  position: "relative",
-                  top: -7,
-                  left: -4,
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="19.2"
-                  height="19.2"
-                  class="ipc-icon ipc-icon--chevron-left ipc-icon--inline ipc-link__icon"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  role="presentation"
+              <Link to={`/imdb/${movieId}`}>
+                <div
                   style={{
-                    fontSize: "1.2em",
-                    marginRight: "0.25em",
+                    display: "flex",
+                    alignItems: "center",
+                    color: "white",
+                    cursor: "pointer",
+                    marginLeft: "24px",
+                    padding: "8px 8px 8px 0",
+                    width: "max-content",
+                    fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                    fontSize: "1rem",
+                    fontWeight: "400",
+                    lineHeight: "1.5rem",
+                    letterSpacing: "0.03125em",
+                    position: "relative",
+                    top: -7,
+                    left: -4,
                   }}
                 >
-                  <path fill="none" d="M0 0h24v24H0V0z"></path>
-                  <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"></path>
-                </svg>
-                <span>{data.Title}</span>
-              </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="19.2"
+                    height="19.2"
+                    class="ipc-icon ipc-icon--chevron-left ipc-icon--inline ipc-link__icon"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    role="presentation"
+                    style={{
+                      fontSize: "1.2em",
+                      marginRight: "0.25em",
+                    }}
+                  >
+                    <path fill="none" d="M0 0h24v24H0V0z"></path>
+                    <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"></path>
+                  </svg>
+                  <span>{data.Title}</span>
+                </div>
               </Link>
               <div
                 style={{
@@ -1386,7 +1392,9 @@ const episodeCast = React.useMemo(() => {
                                   lineHeight: "1.25rem",
                                 }}
                               >
-                                User reviews
+                                {userReviewsNumber === 1
+                                  ? "User review"
+                                  : "User reviews"}
                               </span>
                             </div>
                           )}
@@ -1423,7 +1431,9 @@ const episodeCast = React.useMemo(() => {
                                   lineHeight: "1.25rem",
                                 }}
                               >
-                                Critic reviews
+                                {criticReviewsNumber === 1
+                                  ? "Critic review"
+                                  : "Critic reviews"}
                               </span>
                             </div>
                           )}
@@ -1818,307 +1828,311 @@ const episodeCast = React.useMemo(() => {
 
                   {/*Stars*/}
                   {episodeData?.Sum > 0 && (
-                  <section
-                    style={{
-                      padding: "24px",
-                      width: "856px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div
+                    <section
                       style={{
-                        display: "block",
-                        marginBottom: "24px",
+                        padding: "24px",
+                        width: "856px",
+                        marginBottom: "8px",
                       }}
                     >
                       <div
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: "20px",
-                          width: "808px",
-                          height: "38.4px",
+                          display: "block",
+                          marginBottom: "24px",
                         }}
                       >
                         <div
                           style={{
-                            width: "4px",
-                            height: "28.8px",
-                            borderRadius: "12px",
-                            backgroundColor: "rgb(245, 197, 24)",
-                            maxHeight: "28.8px",
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "20px",
+                            width: "808px",
+                            height: "38.4px",
                           }}
-                        />
-                        <div>
-                          <Link
-                            to={`/episodepage/${movieId}`}
+                        >
+                          <div
                             style={{
+                              width: "4px",
+                              height: "28.8px",
+                              borderRadius: "12px",
+                              backgroundColor: "rgb(245, 197, 24)",
+                              maxHeight: "28.8px",
+                            }}
+                          />
+                          <div>
+                            <Link
+                              to={`/episodepage/${movieId}`}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                color: "black",
+                                cursor: "pointer",
+                              }}
+                              onMouseEnter={() => setHovered(true)}
+                              onMouseLeave={() => setHovered(false)}
+                            >
+                              <h3
+                                style={{
+                                  padding: "0 0 0 10px",
+                                  margin: 0,
+                                  fontSize: "1.5rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  letterSpacing: "normal",
+                                  lineHeight: "1.2em",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Top Cast
+                              </h3>
+                              <span
+                                style={{
+                                  paddingLeft: "12px",
+                                  color: "rgb(0,0,0,.54)",
+                                  fontSize: "0.875rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontWeight: "400",
+                                  alignSelf: "center",
+                                  letterSpacing: "0.01786em",
+                                  lineHeight: "unset",
+                                  marginRight: "2px",
+                                }}
+                              >
+                                {episodeCast.length}
+                              </span>
+                              <svg
+                                width="19.2"
+                                height="19.2"
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                                style={{
+                                  color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                  transition: "color 0.2s ease",
+                                }}
+                              >
+                                <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                              </svg>
+                            </Link>
+                          </div>
+                          <div
+                            style={{
+                              marginLeft: "auto",
                               display: "flex",
                               alignItems: "center",
-                              color: "black",
+                              color: "rgb(0,0,0,.54)",
                               cursor: "pointer",
+                              padding: "0 16px 0 16px",
                             }}
-                            onMouseEnter={() => setHovered(true)}
-                            onMouseLeave={() => setHovered(false)}
                           >
-                            <h3
-                              style={{
-                                padding: "0 0 0 10px",
-                                margin: 0,
-                                fontSize: "1.5rem",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                letterSpacing: "normal",
-                                lineHeight: "1.2em",
-                                fontWeight: "600",
-                              }}
-                            >
-                              Top Cast
-                            </h3>
-                            <span
-                              style={{
-                                paddingLeft: "12px",
-                                color: "rgb(0,0,0,.54)",
-                                fontSize: "0.875rem",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                fontWeight: "400",
-                                alignSelf: "center",
-                                letterSpacing: "0.01786em",
-                                lineHeight: "unset",
-                                marginRight: "2px",
-                              }}
-                            >
-                              {episodeCast.length}
-                            </span>
                             <svg
-                              width="19.2"
-                              height="19.2"
                               xmlns="http://www.w3.org/2000/svg"
-                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
                               viewBox="0 0 24 24"
                               fill="currentColor"
                               role="presentation"
+                              style={{ marginRight: "4px" }}
+                            >
+                              <path fill="none" d="M0 0h24v24H0V0z"></path>
+                              <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                            </svg>
+                            <span
                               style={{
-                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
-                                transition: "color 0.2s ease",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "0.875rem",
+                                fontWeight: "600",
+                                lineHeight: "1.25rem",
+                                letterSpacing: ".02em",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                position: "relative",
+                                top: "1px",
                               }}
                             >
-                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
-                            </svg>
-                          </Link>
+                              Edit
+                            </span>
+                          </div>
                         </div>
+                        <CastList cast={episodeCast} showEpisodes={false} />
+                      </div>
+                      <div
+                        style={{
+                          width: "808px",
+                        }}
+                      >
                         <div
                           style={{
-                            marginLeft: "auto",
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
                             display: "flex",
-                            alignItems: "center",
-                            color: "rgb(0,0,0,.54)",
-                            cursor: "pointer",
-                            padding: "0 16px 0 16px",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
                           }}
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
-                            style={{ marginRight: "4px" }}
-                          >
-                            <path fill="none" d="M0 0h24v24H0V0z"></path>
-                            <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
-                          </svg>
                           <span
                             style={{
+                              paddingRight: "0.75rem",
                               fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
                               fontWeight: "600",
-                              lineHeight: "1.25rem",
-                              letterSpacing: ".02em",
-                              height: "24px",
-                              display: "flex",
-                              alignItems: "center",
-                              position: "relative",
-                              top: "1px",
                             }}
                           >
-                            Edit
+                            Directors
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                            }}
+                          >
+                            {renderListWithDotSeparator2(
+                              episodeData?.Directors,
+                            )}
                           </span>
                         </div>
-                      </div>
-                      <CastList cast={episodeCast} showEpisodes={false} />
-                    </div>
-                    <div
-                      style={{
-                        width: "808px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Directors
-                        </span>
-                        <span
-                          style={{
-                            fontWeight: "400",
-                            letterSpacing: "0.03125em",
-                            wordBreak: "break-word",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                          }}
-                        >
-                          {renderListWithDotSeparator2(episodeData?.Directors)}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Writer
-                        </span>
-                        <span
-                          style={{
-                            fontWeight: "400",
-                            letterSpacing: "0.03125em",
-                            wordBreak: "break-word",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                          }}
-                        >
-                          {renderListWithDotSeparator2(episodeData?.Writers)}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          All cast & crew
-                        </span>
                         <div
                           style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
                             display: "flex",
-                            alignItems: "center",
-                            marginLeft: "auto",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
                           }}
                         >
-                          <svg
-                            style={{ color: "rgb(0,0,0,0.54)" }}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--chevron-right"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
                           >
-                            <path fill="none" d="M0 0h24v24H0V0z"></path>
-                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                          </svg>
+                            Writer
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                            }}
+                          >
+                            {renderListWithDotSeparator2(episodeData?.Writers)}
+                          </span>
                         </div>
-                      </div>
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderBottomWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderBottomStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Production, box office & more at IMDbPro
-                        </span>
                         <div
                           style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
                             display: "flex",
-                            alignItems: "center",
-                            marginLeft: "auto",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
                           }}
                         >
-                          <svg
-                            style={{ color: "rgb(0,0,0,0.54)" }}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--launch"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
                           >
-                            <path d="M16 16.667H8A.669.669 0 0 1 7.333 16V8c0-.367.3-.667.667-.667h3.333c.367 0 .667-.3.667-.666C12 6.3 11.7 6 11.333 6h-4C6.593 6 6 6.6 6 7.333v9.334C6 17.4 6.6 18 7.333 18h9.334C17.4 18 18 17.4 18 16.667v-4c0-.367-.3-.667-.667-.667-.366 0-.666.3-.666.667V16c0 .367-.3.667-.667.667zm-2.667-10c0 .366.3.666.667.666h1.727L9.64 13.42a.664.664 0 1 0 .94.94l6.087-6.087V10c0 .367.3.667.666.667.367 0 .667-.3.667-.667V6h-4c-.367 0-.667.3-.667.667z"></path>
-                          </svg>
+                            All cast & crew
+                          </span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "auto",
+                            }}
+                          >
+                            <svg
+                              style={{ color: "rgb(0,0,0,0.54)" }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--chevron-right"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path fill="none" d="M0 0h24v24H0V0z"></path>
+                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            borderTopWidth: "1px",
+                            borderBottomWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderBottomStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
+                          }}
+                        >
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Production, box office & more at IMDbPro
+                          </span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "auto",
+                            }}
+                          >
+                            <svg
+                              style={{ color: "rgb(0,0,0,0.54)" }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--launch"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path d="M16 16.667H8A.669.669 0 0 1 7.333 16V8c0-.367.3-.667.667-.667h3.333c.367 0 .667-.3.667-.666C12 6.3 11.7 6 11.333 6h-4C6.593 6 6 6.6 6 7.333v9.334C6 17.4 6.6 18 7.333 18h9.334C17.4 18 18 17.4 18 16.667v-4c0-.367-.3-.667-.667-.667-.366 0-.666.3-.666.667V16c0 .367-.3.667-.667.667zm-2.667-10c0 .366.3.666.667.666h1.727L9.64 13.42a.664.664 0 1 0 .94.94l6.087-6.087V10c0 .367.3.667.666.667.367 0 .667-.3.667-.667V6h-4c-.367 0-.667.3-.667.667z"></path>
+                            </svg>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </section>
+                    </section>
                   )}
 
                   {/*User Reviews*/}
