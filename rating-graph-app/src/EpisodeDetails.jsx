@@ -45,7 +45,7 @@ import RelatedInterests from "./imgs/imdb/relatedinterests.png";
 import DidYouKnow from "./imgs/imdb/didyouknow.png";
 import MoreToExploreSticky from "./imgs/imdb/moretoexploresticky.png";
 import ContributeToThisPageEpisodePage from "./imgs/imdb/contributetothispageepisodepage.png";
-import { getEpisodeSrc } from "./ShowImageSrc";
+import { getEpisodeSrc, getEpisodeImages } from "./ShowImageSrc";
 
 //Data
 import { movieMap } from "./data/MovieMap";
@@ -344,6 +344,26 @@ function SeriesPageDetails() {
     "Filmes disponíveis:",
     movies.map((m) => m.id),
   );
+
+  const episodeImages = React.useMemo(() => {
+    if (!episodeData || !movieId) return [];
+
+    // episódio ainda não foi ao ar → sem imagens
+    const episodeDate = episodeData?.Date3
+      ? new Date(episodeData.Date3.replace(/\u00A0/g, " "))
+      : null;
+
+    if (!episodeDate || isNaN(episodeDate) || episodeDate > new Date()) {
+      return [];
+    }
+
+    const totalImages = Number(episodeData?.Photos) || 0;
+    const episodeNum = episodeData?.Episode2;
+
+    if (!episodeNum || totalImages <= 0) return [];
+
+    return getEpisodeImages(movieId, episodeNum, totalImages);
+  }, [episodeData, movieId]);
 
   if (!urls) return <p>Filme não encontrado</p>;
   if (!data) return <p>Carregando dados do filme...</p>;
@@ -800,7 +820,7 @@ function SeriesPageDetails() {
                     marginLeft: "-0.5rem",
                     position: "relative",
                     top: "-8px",
-                    left:"0.09rem",
+                    left: "0.09rem",
                     justifyContent: "flex-end",
                     paddingRight: "0px",
                     flexGrow: "0",
@@ -832,7 +852,7 @@ function SeriesPageDetails() {
                             color: "rgb(255,255,255,0.7)",
                             marginBottom: "0.25rem",
                             fontSize: "0.75rem",
-                            justifyContent:"center",
+                            justifyContent: "center",
                           }}
                         >
                           IMDb RATING
@@ -843,7 +863,7 @@ function SeriesPageDetails() {
                             justifyContent: "center",
                             alignItems: "center",
                             height: "38px",
-                            padding:"0px 0.5rem"
+                            padding: "0px 0.5rem",
                           }}
                         >
                           <div
@@ -1578,249 +1598,249 @@ function SeriesPageDetails() {
                   }}
                 >
                   {/*Images*/}
-                  {episodeData?.Photos > 5 && (
-                    <section
-                      style={{
-                        padding: "24px",
-                        width: "856px",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "block",
-                          marginBottom: "30px",
-                        }}
-                      >
-                        <div
+                  {episodeImages.length > 0 &&
+                    (() => {
+                      const visibleImages = episodeImages.slice(0, 5);
+                      const remainingCount =
+                        episodeImages.length - visibleImages.length;
+                      return (
+                        <section
                           style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginBottom: "20px",
-                            width: "808px",
-                            height: "38.4px",
+                            padding: "24px",
+                            width: "856px",
+                            marginBottom: "8px",
                           }}
                         >
                           <div
                             style={{
-                              width: "4px",
-                              height: "28.8px",
-                              borderRadius: "12px",
-                              backgroundColor: "rgb(245, 197, 24)",
-                              maxHeight: "28.8px",
-                            }}
-                          />
-                          <div>
-                            <Link
-                              to={`/episodepage/${movieId}`}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                color: "black",
-                                cursor: "pointer",
-                              }}
-                              onMouseEnter={() => setHovered(true)}
-                              onMouseLeave={() => setHovered(false)}
-                            >
-                              <h3
-                                style={{
-                                  padding: "0 0 0 10px",
-                                  margin: 0,
-                                  fontSize: "1.5rem",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  letterSpacing: "normal",
-                                  lineHeight: "1.2em",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                Photos
-                              </h3>
-                              <span
-                                style={{
-                                  paddingLeft: "12px",
-                                  color: "rgb(0,0,0,.54)",
-                                  fontSize: "0.875rem",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  fontWeight: "400",
-                                  alignSelf: "center",
-                                  letterSpacing: "0.01786em",
-                                  lineHeight: "unset",
-                                  marginRight: "2px",
-                                }}
-                              >
-                                {episodeData?.Photos}
-                              </span>
-                              <svg
-                                width="19.2"
-                                height="19.2"
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                role="presentation"
-                                style={{
-                                  color: hovered ? "#F5C518" : "rgba(0,0,0)",
-                                  transition: "color 0.2s ease",
-                                }}
-                              >
-                                <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
-                              </svg>
-                            </Link>
-                          </div>
-                          <div
-                            style={{
-                              marginLeft: "auto",
-                              display: "flex",
-                              alignItems: "center",
-                              color: "rgb(14,99,190)",
-                              cursor: "pointer",
-                              padding: "0 16px 0 16px",
+                              display: "block",
+                              marginBottom: "30px",
                             }}
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                              style={{
-                                marginRight: "4px",
-                              }}
-                            >
-                              <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
-                            </svg>
-                            <span
-                              style={{
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                fontSize: "0.875rem",
-                                fontWeight: "600",
-                                lineHeight: "1.25rem",
-                                letterSpacing: ".02em",
-                                height: "24px",
-                                display: "flex",
-                                alignItems: "center",
-                                position: "relative",
-                                top: "1px",
-                              }}
-                            >
-                              Add photo
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexFlow: "row",
-                              gap: "1rem",
-                              marginBottom: "1rem",
-                            }}
-                          >
-                            <img
-                              src={Img1}
-                              style={{
-                                width: "396px",
-                                height: "162.5px",
-                                borderRadius: "0.75rem",
-                                objectFit: "cover",
-                                objectPosition: "15% 15%",
-                                cursor: "pointer",
-                              }}
-                            />
-                            <img
-                              src={Img2}
-                              style={{
-                                width: "396px",
-                                height: "162.5px",
-                                borderRadius: "0.75rem",
-                                objectFit: "cover",
-                                cursor: "pointer",
-                              }}
-                            />
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexFlow: "row",
-                              gap: "1rem",
-                              marginBottom: "1rem",
-                            }}
-                          >
-                            <img
-                              src={Img3}
-                              style={{
-                                width: "338.333px",
-                                height: "149.817px",
-                                borderRadius: "0.75rem",
-                                objectFit: "cover",
-                                objectPosition: "15% 15%",
-                                cursor: "pointer",
-                              }}
-                            />
-                            <img
-                              src={Img4}
-                              style={{
-                                width: "338.333px",
-                                height: "149.817px",
-                                borderRadius: "0.75rem",
-                                objectFit: "cover",
-                                objectPosition: "20% 20%",
-                                cursor: "pointer",
-                              }}
-                            />
                             <div
                               style={{
-                                position: "relative",
-                                width: "100px",
-                                height: "149.817px",
-                                borderRadius: "0.75rem",
-                                overflow: "hidden",
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "20px",
+                                width: "808px",
+                                height: "38.4px",
                               }}
                             >
-                              <img
-                                src={Img5}
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                  objectPosition: "70% 70%",
-                                  cursor: "pointer",
-                                }}
-                              />
-
-                              {/* Overlay */}
                               <div
                                 style={{
-                                  position: "absolute",
-                                  inset: 0,
-                                  background: "rgba(0,0,0,0.5)",
+                                  width: "4px",
+                                  height: "28.8px",
+                                  borderRadius: "12px",
+                                  backgroundColor: "rgb(245, 197, 24)",
+                                  maxHeight: "28.8px",
+                                }}
+                              />
+                              <div>
+                                <Link
+                                  to={`/episodepage/${movieId}`}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    color: "black",
+                                    cursor: "pointer",
+                                  }}
+                                  onMouseEnter={() => setHovered(true)}
+                                  onMouseLeave={() => setHovered(false)}
+                                >
+                                  <h3
+                                    style={{
+                                      padding: "0 0 0 10px",
+                                      margin: 0,
+                                      fontSize: "1.5rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      letterSpacing: "normal",
+                                      lineHeight: "1.2em",
+                                      fontWeight: "600",
+                                    }}
+                                  >
+                                    Photos
+                                  </h3>
+                                  <span
+                                    style={{
+                                      paddingLeft: "12px",
+                                      color: "rgb(0,0,0,.54)",
+                                      fontSize: "0.875rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      fontWeight: "400",
+                                      alignSelf: "center",
+                                      letterSpacing: "0.01786em",
+                                      lineHeight: "unset",
+                                      marginRight: "2px",
+                                    }}
+                                  >
+                                    {episodeImages.length}
+                                  </span>
+                                  <svg
+                                    width="19.2"
+                                    height="19.2"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      color: hovered
+                                        ? "#F5C518"
+                                        : "rgba(0,0,0)",
+                                      transition: "color 0.2s ease",
+                                    }}
+                                  >
+                                    <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                                  </svg>
+                                </Link>
+                              </div>
+                              <div
+                                style={{
+                                  marginLeft: "auto",
                                   display: "flex",
                                   alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "white",
-                                  fontWeight: 600,
-                                  fontSize: "0.875rem",
-                                  textAlign: "center",
-                                  borderRadius: "0.75rem",
-                                  pointerEvents: "none",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  lineHeight: "1.25rem",
-                                  letterSpacing: "normal",
+                                  color: "rgb(14,99,190)",
+                                  cursor: "pointer",
+                                  padding: "0 16px 0 16px",
                                 }}
                               >
-                                + {formatVotes(episodeData?.Photos - 4)}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  role="presentation"
+                                  style={{
+                                    marginRight: "4px",
+                                  }}
+                                >
+                                  <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                                </svg>
+                                <span
+                                  style={{
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "0.875rem",
+                                    fontWeight: "600",
+                                    lineHeight: "1.25rem",
+                                    letterSpacing: ".02em",
+                                    height: "24px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    position: "relative",
+                                    top: "1px",
+                                  }}
+                                >
+                                  Add photo
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* GRID */}
+                            <div>
+                              {/* Linha 1 – 2 imagens grandes */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexFlow: "row",
+                                  gap: "1rem",
+                                  marginBottom: "1rem",
+                                }}
+                              >
+                                {visibleImages.slice(0, 2).map((src, i) => (
+                                  <img
+                                    key={i}
+                                    src={src}
+                                    style={{
+                                      width: "396px",
+                                      height: "162.5px",
+                                      borderRadius: "0.75rem",
+                                      objectFit: "cover",
+                                      objectPosition: "15% 15%",
+                                      cursor: "pointer",
+                                    }}
+                                    onError={(e) =>
+                                      (e.currentTarget.style.display = "none")
+                                    }
+                                  />
+                                ))}
+                              </div>
+
+                              {/* Linha 2 – 2 médias + 1 pequena */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexFlow: "row",
+                                  gap: "1rem",
+                                  marginBottom: "1rem",
+                                }}
+                              >
+                                {visibleImages.slice(2, 5).map((src, i) => {
+                                  const isLast = i === 2 && remainingCount > 0;
+                                  return (
+                                    <div
+                                      key={i}
+                                      style={{
+                                        position: "relative",
+                                        width: i < 2 ? "338.333px" : "100px",
+                                        height: "149.817px",
+                                        borderRadius: "0.75rem",
+                                        overflow: "hidden",
+                                      }}
+                                    >
+                                      <img
+                                        src={src}
+                                        style={{
+                                          width: "100%",
+                                          height: "100%",
+                                          objectFit: "cover",
+                                          cursor: "pointer",
+                                        }}
+                                        onError={(e) =>
+                                          (e.currentTarget.style.display =
+                                            "none")
+                                        }
+                                      />
+
+                                      {/* Overlay */}
+                                      {isLast && (
+                                        <div
+                                          style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "rgba(0,0,0,0.5)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "white",
+                                            fontWeight: 600,
+                                            fontSize: "0.875rem",
+                                            textAlign: "center",
+                                            borderRadius: "0.75rem",
+                                            pointerEvents: "none",
+                                            fontFamily:
+                                              "Roboto,Helvetica,Arial,sans-serif",
+                                            lineHeight: "1.25rem",
+                                            letterSpacing: "normal",
+                                          }}
+                                        >
+                                          + {formatVotes(remainingCount)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </section>
-                  )}
+                        </section>
+                      );
+                    })()}
+
                   {/*Images*/}
                   {episodeData?.Photos < 5 && (
                     <section

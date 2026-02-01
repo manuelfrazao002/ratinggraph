@@ -131,3 +131,36 @@ export const getSeasonEpisodes = (movieId, seasonNum, count, noCache = false) =>
     getEpisodeSrc(movieId, seasonNum, i + 1, noCache)
   );
 };
+
+/**
+ * Gera URL de uma imagem específica de episódio
+ * @param {string} movieId
+ * @param {string|number} episodeNum
+ * @param {string|number} imageIndex
+ * @param {boolean} noCache
+ */
+export const getEpisodeImageSrc = (
+  movieId,
+  episodeNum,
+  imageIndex,
+  noCache = false
+) => {
+  const publicId = `rating-graph/show/${movieId}/imgs/ep${episodeNum}_img${imageIndex}`;
+  return getCacheFreeUrl(publicId, noCache);
+};
+
+/**
+ * Gera todas as imagens de um episódio com base no total
+ */
+export const getEpisodeImages = (
+  movieId,
+  episodeNum,
+  totalImages,
+  noCache = false
+) => {
+  if (!totalImages || totalImages <= 0) return [];
+
+  return Array.from({ length: totalImages }, (_, i) =>
+    getEpisodeImageSrc(movieId, episodeNum, i + 1, noCache)
+  );
+};
