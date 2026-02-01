@@ -843,7 +843,7 @@ const episodeCast = React.useMemo(() => {
                                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                               }}
                             >
-                              {episodeData?.["Average Rating"]}
+                              {episodeData?.["Average Rating 2"]}
                             </span>
                             <span
                               style={{
@@ -2305,7 +2305,7 @@ const episodeCast = React.useMemo(() => {
                                   lineHeight: "3.75rem",
                                 }}
                               >
-                                {episodeData?.["Average Rating"]}
+                                {episodeData?.["Average Rating 2"]}
                               </span>
                             </span>
                             <span
