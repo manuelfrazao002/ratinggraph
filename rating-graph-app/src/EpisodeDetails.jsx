@@ -2583,6 +2583,7 @@ function SeriesPageDetails() {
                           {renderListWithDotSeparator2(data.Genres2)}
                         </span>
                       </div>
+                      {parsedDate && parsedDate < new Date() && (<>
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -2640,6 +2641,7 @@ function SeriesPageDetails() {
                           </svg>
                         </div>
                       </div>
+                      </>)}
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -2832,6 +2834,7 @@ function SeriesPageDetails() {
                       >
                         {data.ReleaseDate} {"(United States)"}
                       </span>
+                      
                       <div
                         style={{
                           display: "flex",
@@ -2854,6 +2857,7 @@ function SeriesPageDetails() {
                         </svg>
                       </div>
                     </div>
+                    {parsedDate && parsedDate < new Date() && (<>
                     <div
                       style={{
                         borderTopWidth: "1px",
@@ -3130,6 +3134,7 @@ function SeriesPageDetails() {
                         </svg>
                       </div>
                     </div>
+                    </>)}
                     <div
                       style={{
                         borderTopWidth: "1px",
@@ -3178,6 +3183,7 @@ function SeriesPageDetails() {
                     </div>
                   </div>
                 </section>
+
 
                 {/*Tech Specs*/}
                 <section
@@ -3307,6 +3313,7 @@ function SeriesPageDetails() {
                       </div>
                     </div>
                   </div>
+                  {parsedDate && parsedDate < new Date() && (<>
                   <div
                     style={{
                       width: "808px",
@@ -3462,6 +3469,7 @@ function SeriesPageDetails() {
                       </span>
                     </div>
                   </div>
+                  </>)}
                 </section>
 
                 {/*Contribute to this page*/}
