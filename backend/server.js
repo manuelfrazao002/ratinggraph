@@ -85,12 +85,31 @@ const createStorage = (type) => {
             folder: "rating-graph/staff",
             public_id: `staff_${req.params.movieId}`,
           };
-          case "stars":
+        case "stars":
           return {
             ...baseParams,
             folder: "rating-graph/stars",
             public_id: `stars_${req.params.movieId}`,
           };
+        case "episodeImage": {
+          const episodeMatch = file.originalname.match(/ep(\d+)/i);
+          const imgMatch = file.originalname.match(/img(\d+)/i);
+
+          if (!episodeMatch || !imgMatch) {
+            throw new Error(
+              "Nome do ficheiro inválido. Use o formato ep{n}_img{m}.jpg",
+            );
+          }
+
+          const episodeNum = episodeMatch[1];
+          const imgNum = imgMatch[1];
+
+          return {
+            ...baseParams,
+            folder: `rating-graph/show/${req.params.movieId}/imgs`,
+            public_id: `ep${episodeNum}_img${imgNum}`,
+          };
+        }
         default:
           throw new Error(`Tipo de upload inválido: ${type}`);
       }
@@ -131,6 +150,11 @@ const uploadStars = multer({
 
 const uploadEpisode = multer({
   storage: createStorage("episode"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+const uploadEpisodeImages = multer({
+  storage: createStorage("episodeImage"),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
@@ -213,6 +237,26 @@ app.post(
   authenticate,
   uploadEpisode.array("episodes", 10),
   handleEpisodeUpload,
+);
+app.post(
+  "/upload/episode-images/:movieId",
+  authenticate,
+  uploadEpisodeImages.array("images", 20),
+  (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "Nenhuma imagem enviada" });
+    }
+
+    const results = req.files.map((file) => ({
+      url: file.path,
+      publicId: file.filename,
+    }));
+
+    res.json({
+      message: `${results.length} imagens de episódio enviadas com sucesso`,
+      images: results,
+    });
+  }
 );
 
 // Endpoint para deletar com invalidação de cache
