@@ -343,7 +343,7 @@ const episodeCast = React.useMemo(() => {
   if (!data) return <p>Carregando dados do filme...</p>;
 
   const votesNumber =
-    Number(episodeData?.Votes?.toString().replace(/[,]+/g, "")) || 0;
+    Number(episodeData?.Votes2?.toString().replace(/[,]+/g, "")) || 0;
   const hasVotes = votesNumber > 0;
 
   const renderListWithLimit = (listStr, limit = 3) => {
@@ -871,7 +871,7 @@ const episodeCast = React.useMemo(() => {
                               fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             }}
                           >
-                            {formatVotes(episodeData?.Votes) || "N/A"}
+                            {formatVotes(episodeData?.Votes2) || "N/A"}
                           </span>
                         </div>
                       </div>
@@ -2322,7 +2322,7 @@ const episodeCast = React.useMemo(() => {
                                 height: "24px",
                               }}
                             >
-                              {formatToK(episodeData?.Votes)}
+                              {formatToK(episodeData?.Votes2)}
                             </span>
                           </div>
                           <div>
