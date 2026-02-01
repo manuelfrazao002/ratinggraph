@@ -773,136 +773,237 @@ function SeriesPageDetails() {
                     }}
                   >
                     {parsedDate && parsedDate < new Date() && (
-                      <>Episode aired {episodeData?.Date3}
-                      <span style={{ fontWeight: "bold", margin: "0 7px" }}>
-                      ·
-                    </span>
-                    {episodeData?.AgeRating}
-                    <div>
-                      <span style={{ fontWeight: "bold", margin: "0 7px" }}>
-                        ·
-                      </span>
-                      {episodeData?.epDuration2}
-                    </div></>
+                      <>
+                        Episode aired {episodeData?.Date3}
+                        <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                          ·
+                        </span>
+                        {episodeData?.AgeRating}
+                        <div>
+                          <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                            ·
+                          </span>
+                          {episodeData?.epDuration2}
+                        </div>
+                      </>
                     )}
 
                     {parsedDate && parsedDate > new Date() && (
                       <>Episode airs {episodeData?.Date3}</>
                     )}
-
-                    
                   </div>
                 </div>
 
                 {/*Aside */}
                 <div
                   style={{
-                    height: "66px",
-                    padding: 0,
-                    margin: 0,
-                    display: "flex",
+                    marginLeft: "-0.5rem",
                     position: "relative",
-                    top: "-7px",
+                    top: "-8px",
+                    left:"0.09rem",
+                    justifyContent: "flex-end",
+                    paddingRight: "0px",
+                    flexGrow: "0",
                   }}
                 >
-                  {hasVotes && (
-                    <div style={{ paddingRight: 25, margin: "0 auto" }}>
-                      <img src={IMDBRating} alt="" />
+                  <div
+                    style={{
+                      height: "66px",
+                      width: "max-content",
+                      padding: 0,
+                      margin: 0,
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    {hasVotes && (
                       <div
-                        style={{ display: "flex", justifyContent: "center" }}
+                        style={{ padding: "0.25rem", marginRight: "0.5rem" }}
                       >
-                        <img
-                          src={StarImdb}
-                          alt=""
-                          width={32}
-                          height={32}
-                          style={{
-                            marginRight: "0.2rem",
-                            position: "relative",
-                            top: "-1px",
-                            left: "-1.3px",
-                          }}
-                        />
                         <div
                           style={{
                             display: "flex",
-                            flexDirection: "column",
-                            position: "relative",
-                            top: "-5px",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: "600",
+                            letterSpacing: "0.16667em",
+                            lineHeight: "1rem",
+                            color: "rgb(255,255,255,0.7)",
+                            marginBottom: "0.25rem",
+                            fontSize: "0.75rem",
+                            justifyContent:"center",
+                          }}
+                        >
+                          IMDb RATING
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: "38px",
+                            padding:"0px 0.5rem"
                           }}
                         >
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "baseline",
+                              height: "2rem",
+                              width: "2rem",
+                              marginRight: "0.25rem",
+                              marginBottom: "0.125rem",
                             }}
                           >
-                            <span
+                            <img src={StarImdb} alt="" width={32} height={32} />
+                          </div>
+                          <div
+                            style={{
+                              display: "inline-flex",
+                              flexDirection: "column",
+                              alignItems: "flex-start",
+                              paddingRight: "0.25rem",
+                              lineHeight: "1.25rem",
+                            }}
+                          >
+                            <div
                               style={{
-                                fontSize: "1.25rem",
-                                color: "white",
-                                letterSpacing: "0.0125em",
+                                lineHeight: "1.5rem",
+                                marginBottom: "-0.125rem",
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: "1.25rem",
+                                  color: "white",
+                                  letterSpacing: "0.0125em",
+                                  fontWeight: "600",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  paddingRight: "0.125rem",
+                                  lineHeight: "1.5rem",
+                                }}
+                              >
+                                {episodeData?.["Average Rating 2"]}
+                              </span>
+                              <span
+                                style={{
+                                  color: "rgb(255,255,255,0.7)",
+                                  fontSize: "1rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontWeight: "500",
+                                  letterSpacing: "0.03125em",
+                                  lineHeight: "1.5rem",
+                                }}
+                              >
+                                /10
+                              </span>
+                            </div>
+
+                            <div
+                              style={{
+                                fontSize: "0.75rem",
+                                color: "#BCBCBC",
                                 position: "relative",
-                                top: "1px",
-                                paddingRight: "0.125rem",
-                                fontWeight: "bold",
+                                letterSpacing: "0.03333em",
+                                lineHeight: "1rem",
+                                fontWeight: "400",
+                                WebkitTextStroke: "0.1px #BCBCBC",
                                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                               }}
                             >
-                              {episodeData?.["Average Rating 2"]}
-                            </span>
-                            <span
-                              style={{
-                                color: "#BCBCBC",
-                                fontSize: 15,
-                                WebkitTextStroke: "0.1px #BCBCBC",
-                                letterSpacing: "0.5px",
-                              }}
-                            >
-                              /10
-                            </span>
+                              {formatVotes(episodeData?.Votes2) || "N/A"}
+                            </div>
                           </div>
-
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              color: "#BCBCBC",
-                              position: "relative",
-                              top: "-4px",
-                              left: "-1px",
-                              letterSpacing: "0.03333em",
-                              lineHeight: "1rem",
-                              fontWeight: "400",
-                              WebkitTextStroke: "0.1px #BCBCBC",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            }}
-                          >
-                            {formatVotes(episodeData?.Votes2) || "N/A"}
-                          </span>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  {hasVotes && (
-                    <div style={{ paddingRight: 4 }}>
-                      <img src={YourRating} alt="" />
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          position: "relative",
-                          top: "-2px",
-                        }}
-                      >
-                        <img
-                          src={RateIMDB}
-                          alt=""
-                          style={{ position: "relative", left: "-1px" }}
-                        />
+                    )}
+                    {hasVotes && (
+                      <div style={{ padding: "0.25rem" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: "600",
+                            letterSpacing: "0.16667em",
+                            lineHeight: "1rem",
+                            color: "rgb(255,255,255,0.7)",
+                            marginBottom: "0.25rem",
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          YOUR RATING
+                        </div>
+                        <button
+                          style={{
+                            background: "transparent",
+                            height: "auto",
+                            margin: "auto",
+                            padding: "0px 0.5rem",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <span>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  lineHeight: "1.25rem",
+                                  marginBottom: "0.125rem",
+                                  marginRight: "0.25rem",
+                                  height: "2rem",
+                                  width: "2rem",
+                                }}
+                              >
+                                <svg
+                                  style={{
+                                    color: "rgb(87,153,239)",
+                                  }}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="32"
+                                  height="32"
+                                  class="ipc-icon ipc-icon--star-border sc-c3f6308f-4 haKFkk"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  role="presentation"
+                                >
+                                  <path fill="none" d="M0 0h24v24H0V0z"></path>
+                                  <path d="M19.65 9.04l-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"></path>
+                                </svg>
+                              </div>
+                              <div
+                                style={{
+                                  paddingRight: "0.25rem",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    lineHeight: "1.5rem",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "1.25rem",
+                                    fontWeight: "600",
+                                    letterSpacing: "0.0125em",
+                                    color: "rgb(87,153,239)",
+                                  }}
+                                >
+                                  Rate
+                                </div>
+                              </div>
+                            </div>
+                          </span>
+                        </button>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -2583,65 +2684,67 @@ function SeriesPageDetails() {
                           {renderListWithDotSeparator2(data.Genres2)}
                         </span>
                       </div>
-                      {parsedDate && parsedDate < new Date() && (<>
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Certificate
-                        </span>
-                        <span
-                          style={{
-                            fontWeight: "400",
-                            letterSpacing: "0.03125em",
-                            wordBreak: "break-word",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                          }}
-                        >
-                          {data.AgeRating}
-                        </span>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginLeft: "auto",
-                          }}
-                        >
-                          <svg
-                            style={{ color: "rgb(0,0,0,0.54)" }}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--chevron-right"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
+                      {parsedDate && parsedDate < new Date() && (
+                        <>
+                          <div
+                            style={{
+                              borderTopWidth: "1px",
+                              borderTopStyle: "solid",
+                              borderColor: "rgb(0,0,0,0.12)",
+                              display: "flex",
+                              flexWrap: "wrap",
+                              paddingBottom: "0.75rem",
+                              paddingTop: "0.75rem",
+                            }}
                           >
-                            <path fill="none" d="M0 0h24v24H0V0z"></path>
-                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                          </svg>
-                        </div>
-                      </div>
-                      </>)}
+                            <span
+                              style={{
+                                paddingRight: "0.75rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.00937em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Certificate
+                            </span>
+                            <span
+                              style={{
+                                fontWeight: "400",
+                                letterSpacing: "0.03125em",
+                                wordBreak: "break-word",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                              }}
+                            >
+                              {data.AgeRating}
+                            </span>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "auto",
+                              }}
+                            >
+                              <svg
+                                style={{ color: "rgb(0,0,0,0.54)" }}
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                class="ipc-icon ipc-icon--chevron-right"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                              >
+                                <path fill="none" d="M0 0h24v24H0V0z"></path>
+                                <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                              </svg>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -2834,7 +2937,7 @@ function SeriesPageDetails() {
                       >
                         {data.ReleaseDate} {"(United States)"}
                       </span>
-                      
+
                       <div
                         style={{
                           display: "flex",
@@ -2857,284 +2960,288 @@ function SeriesPageDetails() {
                         </svg>
                       </div>
                     </div>
-                    {parsedDate && parsedDate < new Date() && (<>
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Countries of origin
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        {renderListWithDotSeparator2(data.CountriesOrigin)}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Official sites
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        Official Facebook
-                        <svg
-                          style={{ marginLeft: "0.4em" }}
-                          width="10"
-                          height="10"
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="ipc-icon ipc-icon--launch-inline ipc-icon--inline ipc-link__launch-icon"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                    {parsedDate && parsedDate < new Date() && (
+                      <>
+                        <div
+                          style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
+                          }}
                         >
-                          <path d="M21.6 21.6H2.4V2.4h7.2V0H0v24h24v-9.6h-2.4v7.2zM14.4 0v2.4h4.8L7.195 14.49l2.4 2.4L21.6 4.8v4.8H24V0h-9.6z"></path>
-                        </svg>
-                        <span style={{ color: "black", margin: "0 6px" }}>
-                          ·
-                        </span>
-                        Official Instagram
-                        <svg
-                          style={{ marginLeft: "0.4em" }}
-                          width="10"
-                          height="10"
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="ipc-icon ipc-icon--launch-inline ipc-icon--inline ipc-link__launch-icon"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Countries of origin
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            {renderListWithDotSeparator2(data.CountriesOrigin)}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
+                          }}
                         >
-                          <path d="M21.6 21.6H2.4V2.4h7.2V0H0v24h24v-9.6h-2.4v7.2zM14.4 0v2.4h4.8L7.195 14.49l2.4 2.4L21.6 4.8v4.8H24V0h-9.6z"></path>
-                        </svg>
-                      </span>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <svg
-                          style={{ color: "rgb(0,0,0,0.54)" }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--chevron-right"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Official sites
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            Official Facebook
+                            <svg
+                              style={{ marginLeft: "0.4em" }}
+                              width="10"
+                              height="10"
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="ipc-icon ipc-icon--launch-inline ipc-icon--inline ipc-link__launch-icon"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path d="M21.6 21.6H2.4V2.4h7.2V0H0v24h24v-9.6h-2.4v7.2zM14.4 0v2.4h4.8L7.195 14.49l2.4 2.4L21.6 4.8v4.8H24V0h-9.6z"></path>
+                            </svg>
+                            <span style={{ color: "black", margin: "0 6px" }}>
+                              ·
+                            </span>
+                            Official Instagram
+                            <svg
+                              style={{ marginLeft: "0.4em" }}
+                              width="10"
+                              height="10"
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="ipc-icon ipc-icon--launch-inline ipc-icon--inline ipc-link__launch-icon"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path d="M21.6 21.6H2.4V2.4h7.2V0H0v24h24v-9.6h-2.4v7.2zM14.4 0v2.4h4.8L7.195 14.49l2.4 2.4L21.6 4.8v4.8H24V0h-9.6z"></path>
+                            </svg>
+                          </span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "auto",
+                            }}
+                          >
+                            <svg
+                              style={{ color: "rgb(0,0,0,0.54)" }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--chevron-right"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path fill="none" d="M0 0h24v24H0V0z"></path>
+                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Language
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        {data.Language}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Also known as
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        {data.AlsoKnownAs}
-                      </span>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <svg
-                          style={{ color: "rgb(0,0,0,0.54)" }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--chevron-right"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Language
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            {data.Language}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Production companies
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        {renderListWithDotSeparator2(data.ProductionCompanies)}
-                      </span>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <svg
-                          style={{ color: "rgb(0,0,0,0.54)" }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--chevron-right"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Also known as
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            {data.AlsoKnownAs}
+                          </span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "auto",
+                            }}
+                          >
+                            <svg
+                              style={{ color: "rgb(0,0,0,0.54)" }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--chevron-right"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path fill="none" d="M0 0h24v24H0V0z"></path>
+                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            borderTopWidth: "1px",
+                            borderTopStyle: "solid",
+                            borderColor: "rgb(0,0,0,0.12)",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.75rem",
+                            paddingTop: "0.75rem",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                        </svg>
-                      </div>
-                    </div>
-                    </>)}
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Production companies
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            {renderListWithDotSeparator2(
+                              data.ProductionCompanies,
+                            )}
+                          </span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginLeft: "auto",
+                            }}
+                          >
+                            <svg
+                              style={{ color: "rgb(0,0,0,0.54)" }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--chevron-right"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                            >
+                              <path fill="none" d="M0 0h24v24H0V0z"></path>
+                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                            </svg>
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <div
                       style={{
                         borderTopWidth: "1px",
@@ -3183,7 +3290,6 @@ function SeriesPageDetails() {
                     </div>
                   </div>
                 </section>
-
 
                 {/*Tech Specs*/}
                 <section
@@ -3313,163 +3419,165 @@ function SeriesPageDetails() {
                       </div>
                     </div>
                   </div>
-                  {parsedDate && parsedDate < new Date() && (<>
-                  <div
-                    style={{
-                      width: "808px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.25rem",
-                        paddingTop: "0.25rem",
-                      }}
-                    >
-                      <span
+                  {parsedDate && parsedDate < new Date() && (
+                    <>
+                      <div
                         style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
+                          width: "808px",
                         }}
                       >
-                        Runtime
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                        }}
-                      >
-                        {episodeData?.epDuration}m
-                      </span>
-                      {episodeData?.epDuration > 60 && (
-                        <span
+                        <div
                           style={{
-                            marginLeft: "0.5rem",
-                            color: "rgb(0,0,0,.54)",
-                            fontWeight: "400",
-                            letterSpacing: "0.03125",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.25rem",
+                            paddingTop: "0.25rem",
                           }}
                         >
-                          ({episodeData?.epDuration2})
-                        </span>
-                      )}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.25rem",
-                        paddingTop: "0.25rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Color
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        Color
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.25rem",
-                        paddingTop: "0.25rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Sound mix
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        Dolby Digital
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.25rem",
-                        paddingTop: "0.25rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Aspect ratio
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                        }}
-                      >
-                        2.35 : 1
-                      </span>
-                    </div>
-                  </div>
-                  </>)}
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Runtime
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                            }}
+                          >
+                            {episodeData?.epDuration}m
+                          </span>
+                          {episodeData?.epDuration > 60 && (
+                            <span
+                              style={{
+                                marginLeft: "0.5rem",
+                                color: "rgb(0,0,0,.54)",
+                                fontWeight: "400",
+                                letterSpacing: "0.03125",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                              }}
+                            >
+                              ({episodeData?.epDuration2})
+                            </span>
+                          )}
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.25rem",
+                            paddingTop: "0.25rem",
+                          }}
+                        >
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Color
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            Color
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.25rem",
+                            paddingTop: "0.25rem",
+                          }}
+                        >
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Sound mix
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              color: "rgb(14,99,190)",
+                            }}
+                          >
+                            Dolby Digital
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            paddingBottom: "0.25rem",
+                            paddingTop: "0.25rem",
+                          }}
+                        >
+                          <span
+                            style={{
+                              paddingRight: "0.75rem",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                              letterSpacing: "0.00937em",
+                              fontWeight: "600",
+                            }}
+                          >
+                            Aspect ratio
+                          </span>
+                          <span
+                            style={{
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              wordBreak: "break-word",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                            }}
+                          >
+                            2.35 : 1
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </section>
 
                 {/*Contribute to this page*/}
