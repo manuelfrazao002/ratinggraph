@@ -1602,7 +1602,7 @@ function SeriesPage() {
                                 lineHeight: "1.25rem",
                               }}
                             >
-                              User reviews
+                              {userReviewsNumber === 1 ? "User review" : "User reviews"}
                             </span>
                           </div>
                         )}
@@ -1637,7 +1637,7 @@ function SeriesPage() {
                                 lineHeight: "1.25rem",
                               }}
                             >
-                              Critic reviews
+                              {criticReviewsNumber === 1 ? "Critic review" : "Critic reviews"}
                             </span>
                           </div>
                         )}

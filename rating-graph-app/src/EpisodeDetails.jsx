@@ -773,14 +773,8 @@ function SeriesPageDetails() {
                     }}
                   >
                     {parsedDate && parsedDate < new Date() && (
-                      <>Episode aired {episodeData?.Date3}</>
-                    )}
-
-                    {parsedDate && parsedDate > new Date() && (
-                      <>Episode airs {episodeData?.Date3}</>
-                    )}
-
-                    <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                      <>Episode aired {episodeData?.Date3}
+                      <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                       ·
                     </span>
                     {episodeData?.AgeRating}
@@ -789,7 +783,14 @@ function SeriesPageDetails() {
                         ·
                       </span>
                       {episodeData?.epDuration2}
-                    </div>
+                    </div></>
+                    )}
+
+                    {parsedDate && parsedDate > new Date() && (
+                      <>Episode airs {episodeData?.Date3}</>
+                    )}
+
+                    
                   </div>
                 </div>
 
