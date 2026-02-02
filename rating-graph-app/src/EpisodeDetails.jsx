@@ -358,7 +358,7 @@ function SeriesPageDetails() {
     }
 
     const totalImages = Number(episodeData?.Photos) || 0;
-    const episodeNum = episodeData?.Episode2;
+    const episodeNum = episodeData?.Number2;
 
     if (!episodeNum || totalImages <= 0) return [];
 
