@@ -3044,7 +3044,7 @@ function SeriesPageDetails() {
                           color: "rgb(14,99,190)",
                         }}
                       >
-                        {episodeData.Date3} {"(United States)"}
+                        {episodeData.Date4} {"(United States)"}
                       </span>
 
                       <div
