@@ -749,6 +749,9 @@ function SeriesPage() {
                     </div>
                   )}
 
+                  <Link to={"https://www.imdb.com/chart/tvmeter/?ref_=tt_ov_pop"} style={{
+                    cursor: "pointer",
+                  }}>
                   <div style={{ padding: "4px", display: "flex", alignItems: "center", flexDirection: "column" }}>
                     <img
                       src={Popularity}
@@ -847,6 +850,7 @@ function SeriesPage() {
                       )}
                     </div>
                   </div>
+                  </Link>
                 </div>
               </div>
 
