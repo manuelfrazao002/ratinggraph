@@ -3044,7 +3044,7 @@ function SeriesPageDetails() {
                           color: "rgb(14,99,190)",
                         }}
                       >
-                        {data.ReleaseDate} {"(United States)"}
+                        {episodeData.Date2} {"(United States)"}
                       </span>
 
                       <div
@@ -3230,64 +3230,6 @@ function SeriesPageDetails() {
                           >
                             {data.Language}
                           </span>
-                        </div>
-                        <div
-                          style={{
-                            borderTopWidth: "1px",
-                            borderTopStyle: "solid",
-                            borderColor: "rgb(0,0,0,0.12)",
-                            display: "flex",
-                            flexWrap: "wrap",
-                            paddingBottom: "0.75rem",
-                            paddingTop: "0.75rem",
-                          }}
-                        >
-                          <span
-                            style={{
-                              paddingRight: "0.75rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "1rem",
-                              lineHeight: "1.5rem",
-                              letterSpacing: "0.00937em",
-                              fontWeight: "600",
-                            }}
-                          >
-                            Also known as
-                          </span>
-                          <span
-                            style={{
-                              fontWeight: "400",
-                              letterSpacing: "0.03125em",
-                              wordBreak: "break-word",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "1rem",
-                              lineHeight: "1.5rem",
-                              color: "rgb(14,99,190)",
-                            }}
-                          >
-                            {data.AlsoKnownAs}
-                          </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginLeft: "auto",
-                            }}
-                          >
-                            <svg
-                              style={{ color: "rgb(0,0,0,0.54)" }}
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              class="ipc-icon ipc-icon--chevron-right"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                            >
-                              <path fill="none" d="M0 0h24v24H0V0z"></path>
-                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                            </svg>
-                          </div>
                         </div>
                         <div
                           style={{
