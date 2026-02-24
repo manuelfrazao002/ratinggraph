@@ -33,6 +33,9 @@ import CastList from "./components/CastList.jsx";
 import RatingsBarChart from "./components/RatingsBarChart.jsx";
 import PlotKeywords from "./components/PlotKeywords.jsx";
 
+//Small Icon
+import SmallIcon from "./imgs/imdb/smallicon.png";
+
 //Images for section Images
 import Img1 from "./imgs/imdb/imgs/img1.jpg";
 import Img2 from "./imgs/imdb/imgs/img2.jpg";
@@ -1370,6 +1373,80 @@ function SeriesPageDetails() {
                             {" "}
                             {episodeData.Date3}{" "}
                           </p>
+                        </div>
+                      </div>
+                    ) : null}
+                    {episodeData?.Status > 0 ? (
+                      <div>
+                        <div style={{ width: "118.333px" }}>
+                          <p
+                            style={{
+                              margin: "0 0 0.25rem 0",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontWeight: "600",
+                              letterSpacing: "0.16667em",
+                              lineHeight: "1rem",
+                              textTransform: "uppercase",
+                              fontSize: "0.625rem",
+                              color: "rgb(245,197,24)",
+                              height: "1rem",
+                              overflow: "hidden",
+                              textWrap: "nowrap",
+                              textOverflow: "ellipsis",
+                              marginBottom: "0.25rem",
+                            }}
+                          >
+                            STREAMING
+                          </p>
+                          <img
+                            width="122.35px"
+                            height="68.8167px"
+                            src={SmallIcon}
+                            alt=""
+                            style={{ marginBottom: "16px" }}
+                          />
+                        </div>
+                        <div
+                          style={{
+                            marginBottom: "24px",
+                            padding: "0 16px 0 16px",
+                            color: "rgb(87,153,239)",
+                            display: "flex",
+                            alignItems: "center",
+                            height: "36px",
+                          }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--settings ipc-btn__icon ipc-btn__icon--pre"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                            style={{
+                              position: "relative",
+                              right: "6px",
+                            }}
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0014 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path>
+                          </svg>
+                          <span
+                            style={{
+                              cursor: "pointer",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              lineHeight: "1.25rem",
+                              letterSpacing: "0.02em",
+                              textTransform: "none",
+                              position: "relative",
+                              right: "2px",
+                            }}
+                          >
+                            Set your preferred services
+                          </span>
                         </div>
                       </div>
                     ) : null}
@@ -3477,7 +3554,7 @@ function SeriesPageDetails() {
                               lineHeight: "1.5rem",
                             }}
                           >
-                            {episodeData?.epDuration}m
+                            {episodeData?.epDuration2}
                           </span>
                           {episodeData?.epDuration > 60 && (
                             <span
@@ -3485,13 +3562,13 @@ function SeriesPageDetails() {
                                 marginLeft: "0.5rem",
                                 color: "rgb(0,0,0,.54)",
                                 fontWeight: "400",
-                                letterSpacing: "0.03125",
+                                letterSpacing: "0.03125em",
                                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                                 fontSize: "1rem",
                                 lineHeight: "1.5rem",
                               }}
                             >
-                              ({episodeData?.epDuration2})
+                              {episodeData?.epDuration4}
                             </span>
                           )}
                         </div>

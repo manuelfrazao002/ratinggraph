@@ -1720,7 +1720,8 @@ function SeriesPage() {
                   }}
                 >
                   {/*Top Rated */}
-                  {(data.AwardsWon > 0 ||
+                  {(data.TopRatedPos < 250 ||
+                    data.AwardsWon > 0 ||
                     data.AwardsNom > 0 ||
                     data.Wins > 0 ||
                     data.Nom > 0) && (
@@ -1746,7 +1747,7 @@ function SeriesPage() {
                           alignItems: "center",
                         }}
                       >
-                        {data.TopRatedPos > 0 && (
+                        {data.TopRatedPos < 250 && (
                           <div
                             style={{
                               backgroundColor: "rgba(245, 197, 24)",
@@ -1778,7 +1779,7 @@ function SeriesPage() {
                           </div>
                         )}
 
-                        {data.TopRatedPos < 1 && (
+                        {data.TopRatedPos > 250 && (
                           <div
                             style={{
                               backgroundColor: "rgba(245, 197, 24)",
@@ -1951,6 +1952,22 @@ function SeriesPage() {
                                 </a>
                               ) : null}
                             </div>
+                            {([data.AwardsWon, data.AwardsNom, data.Wins, data.Nom]
+  .map(Number)
+  .every(value => value === 0)) && (
+                             <div>
+                          <span style={{
+                            fontWeight:"400",
+                            letterSpacing:"0.03125em",
+                            wordBreak:"break-word",
+                            fontFamily:"Roboto,Helvetica,Arial,sans-serif",
+                            fontSize:"1rem",
+                            textTransform:"none",
+                            lineHeight:"1.5rem",
+                            cursor:"pointer",
+                          }}>See the Top 250 TV shows as rated by IMDb users</span>
+                        </div>
+                        )}
                           </div>
                         </div>
                         <div
@@ -4104,7 +4121,7 @@ function SeriesPage() {
                             marginLeft: "0.5rem",
                             color: "rgb(0,0,0,.54)",
                             fontWeight: "400",
-                            letterSpacing: "0.03125",
+                            letterSpacing: "0.03125em",
                             fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             fontSize: "1rem",
                             lineHeight: "1.5rem",
