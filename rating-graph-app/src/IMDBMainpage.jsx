@@ -638,14 +638,16 @@ function SeriesPage() {
                     margin: 0,
                     display: "flex",
                     position: "relative",
-                    top: "-7px",
+                    top: "-10px",
                   }}
                 >
                   {hasVotes && (
-                    <div style={{ paddingRight: 25, margin: "0 auto" }}>
-                      <img src={IMDBRating} alt="" />
+                    <div style={{ padding: "4px", marginRight:"0.5rem", display: "flex", alignItems: "center", flexDirection: "column" }}>
+                      <img src={IMDBRating} alt="" style={{
+                        marginBottom:"7px",
+                      }}/>
                       <div
-                        style={{ display: "flex", justifyContent: "center" }}
+                        style={{ display: "flex", justifyContent: "center", padding:"0 8px 0 8px"}}
                       >
                         <img
                           src={StarImdb}
@@ -653,10 +655,10 @@ function SeriesPage() {
                           width={32}
                           height={32}
                           style={{
-                            marginRight: "0.2rem",
+                            marginRight: "0.25rem",
                             position: "relative",
                             top: "-1px",
-                            left: "-1.3px",
+                            left: "1px",
                           }}
                         />
                         <div
@@ -664,36 +666,43 @@ function SeriesPage() {
                             display: "flex",
                             flexDirection: "column",
                             position: "relative",
-                            top: "-5px",
+                            top: "-3px",
+                            paddingRight:"0.25rem",
                           }}
                         >
                           <div
                             style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "baseline",
+                                lineHeight: "1.5rem",
+                                marginBottom: "-0.125rem",
+                                display: "flex",
+                                alignItems: "center",
                             }}
                           >
                             <span
                               style={{
-                                fontSize: "1.25rem",
-                                color: "white",
-                                letterSpacing: "0.0125em",
-                                position: "relative",
-                                top: "1px",
-                                paddingRight: "0.125rem",
-                                fontWeight: "bold",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "1.25rem",
+                                  color: "white",
+                                  letterSpacing: "0.0125em",
+                                  fontWeight: "600",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  paddingRight: "0.125rem",
+                                  lineHeight: "1.5rem",
                               }}
                             >
                               {data.Rating}
                             </span>
                             <span
                               style={{
-                                color: "#BCBCBC",
-                                fontSize: 15,
-                                WebkitTextStroke: "0.1px #BCBCBC",
-                                letterSpacing: "0.5px",
+                                  color: "rgb(255,255,255,0.7)",
+                                  fontSize: "1rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontWeight: "500",
+                                  letterSpacing: "0.03125em",
+                                  lineHeight: "1.5rem",
+                                  position: "relative",
+                                  top: "1px",
                               }}
                             >
                               /10
@@ -702,16 +711,14 @@ function SeriesPage() {
 
                           <span
                             style={{
-                              fontSize: "0.75rem",
-                              color: "#BCBCBC",
-                              position: "relative",
-                              top: "-4px",
-                              left: "-1px",
-                              letterSpacing: "0.03333em",
-                              lineHeight: "1rem",
-                              fontWeight: "400",
-                              WebkitTextStroke: "0.1px #BCBCBC",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "0.75rem",
+                                color: "#BCBCBC",
+                                position: "relative",
+                                letterSpacing: "0.03333em",
+                                lineHeight: "1rem",
+                                fontWeight: "400",
+                                WebkitTextStroke: "0.1px #BCBCBC",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             }}
                           >
                             {formatVotes(data.Votes) || "N/A"}
@@ -721,8 +728,10 @@ function SeriesPage() {
                     </div>
                   )}
                   {hasVotes && (
-                    <div style={{ paddingRight: 18 }}>
-                      <img src={YourRating} alt="" />
+                    <div style={{ padding: "4px", marginRight:"0.5rem", display: "flex", alignItems: "center", flexDirection: "column"}}>
+                      <img src={YourRating} alt="" style={{
+                        marginBottom:"7px",
+                      }}/>
                       <div
                         style={{
                           display: "flex",
@@ -740,17 +749,14 @@ function SeriesPage() {
                     </div>
                   )}
 
-                  <div style={{ marginRight: "5px" }}>
+                  <div style={{ padding: "4px", display: "flex", alignItems: "center", flexDirection: "column" }}>
                     <img
                       src={Popularity}
                       alt=""
                       style={{
                         display: "flex",
-                        margin: "0 auto",
-                        paddingBottom: "8px",
+                        paddingBottom: "7px",
                         alignContent: "center",
-                        position: "relative",
-                        top: "1px",
                       }}
                     />
                     <div
@@ -759,7 +765,8 @@ function SeriesPage() {
                         justifyContent: "center",
                         alignItems: "center",
                         position: "relative",
-                        top: "-2px",
+                        top: "-1.5px",
+                        padding: "0 8px",
                       }}
                     >
                       <img
@@ -777,13 +784,12 @@ function SeriesPage() {
                       {/* Popularidade sempre visível */}
                       <span
                         style={{
-                          marginRight: "10px",
-                          fontSize: "19px",
-                          letterSpacing: "1.5px",
-                          position: "relative",
-                          top: "1px",
-                          fontWeight: "bold",
-                          color: "white",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize:"1.25rem",
+                          fontWeight: "600",
+                          letterSpacing:"0.0125em",
+                          paddingRight: "0.125rem",
+                          color:"white",
                         }}
                       >
                         {data.Popularity}
@@ -793,9 +799,12 @@ function SeriesPage() {
                       {data.PopStatus !== "stay" && (
                         <div
                           style={{
-                            paddingRight: "3px",
+                            width:"24px",
+                            height:"24px",
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "center",
+                            marginRight:"-0.25rem",
                           }}
                         >
                           <img
@@ -812,6 +821,7 @@ function SeriesPage() {
                               transformOrigin: "center center",
                               transition: "transform 0.3s ease",
                               display: "block",
+                              
                             }}
                           />
                         </div>
@@ -820,11 +830,14 @@ function SeriesPage() {
                       {data.PopStatus !== "stay" && (
                         <span
                           style={{
-                            color: "#A4AAB5",
-                            WebkitTextStroke: "0.18px #A4AAB5",
-                            letterSpacing: "0.5px",
+                            color: "rgba(255,255,255,0.7)",
+                            letterSpacing: "0.03125em",
+                            fontSize:"1rem",
+                            fontWeight:"500",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             position: "relative",
-                            top: "2px",
+                            lineHeight:"1.5rem",
+                            top: "2px",                            
                           }}
                         >
                           {data.PopUp}
@@ -2370,7 +2383,7 @@ function SeriesPage() {
                             alignItems: "center",
                             color: "rgb(14,99,190)",
                             cursor: "pointer",
-                            padding: "0 16px 0 16px",
+                            padding: "0 8px 0 8px",
                           }}
                         >
                           <svg
@@ -2610,7 +2623,7 @@ function SeriesPage() {
                             alignItems: "center",
                             color: "rgb(0,0,0,.54)",
                             cursor: "pointer",
-                            padding: "0 16px 0 16px",
+                            padding: "0 8px 0 8px",
                           }}
                         >
                           <svg
@@ -3151,7 +3164,7 @@ function SeriesPage() {
                             alignItems: "center",
                             color: "rgb(0,0,0,.54)",
                             cursor: "pointer",
-                            padding: "0 16px 0 16px",
+                            padding: "0 8px 0 8px",
                           }}
                         >
                           <svg
@@ -3185,7 +3198,9 @@ function SeriesPage() {
                           </span>
                         </div>
                       </div>
-                      <div>
+                      <div style={{
+                        maxWidth:"808px",
+                      }}>
                         <span
                           style={{
                             color: "rgb(0,0,0,0.87)",
@@ -3527,7 +3542,7 @@ function SeriesPage() {
                           alignItems: "center",
                           color: "rgb(0,0,0,.54)",
                           cursor: "pointer",
-                          padding: "0 16px 0 16px",
+                          padding: "0 8px 0 8px",
                         }}
                       >
                         <svg
@@ -4043,7 +4058,7 @@ function SeriesPage() {
                           alignItems: "center",
                           color: "rgb(0,0,0,.54)",
                           cursor: "pointer",
-                          padding: "0 16px 0 16px",
+                          padding: "0 8px 0 8px",
                         }}
                       >
                         <svg

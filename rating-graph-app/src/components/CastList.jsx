@@ -4,7 +4,11 @@ import { data } from "react-router-dom";
 
 const MAX_CAST = 18;
 
-export default function CastList({ cast, showEpisodes = true }) {
+export default function CastList({
+  cast,
+  showEpisodes = true,
+  isAnimation = false,
+}) {
   if (!Array.isArray(cast) || cast.length === 0) return null;
 
   // ordenar por número de episódios (desc)
@@ -15,7 +19,7 @@ export default function CastList({ cast, showEpisodes = true }) {
   const visibleCast = sortedCast.slice(0, MAX_CAST);
 
   return (
-    <section style={{ width: "816px" }}>
+    <section style={{ width: "808px", overflow: "hidden" }}>
       <div
         style={{
           display: "grid",
@@ -31,6 +35,8 @@ export default function CastList({ cast, showEpisodes = true }) {
               display: "flex",
               alignItems: "center",
               cursor: "pointer",
+              minWidth:"396px",
+              maxWidth:"396px",
             }}
           >
             <div
@@ -91,7 +97,7 @@ export default function CastList({ cast, showEpisodes = true }) {
             </div>
 
             {/* Texto */}
-            <div style={{ lineHeight: "1.25" }}>
+            <div style={{ lineHeight: "1.25", flex: 1, minWidth: 0, maxWidth: "265px"}}>
               <div
                 style={{
                   fontWeight: 600,
@@ -103,7 +109,7 @@ export default function CastList({ cast, showEpisodes = true }) {
                   fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                 }}
               >
-                {actor.Name}
+                {actor.Name}                
               </div>
               <div
                 style={{
@@ -113,9 +119,17 @@ export default function CastList({ cast, showEpisodes = true }) {
                   lineHeight: "1.25rem",
                   marginBottom: "0.25rem",
                   fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {actor.Character}
+                {isAnimation &&
+                actor.Character &&
+                !actor.Character.toLowerCase().includes("(voice)")
+                  ? " (voice)"
+                  : ""}
               </div>
               {showEpisodes && (
                 <div

@@ -676,29 +676,33 @@ function SeriesPageDetails() {
                       style={{
                         display: "flex",
                         alignItems: "center",
+                        
                       }}
                     >
                       {/* ◀ Anterior */}
                       {prevEpisode ? (
                         <Link
                           to={`/episodepage/${movieId}/${prevEpisode.episodeId}`}
+                          style={{
+                            width:"22px",
+                            height:"22px",
+                            padding: "8px",
+                          }}
                         >
                           <ChevronLeft
-                            size={27}
                             style={{
                               color: "white",
-                              padding: "0.5rem",
                               cursor: "pointer",
                             }}
                           />
                         </Link>
                       ) : (
                         <ChevronLeft
-                          size={27}
                           style={{
                             color: "rgba(255,255,255,0.3)",
-                            padding: "0.5rem",
                             cursor: "default",
+                            position: "relative",
+                            top: "4px"
                           }}
                         />
                       )}
@@ -711,8 +715,8 @@ function SeriesPageDetails() {
                             lineHeight: "1.25rem",
                             letterSpacing: "0.02em",
                             color: "white",
-                            padding: "0 1rem",
                             cursor: "pointer",
+                            padding: "0 16px 0 16px",
                           }}
                         >
                           All episodes
@@ -723,23 +727,26 @@ function SeriesPageDetails() {
                       {nextEpisodeNav ? (
                         <Link
                           to={`/episodepage/${movieId}/${nextEpisodeNav.episodeId}`}
+                            style={{
+                            width:"22px",
+                            height:"22px",
+                            padding: "8px",
+                          }}
                         >
                           <ChevronRight
-                            size={27}
                             style={{
                               color: "white",
-                              padding: "0.5rem",
                               cursor: "pointer",
                             }}
                           />
                         </Link>
                       ) : (
                         <ChevronRight
-                          size={27}
                           style={{
                             color: "rgba(255,255,255,0.3)",
-                            padding: "0.5rem",
                             cursor: "default",
+                            position: "relative",
+                            top: "4px"
                           }}
                         />
                       )}
@@ -919,6 +926,8 @@ function SeriesPageDetails() {
                                   fontWeight: "500",
                                   letterSpacing: "0.03125em",
                                   lineHeight: "1.5rem",
+                                  position: "relative",
+                                  top: "1px",
                                 }}
                               >
                                 /10
@@ -1780,7 +1789,7 @@ function SeriesPageDetails() {
                                   alignItems: "center",
                                   color: "rgb(14,99,190)",
                                   cursor: "pointer",
-                                  padding: "0 16px 0 16px",
+                                  padding: "0 8px 0 8px",
                                 }}
                               >
                                 <svg
@@ -1987,7 +1996,7 @@ function SeriesPageDetails() {
                               alignItems: "center",
                               color: "rgb(14,99,190)",
                               cursor: "pointer",
-                              padding: "0 16px 0 16px",
+                              padding: "0 8px 0 8px",
                             }}
                           >
                             <svg
@@ -2125,7 +2134,7 @@ function SeriesPageDetails() {
                               alignItems: "center",
                               color: "rgb(0,0,0,.54)",
                               cursor: "pointer",
-                              padding: "0 16px 0 16px",
+                              padding: "0 8px 0 8px",
                             }}
                           >
                             <svg
@@ -2159,7 +2168,7 @@ function SeriesPageDetails() {
                             </span>
                           </div>
                         </div>
-                        <CastList cast={episodeCast} showEpisodes={false} />
+                        <CastList cast={episodeCast} showEpisodes={false} isAnimation={data.Genres?.includes("Animation")}/>
                       </div>
                       <div
                         style={{
@@ -2634,7 +2643,7 @@ function SeriesPageDetails() {
                             alignItems: "center",
                             color: "rgb(0,0,0,.54)",
                             cursor: "pointer",
-                            padding: "0 16px 0 16px",
+                            padding: "0 8px 0 8px",
                           }}
                         >
                           <svg
@@ -2670,7 +2679,9 @@ function SeriesPageDetails() {
                       </div>
                       {episodeData?.Votes2 > 0 && (
                         <>
-                          <div>
+                          <div style={{
+                            maxWidth:"808px",
+                          }}>
                             <span
                               style={{
                                 color: "rgb(0,0,0,0.87)",
@@ -2959,7 +2970,7 @@ function SeriesPageDetails() {
                           alignItems: "center",
                           color: "rgb(0,0,0,.54)",
                           cursor: "pointer",
-                          padding: "0 16px 0 16px",
+                          padding: "0 8px 0 8px",
                         }}
                       >
                         <svg
@@ -3482,7 +3493,7 @@ function SeriesPageDetails() {
                           alignItems: "center",
                           color: "rgb(0,0,0,.54)",
                           cursor: "pointer",
-                          padding: "0 16px 0 16px",
+                          padding: "0 8px 0 8px",
                         }}
                       >
                         <svg
