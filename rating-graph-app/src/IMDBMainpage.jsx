@@ -790,6 +790,8 @@ function SeriesPage() {
                           letterSpacing:"0.0125em",
                           paddingRight: "0.125rem",
                           color:"white",
+                          position: "relative",
+                          top: "1px",
                         }}
                       >
                         {data.Popularity}
@@ -837,7 +839,7 @@ function SeriesPage() {
                             fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             position: "relative",
                             lineHeight:"1.5rem",
-                            top: "2px",                            
+                            top: "1px",                            
                           }}
                         >
                           {data.PopUp}
