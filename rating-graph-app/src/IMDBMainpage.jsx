@@ -2376,7 +2376,6 @@ function SeriesPage() {
     display: "flex",
     flexWrap: "wrap",
     gap: "12px",
-    paddingLeft: "24px",
   }}
 >
   {/* Primeira linha: 2 vídeos */}

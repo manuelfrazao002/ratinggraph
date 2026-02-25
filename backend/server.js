@@ -273,16 +273,8 @@ app.post(
 app.post(
   "/upload/video-thumbnail/:movieId",
   authenticate,
-  multer({
-    storage: createStorage("videoThumbnail"),
-    limits: { fileSize: 5 * 1024 * 1024 },
-  }).array("thumbnail"),
-  (req, res) => {
-    res.json({
-      url: req.file.path,
-      publicId: req.file.filename,
-    });
-  },
+  uploadVideoThumbnail.single("thumbnail"),
+  handleSingleUpload,
 );
 
 // Endpoint para deletar com invalidação de cache
