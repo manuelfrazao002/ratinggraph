@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Papa from "papaparse";
 import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
@@ -9,7 +9,6 @@ import {
   getTrailerSrc,
   getVideoThumbnail,
 } from "./ShowImageSrc";
-import axios from "axios";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -290,15 +289,15 @@ function SeriesPage() {
     movies.map((m) => m.id),
   );
 
-useEffect(() => {
-  fetch("/api/all-images")
-    .then(res => res.json())
-    .then(data => {
-      if (data?.images) setAllImages(data.images);
-    });
-}, []);
+  useEffect(() => {
+    fetch("/api/all-images")
+      .then(res => res.json())
+      .then(data => {
+        if (data?.images) setAllImages(data.images);
+      });
+  }, []);
 
-  const sortedImages = React.useMemo(() => {
+  const sortedImages = useMemo(() => {
     return [...allImages].sort((a, b) => b.publicId.localeCompare(a.publicId));
   }, [allImages]);
 
