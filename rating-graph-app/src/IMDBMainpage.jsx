@@ -280,7 +280,7 @@ function SeriesPage() {
   );
 
   useEffect(() => {
-    fetch("https://backend-ratinggraph.onrender.com/api/all-images") // ou URL do Render
+    fetch(`https://backend-ratinggraph.onrender.com/api/all-images/${movieId}`) // ou URL do Render
       .then((res) => res.json())
       .then((data) => {
         console.log("Imagens do backend:", data); // <--- veja no console

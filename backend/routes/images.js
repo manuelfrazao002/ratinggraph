@@ -10,7 +10,7 @@ cloudinary.config({
 
 const router = express.Router();
 
-router.get("/all-images", async (req, res) => {
+router.get("/all-images/:movieId", async (req, res) => {
   try {
     const { movieId } = req.params;
 
