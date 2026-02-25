@@ -9,6 +9,7 @@ import {
   getTrailerSrc,
   getVideoThumbnail,
 } from "./ShowImageSrc";
+import axios from "axios";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -89,6 +90,7 @@ function SeriesPage() {
   const [recentAndTopEpisodes, setRecentAndTopEpisodes] = useState([]);
   const [cast, setCast] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [allImages, setAllImages] = React.useState([]);
 
   const urls = movieMap[movieId];
 
@@ -287,6 +289,18 @@ function SeriesPage() {
     "Filmes disponíveis:",
     movies.map((m) => m.id),
   );
+
+useEffect(() => {
+  fetch("/api/all-images")
+    .then(res => res.json())
+    .then(data => {
+      if (data?.images) setAllImages(data.images);
+    });
+}, []);
+
+  const sortedImages = React.useMemo(() => {
+    return [...allImages].sort((a, b) => b.publicId.localeCompare(a.publicId));
+  }, [allImages]);
 
   if (!urls) return <p>Filme não encontrado</p>;
   if (!data) return <p>Carregando dados do filme...</p>;
@@ -2375,28 +2389,117 @@ function SeriesPage() {
                         style={{
                           display: "flex",
                           flexWrap: "wrap",
-                          gap: "12px",
                         }}
                       >
                         {/* Primeira linha: 2 vídeos */}
                         {videos.slice(0, 2).map((video) => (
                           <div
                             key={video.videoId}
-                            style={{ flex: "0 0 calc(50% - 6px)" }} // 50% da largura - metade do gap
+                            style={{ flex: "0 0 calc(50% - 1rem)" }} // 50% da largura - metade do gap
                           >
-                            <img
-                              src={getVideoThumbnail(movieId, video.videoId)}
-                              alt={video.Title}
-                              style={{
-                                width: "396px",
-                                height: "222.75px",
-                                borderRadius: "0.75rem",
-                                objectFit: "cover",
-                              }}
-                            />
+                            <div style={{ position: "relative" }}>
+                              <img
+                                src={getVideoThumbnail(movieId, video.videoId)}
+                                alt={video.Title}
+                                style={{
+                                  width: "396px",
+                                  height: "222.75px",
+                                  borderRadius: "0.75rem",
+                                  objectFit: "cover",
+                                  cursor: "pointer",
+                                  objectPosition: "15% 15%",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: 20, // afastamento do canto inferior
+                                  left: 20, // afastamento do canto esquerdo
+                                  display: "flex",
+                                  alignItems: "center",
+                                  // espaço entre o círculo e o texto
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    position: "relative",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    top: "4px",
+                                    left: "-8px",
+                                  }}
+                                >
+                                  {/* Círculo com borda branca */}
+                                  <div
+                                    style={{
+                                      width: 24,
+                                      height: 24,
+                                      borderRadius: "50%",
+                                      border: "3px solid white", // borda branca
+                                      display: "flex",
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                      filter:
+                                        "drop-shadow(0 0 4px rgba(0,0,0,0.7))",
+                                      transition: "background-color 0.3s ease",
+                                      position: "relative",
+                                      top: "0px",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="presentation"
+                                      style={{
+                                        transform: "rotate(-90deg)",
+                                        color: "white",
+                                      }}
+                                    >
+                                      <path
+                                        fill="none"
+                                        d="M0 0h24v24H0V0z"
+                                      ></path>
+                                      <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
+                                    </svg>
+                                  </div>
+
+                                  {/* Texto ao lado */}
+                                  <span
+                                    style={{
+                                      color: "white",
+                                      fontSize: "1rem",
+                                      userSelect: "none",
+                                      textShadow: "0 0 5px rgba(0,0,0,0.7)",
+                                      position: "relative",
+                                      left: "-4px",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                    }}
+                                  >
+                                    {video.Type}
+                                  </span>
+                                  <span
+                                    style={{
+                                      color: "white",
+                                      position: "relative",
+                                      left: "-7px",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  >
+                                    {video.Duration}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                             <p
                               style={{
-                                margin: "4px 0 0 0",
+                                padding: ".50rem .25rem .25rem",
                                 fontSize: "1rem",
                                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                                 fontWeight: "400",
@@ -2404,19 +2507,1173 @@ function SeriesPage() {
                                 letterSpacing: "0.03125em",
                                 display: "block",
                                 cursor: "pointer",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxHeight: "48px",
+                                maxWidth: "396px",
+                                margin: "0",
                               }}
                             >
                               {video.Title}
                             </p>
-                            <p
+                            <div
                               style={{
-                                margin: "0",
-                                fontSize: "0.75rem",
-                                color: "rgba(0,0,0,.6)",
+                                display: "flex",
+                                marginLeft: "-0.25rem",
+                                height: "24px",
+                                alignItems: "center",
                               }}
                             >
-                              {video.Duration}
-                            </p>
+                              {video.Likes > 0 && (
+                                <>
+                                  <div
+                                    style={{
+                                      width: "24px",
+                                      height: "16px",
+                                      display: "flex",
+                                      alignContent: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="1rem"
+                                      height="1rem"
+                                      style={{ color: "rgb(0,0,0,.54)" }}
+                                      class="ipc-icon ipc-icon--thumb-up ipc-reaction-summary__likes-icon"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="presentation"
+                                    >
+                                      <path d="M13.12 2.06c.58-.59 1.52-.59 2.11-.01.36.36.51.87.41 1.37L14.69 8h5.65c2.15 0 3.6 2.2 2.76 4.18l-3.26 7.61C19.52 20.52 18.8 21 18 21H9c-1.1 0-2-.9-2-2V9.01c0-.53.21-1.04.58-1.41l5.54-5.54zM9.293 8.707A1 1 0 0 0 9 9.414V18a1 1 0 0 0 1 1h7.332a1 1 0 0 0 .924-.617c1.663-4.014 2.527-6.142 2.594-6.383.07-.253.12-.587.15-1v-.002A1 1 0 0 0 20 10h-8l1.34-5.34-4.047 4.047zM3 21c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2s-2 .9-2 2v8c0 1.1.9 2 2 2z"></path>
+                                    </svg>
+                                  </div>
+                                  <p
+                                    style={{
+                                      margin: "0",
+                                      fontSize: "0.75rem",
+                                      color: "rgba(0,0,0,.54)",
+                                      marginRight: "0.5rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      lineHeight: "1rem",
+                                      letterSpacing: "0.03333em",
+                                      fontWeight: "400",
+                                    }}
+                                  >
+                                    {formatNumber(video.Likes)}
+                                  </p>
+                                </>
+                              )}
+                              {video.Reactions > 0 && (
+                                <>
+                                  <div
+                                    style={{
+                                      opacity: "0.7",
+                                      height: "19px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      role="presentation"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 500 500"
+                                      class="ipc-reaction ipc-reaction--heart ipc-reaction--inline ipc-reaction-summary__reaction"
+                                      fill="currentColor"
+                                    >
+                                      <g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(0, 6.312) scale(1, 1.1) translate(-250, -255.738)">
+                                              <path
+                                                fill="#ee3e81"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keyTimes="0;0.0416667;1"
+                                                  values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2083334;0.6041667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.6041667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -58,40 -70,-164 C-70,-164 -70,-164 -70,-164"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.1875;0.1875021;0.875;0.875;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(102.692, -80.302) scale(1, 1.1) translate(-352.692, -176.998)">
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M348.84 166.12 C366.26,174.01 369.73,188 371.64,201.64 C372.13,205.08 375.77,206.98 378.45,206.53 C381.58,206 382.52,203.95 382.62,197.95 C382.87,181.95 370.32,157.23 351.07,153.75 C347.65,153.13 344.39,155.4 343.77,158.82 C343.39,160.91 343.29,163.61 348.84,166.12z "
+                                              ></path>
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M332.5 157.18 C334.74,154.96 334.76,151.34 332.54,149.1 C330.32,146.86 326.7,146.84 324.46,149.06 C322.22,151.28 322.2,154.89 324.42,157.13 C326.64,159.38 330.25,159.39 332.5,157.18z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2083334;0.6041667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.6041667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -58,40 -70,-164 C-70,-164 -70,-164 -70,-164"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.1875;0.1875021;0.875;0.875;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(-37.868, 6.312) scale(1, 1.1) translate(-212.132, -255.738)">
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z "
+                                                  to="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keyTimes="0;0.0416667;1"
+                                                  values="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M333.93 124.88 C296.58,121.15 257.89,141.21 246.59,155.72 C246.59,155.72 251.52,161.62 251.52,161.62 C253.64,164.15 257.59,163.99 259.45,161.26 C267.52,149.35 291.39,126.04 333.93,124.88z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2083334;0.6041667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.6041667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -58,40 -70,-164 C-70,-164 -70,-164 -70,-164"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.1875;0.1875021;0.875;0.875;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(0, 6.312) scale(1, 1.1) translate(-250, -255.738)">
+                                              <path
+                                                fill="#ee3e81"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keyTimes="0;0.0416667;0.1041667;1"
+                                                  values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2708334;0.6666667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1041667;0.6666667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -90,108 -102,-96 C-102,-96 -102,-96 -102,-96"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.25;0.2500021;0.9375;0.9375;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(102.692, -80.302) scale(1, 1.1) translate(-352.692, -176.998)">
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M348.84 166.12 C366.26,174.01 369.73,188 371.64,201.64 C372.13,205.08 375.77,206.98 378.45,206.53 C381.58,206 382.52,203.95 382.62,197.95 C382.87,181.95 370.32,157.23 351.07,153.75 C347.65,153.13 344.39,155.4 343.77,158.82 C343.39,160.91 343.29,163.61 348.84,166.12z "
+                                              ></path>
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M332.5 157.18 C334.74,154.96 334.76,151.34 332.54,149.1 C330.32,146.86 326.7,146.84 324.46,149.06 C322.22,151.28 322.2,154.89 324.42,157.13 C326.64,159.38 330.25,159.39 332.5,157.18z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2708334;0.6666667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1041667;0.6666667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -90,108 -102,-96 C-102,-96 -102,-96 -102,-96"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.25;0.2500021;0.9375;0.9375;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(-37.868, 6.312) scale(1, 1.1) translate(-212.132, -255.738)">
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  to="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keyTimes="0;0.0416667;0.1041667;1"
+                                                  values="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M333.93 124.88 C296.58,121.15 257.89,141.21 246.59,155.72 C246.59,155.72 251.52,161.62 251.52,161.62 C253.64,164.15 257.59,163.99 259.45,161.26 C267.52,149.35 291.39,126.04 333.93,124.88z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2708334;0.6666667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1041667;0.6666667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -90,108 -102,-96 C-102,-96 -102,-96 -102,-96"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.25;0.2500021;0.9375;0.9375;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(1.1, 1.1) ">
+                                          <g transform=" translate(0, 5.738) translate(-250, -255.738)">
+                                            <path
+                                              fill="#ee3e81"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                            >
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="d"
+                                                attributeType="XML"
+                                                from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keyTimes="0;0.0625;0.1041667;0.1666667;1"
+                                                values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </path>
+                                            <path
+                                              stroke="#b23f64"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              fill="none"
+                                              stroke-width="6"
+                                              stroke-opacity="1"
+                                              d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                            >
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="d"
+                                                attributeType="XML"
+                                                from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keyTimes="0;0.0625;0.1041667;0.1666667;1"
+                                                values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </path>
+                                          </g>
+                                          <animateMotion
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            path="M0 0 C0,16.670000000000016 0,83.32999999999998 0,100 C0,100 0,100 0,100 C0,83.32999999999998 0,20 0,0 C0,-20 0,-20.330000000000013 0,-20 C0,-19.669999999999987 0,0.3300000000000125 0,2 C0,3.6699999999999875 0,-9.669999999999987 0,-10 C0,-10.330000000000013 0,-1.6699999999999875 0,0 C0,0 0,0 0,0"
+                                            keyPoints="0;0.38;0.38;0.76;0.83;0.92;0.96;1;1"
+                                            keySplines="0.333 0 0.667 1;0.333 0.333 0.667 0.667;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateMotion>
+                                          <animateTransform
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="transform"
+                                            from="1.1 1.1"
+                                            to="1.1 1.1"
+                                            type="scale"
+                                            additive="sum"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            values="1 1;0.7272727272727273 0.6818181818181818;0.7272727272727273 0.6818181818181818;0.9636363636363636 1;1.0272727272727273 1.0272727272727273;0.8909090909090909 0.8909090909090909;0.9909090909090909 0.9909090909090909;1 1;1 1"
+                                            keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateTransform>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(1.1, 1.1) ">
+                                          <g transform=" translate(102.692, -73.002) translate(-352.692, -176.998)">
+                                            <path
+                                              fill="#f8bbad"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M348.84 166.12 C366.26,174.01 369.73,188 371.64,201.64 C372.13,205.08 375.77,206.98 378.45,206.53 C381.58,206 382.52,203.95 382.62,197.95 C382.87,181.95 370.32,157.23 351.07,153.75 C347.65,153.13 344.39,155.4 343.77,158.82 C343.39,160.91 343.29,163.61 348.84,166.12z "
+                                            ></path>
+                                            <path
+                                              fill="#f8bbad"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M332.5 157.18 C334.74,154.96 334.76,151.34 332.54,149.1 C330.32,146.86 326.7,146.84 324.46,149.06 C322.22,151.28 322.2,154.89 324.42,157.13 C326.64,159.38 330.25,159.39 332.5,157.18z "
+                                            ></path>
+                                          </g>
+                                          <animateMotion
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            path="M0 0 C0,16.670000000000016 0,83.32999999999998 0,100 C0,100 0,100 0,100 C0,83.32999999999998 0,20 0,0 C0,-20 0,-20.330000000000013 0,-20 C0,-19.669999999999987 0,0.3300000000000125 0,2 C0,3.6699999999999875 0,-9.669999999999987 0,-10 C0,-10.330000000000013 0,-1.6699999999999875 0,0 C0,0 0,0 0,0"
+                                            keyPoints="0;0.38;0.38;0.76;0.83;0.92;0.96;1;1"
+                                            keySplines="0.333 0 0.667 1;0.333 0.333 0.667 0.667;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateMotion>
+                                          <animateTransform
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="transform"
+                                            from="1.1 1.1"
+                                            to="1.1 1.1"
+                                            type="scale"
+                                            additive="sum"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            values="1 1;0.7272727272727273 0.6818181818181818;0.7272727272727273 0.6818181818181818;0.9636363636363636 1;1.0272727272727273 1.0272727272727273;0.8909090909090909 0.8909090909090909;0.9909090909090909 0.9909090909090909;1 1;1 1"
+                                            keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateTransform>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(1.1, 1.1) ">
+                                          <g transform=" translate(-37.868, 5.738) translate(-212.132, -255.738)">
+                                            <path
+                                              fill="#b23f64"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C173.18,114.09 127.39,121.03 99.82,166.99 C72.31,213.85 99.37,261.03 126.37,291.83 C151.21,320.15 248.74,389.94 248.74,389.94 C248.74,389.94 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                            >
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="d"
+                                                attributeType="XML"
+                                                from="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C173.18,114.09 127.39,121.03 99.82,166.99 C72.31,213.85 99.37,261.03 126.37,291.83 C151.21,320.15 248.74,389.94 248.74,389.94 C248.74,389.94 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                                to="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.66,114.6 129.01,119.67 101.45,165.63 C73.93,212.49 98.91,260.06 125.92,290.86 C150.76,319.18 249,389.45 249,389.45 C249,389.45 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                                keyTimes="0;0.0625;0.1041667;0.1666667;0.2916667;1"
+                                                values="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C173.18,114.09 127.39,121.03 99.82,166.99 C72.31,213.85 99.37,261.03 126.37,291.83 C151.21,320.15 248.74,389.94 248.74,389.94 C248.74,389.94 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C176.57,115.1 128.46,118.81 100.9,164.77 C73.38,211.63 98.36,259.85 125.36,290.65 C150.21,318.98 250.1,388.12 250.1,388.12 C250.41,388.12 250.48,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.94,114.33 127.93,119 100.36,164.96 C72.85,211.82 99.23,260.52 126.23,291.31 C151.07,319.64 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C178.75,115.33 128.24,118.67 100.68,164.63 C73.16,211.49 97.35,259.52 124.35,290.31 C149.2,318.64 250.1,388.12 250.1,388.12 C250.1,388.12 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.66,114.6 129.01,119.67 101.45,165.63 C73.93,212.49 98.91,260.06 125.92,290.86 C150.76,319.18 249,389.45 249,389.45 C249,389.45 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.66,114.6 129.01,119.67 101.45,165.63 C73.93,212.49 98.91,260.06 125.92,290.86 C150.76,319.18 249,389.45 249,389.45 C249,389.45 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                                keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </path>
+                                            <path
+                                              fill="#b23f64"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M333.93 124.88 C296.58,121.15 257.89,141.21 246.59,155.72 C246.59,155.72 251.52,161.62 251.52,161.62 C253.64,164.15 257.59,163.99 259.45,161.26 C267.52,149.35 291.39,126.04 333.93,124.88z "
+                                            ></path>
+                                          </g>
+                                          <animateMotion
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            path="M0 0 C0,16.670000000000016 0,83.32999999999998 0,100 C0,100 0,100 0,100 C0,83.32999999999998 0,20 0,0 C0,-20 0,-20.330000000000013 0,-20 C0,-19.669999999999987 0,0.3300000000000125 0,2 C0,3.6699999999999875 0,-9.669999999999987 0,-10 C0,-10.330000000000013 0,-1.6699999999999875 0,0 C0,0 0,0 0,0"
+                                            keyPoints="0;0.38;0.38;0.76;0.83;0.92;0.96;1;1"
+                                            keySplines="0.333 0 0.667 1;0.333 0.333 0.667 0.667;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateMotion>
+                                          <animateTransform
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="transform"
+                                            from="1.1 1.1"
+                                            to="1.1 1.1"
+                                            type="scale"
+                                            additive="sum"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            values="1 1;0.7272727272727273 0.6818181818181818;0.7272727272727273 0.6818181818181818;0.9636363636363636 1;1.0272727272727273 1.0272727272727273;0.8909090909090909 0.8909090909090909;0.9909090909090909 0.9909090909090909;1 1;1 1"
+                                            keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateTransform>
+                                        </g>
+                                      </g>
+                                    </svg>
+                                    <svg
+                                      style={{
+                                        position: "relative",
+                                        left: "-12px",
+                                        opacity: "0.7",
+                                      }}
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      role="presentation"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 500 500"
+                                      class="ipc-reaction ipc-reaction--clap ipc-reaction--inline ipc-reaction-summary__reaction ipc-reaction-summary__reaction-front"
+                                      fill="currentColor"
+                                    >
+                                      <g>
+                                        <g>
+                                          <g>
+                                            <path
+                                              fill="#ee9dc4"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M234.12 170.88 C233.44,172.09 231.77,172.38 230.75,171.47 C230.75,171.47 184.59,130.07 184.59,130.07 C180.97,126.83 182.72,121.3 187.8,119.91 C187.8,119.91 199.75,116.65 199.75,116.65 C203.1,115.74 206.63,117.07 208.07,119.78 C208.07,119.78 234.15,168.97 234.15,168.97 C234.46,169.56 234.45,170.28 234.12,170.88z "
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="1"
+                                              to="0"
+                                              keyTimes="0;0.0833333;0.3541667;1"
+                                              values="1;1;0;0"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="1"
+                                            to="0"
+                                            keyTimes="0;0.3958333;0.3958334;1"
+                                            values="1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g>
+                                          <g>
+                                            <path
+                                              fill="#ee82ae"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M282.18 163.83 C282.76,164.8 284.13,165 284.94,164.23 C284.94,164.23 321.54,129.36 321.54,129.36 C324.4,126.63 322.85,122.17 318.67,121.16 C318.67,121.16 308.86,118.8 308.86,118.8 C306.11,118.14 303.26,119.31 302.15,121.56 C302.15,121.56 282.11,162.27 282.11,162.27 C281.87,162.77 281.89,163.35 282.18,163.83z "
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="1"
+                                              to="0"
+                                              keyTimes="0;0.0833333;0.3541667;1"
+                                              values="1;1;0;0"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="1"
+                                            to="0"
+                                            keyTimes="0;0.3958333;0.3958334;1"
+                                            values="1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g>
+                                          <g>
+                                            <path
+                                              fill="#5ba7db"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M251.84 168.62 C253.37,169.68 255.56,169.03 256.25,167.32 C256.25,167.32 287.35,89.94 287.35,89.94 C289.79,83.88 284.39,78.24 277.44,79.59 C277.44,79.59 261.08,82.76 261.08,82.76 C256.5,83.65 253.03,87.35 252.9,91.48 C252.9,91.48 250.67,166.33 250.67,166.33 C250.64,167.24 251.08,168.09 251.84,168.62z "
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="1"
+                                              to="0"
+                                              keyTimes="0;0.0833333;0.3541667;1"
+                                              values="1;1;0;0"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="1"
+                                            to="0"
+                                            keyTimes="0;0.3958333;0.3958334;1"
+                                            values="1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g opacity="0">
+                                            <path
+                                              fill="#ee9dc4"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M234.12 170.88 C233.44,172.09 231.77,172.38 230.75,171.47 C230.75,171.47 184.59,130.07 184.59,130.07 C180.97,126.83 182.72,121.3 187.8,119.91 C187.8,119.91 199.75,116.65 199.75,116.65 C203.1,115.74 206.63,117.07 208.07,119.78 C208.07,119.78 234.15,168.97 234.15,168.97 C234.46,169.56 234.45,170.28 234.12,170.88z "
+                                              transform=" translate(22, 40)"
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="0"
+                                              to="1"
+                                              keyTimes="0;0.375;0.5625;0.9583333;1"
+                                              values="0;0;1;1;1"
+                                              keySplines="0.306 0 0.648 1;0.306 0 0.648 1;0.394 0 0.829 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.375;0.7083333;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.3299999999999841,0 1.670000000000016,6.670000000000016 -2,0 C-5.670000000000016,-6.670000000000016 -18.669999999999987,-33.329999999999984 -22,-40 C-22,-40 -22,-40 -22,-40"
+                                              keyPoints="0;0;0.13;1;1"
+                                              keySplines="0.167 0 0.833 1;0.167 0 0.833 1;0.167 0 0 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="1"
+                                            keyTimes="0;0.375;0.3750021;1"
+                                            values="0;0;1;1"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g opacity="0">
+                                            <path
+                                              fill="#ee82ae"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M282.18 163.83 C282.76,164.8 284.13,165 284.94,164.23 C284.94,164.23 321.54,129.36 321.54,129.36 C324.4,126.63 322.85,122.17 318.67,121.16 C318.67,121.16 308.86,118.8 308.86,118.8 C306.11,118.14 303.26,119.31 302.15,121.56 C302.15,121.56 282.11,162.27 282.11,162.27 C281.87,162.77 281.89,163.35 282.18,163.83z "
+                                              transform=" translate(-18, 40)"
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="0"
+                                              to="1"
+                                              keyTimes="0;0.375;0.5625;0.9583333;1"
+                                              values="0;0;1;1;1"
+                                              keySplines="0.306 0 0.648 1;0.306 0 0.648 1;0.394 0 0.829 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.375;0.7083333;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.3300000000000125,0 -5,6.670000000000016 -2,0 C1,-6.670000000000016 14.669999999999987,-33.329999999999984 18,-40 C18,-40 18,-40 18,-40"
+                                              keyPoints="0;0;0.14;1;1"
+                                              keySplines="0.167 0 0.833 1;0.167 0 0.833 1;0.167 0 0 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="1"
+                                            keyTimes="0;0.375;0.3750021;1"
+                                            values="0;0;1;1"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g opacity="0">
+                                            <path
+                                              fill="#5ba7db"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M251.84 168.62 C253.37,169.68 255.56,169.03 256.25,167.32 C256.25,167.32 287.35,89.94 287.35,89.94 C289.79,83.88 284.39,78.24 277.44,79.59 C277.44,79.59 261.08,82.76 261.08,82.76 C256.5,83.65 253.03,87.35 252.9,91.48 C252.9,91.48 250.67,166.33 250.67,166.33 C250.64,167.24 251.08,168.09 251.84,168.62z "
+                                              transform=" translate(2, 40)"
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="0"
+                                              to="1"
+                                              keyTimes="0;0.375;0.5625;0.9583333;1"
+                                              values="0;0;1;1;1"
+                                              keySplines="0.195 0 0.562 1;0.195 0 0.562 1;0.352 0 0.843 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.375;0.7083333;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.3300000000000125,0 -1.6699999999999875,6.670000000000016 -2,0 C-2.3300000000000125,-6.670000000000016 -2,-33.329999999999984 -2,-40 C-2,-40 -2,-40 -2,-40"
+                                              keyPoints="0;0;0.14;1;1"
+                                              keySplines="0.167 0 0.833 1;0.167 0 0.833 1;0.167 0 0 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="1"
+                                            keyTimes="0;0.375;0.3750021;1"
+                                            values="0;0;1;1"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(5, 5) translate(0, 0)">
+                                          <g>
+                                            <path
+                                              stroke="#af772a"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              fill="none"
+                                              stroke-width="2"
+                                              stroke-opacity="1"
+                                              d=" M58.11 33.75 C57.87,32.96 57.41,32.31 56.83,31.83 C56.15,31.27 55.21,31.15 54.4,31.5 C54.4,31.5 39.2,38.1 39.2,38.1 C39.04,38.17 38.88,38.17 38.73,38.11 C38.59,38.05 38.46,37.94 38.4,37.78 C38.26,37.46 38.41,37.1 38.72,36.96 C38.72,36.96 55.58,29.64 55.58,29.64 C56.4,29.28 56.97,28.5 57.03,27.6 C57.08,26.91 56.96,26.19 56.63,25.51 C56.41,25.07 56.13,24.7 55.79,24.38 C55.09,23.74 54.08,23.58 53.22,23.96 C52.45,24.3 51.53,24.71 51.49,24.72 C51.49,24.72 35.51,31.66 35.51,31.66 C35.35,31.73 35.19,31.73 35.04,31.67 C34.9,31.61 34.77,31.5 34.71,31.34 C34.57,31.02 34.72,30.66 35.03,30.52 C35.03,30.52 49.55,24.22 49.55,24.22 C50.75,23.7 51.34,22.28 50.83,21.06 C50.83,21.05 50.82,21.04 50.82,21.03 C49.96,18.98 47.62,18.03 45.61,18.91 C45.61,18.91 31.79,24.91 31.79,24.91 C31.79,24.91 28.28,26.42 28.28,26.42 C26.51,27.21 25.14,27.65 23.52,28 C23.52,28 23.49,28.01 23.49,28.01 C22.81,28.15 22.19,27.57 22.29,26.88 C22.29,26.88 22.92,22.07 22.92,22.07 C23.21,19.86 21.69,17.83 19.52,17.53 C17.35,17.24 15.35,18.78 15.06,20.99 C15.06,20.99 12.82,37.91 12.82,37.91 C12.75,38.45 12.64,38.99 12.53,39.52 C11.93,42.48 12.17,45.64 13.43,48.62 C16.71,56.43 25.6,60.05 33.28,56.71 C33.28,56.71 40.35,53.64 40.35,53.64 C40.52,53.59 40.69,53.54 40.86,53.47 C40.86,53.47 54.33,47.61 54.33,47.61 C56.35,46.74 57.28,44.37 56.42,42.32 C56.3,42.02 56.13,41.74 55.95,41.48 C55.29,40.6 54.11,40.3 53.1,40.74 C53.1,40.74 42.1,45.51 42.1,45.51 C41.93,45.59 41.75,45.58 41.6,45.52 C41.44,45.46 41.31,45.33 41.24,45.16 C41.1,44.83 41.25,44.43 41.58,44.29 C41.58,44.29 56.73,37.71 56.73,37.71 C57.29,37.47 57.75,37.02 57.98,36.45 C58.33,35.61 58.4,34.67 58.11,33.75z "
+                                              transform=" translate(-31.995000000000005, -32.004)"
+                                            ></path>
+                                            <path
+                                              fill="#f4b642"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M58.11 33.75 C57.87,32.96 57.41,32.31 56.83,31.83 C56.15,31.27 55.21,31.15 54.4,31.5 C54.4,31.5 39.2,38.1 39.2,38.1 C39.04,38.17 38.88,38.17 38.73,38.11 C38.59,38.05 38.46,37.94 38.4,37.78 C38.26,37.46 38.41,37.1 38.72,36.96 C38.72,36.96 55.58,29.64 55.58,29.64 C56.4,29.28 56.97,28.5 57.03,27.6 C57.08,26.91 56.96,26.19 56.63,25.51 C56.41,25.07 56.13,24.7 55.79,24.38 C55.09,23.74 54.08,23.58 53.22,23.96 C52.45,24.3 51.53,24.71 51.49,24.72 C51.49,24.72 35.51,31.66 35.51,31.66 C35.35,31.73 35.19,31.73 35.04,31.67 C34.9,31.61 34.77,31.5 34.71,31.34 C34.57,31.02 34.72,30.66 35.03,30.52 C35.03,30.52 49.55,24.22 49.55,24.22 C50.75,23.7 51.34,22.28 50.83,21.06 C50.83,21.05 50.82,21.04 50.82,21.03 C49.96,18.98 47.62,18.03 45.61,18.91 C45.61,18.91 31.79,24.91 31.79,24.91 C31.79,24.91 28.28,26.42 28.28,26.42 C26.51,27.21 25.14,27.65 23.52,28 C23.52,28 23.49,28.01 23.49,28.01 C22.81,28.15 22.19,27.57 22.29,26.88 C22.29,26.88 22.92,22.07 22.92,22.07 C23.21,19.86 21.69,17.83 19.52,17.53 C17.35,17.24 15.35,18.78 15.06,20.99 C15.06,20.99 12.82,37.91 12.82,37.91 C12.75,38.45 12.64,38.99 12.53,39.52 C11.93,42.48 12.17,45.64 13.43,48.62 C16.71,56.43 25.6,60.05 33.28,56.71 C33.28,56.71 40.35,53.64 40.35,53.64 C40.52,53.59 40.69,53.54 40.86,53.47 C40.86,53.47 54.33,47.61 54.33,47.61 C56.35,46.74 57.28,44.37 56.42,42.32 C56.3,42.02 56.13,41.74 55.95,41.48 C55.29,40.6 54.11,40.3 53.1,40.74 C53.1,40.74 42.1,45.51 42.1,45.51 C41.93,45.59 41.75,45.58 41.6,45.52 C41.44,45.46 41.31,45.33 41.24,45.16 C41.1,44.83 41.25,44.43 41.58,44.29 C41.58,44.29 56.73,37.71 56.73,37.71 C57.29,37.47 57.75,37.02 57.98,36.45 C58.33,35.61 58.4,34.67 58.11,33.75z "
+                                              transform=" translate(-31.995000000000005, -32.004)"
+                                            ></path>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0.8799999999999999,-0.4399999999999995 5.33,-2.6599999999999997 5.33,-2.6599999999999997 C5.33,-2.6599999999999997 0.8799999999999999,-0.4399999999999995 0,0 C0,0 0,0 0,0"
+                                              keyPoints="0;0;0.5;1;1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0"
+                                              to="0"
+                                              type="rotate"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="0;0;-10;0;0"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="1 1"
+                                              to="1 1"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="1 1;1 1;0.8 0.8;1 1;1 1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(5, 5) translate(0, 0)">
+                                          <g>
+                                            <path
+                                              stroke="#af772a"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              fill="none"
+                                              stroke-width="2"
+                                              stroke-opacity="1"
+                                              d=" M52.29 37.65 C51.05,36.41 49.16,36.39 48.37,37.19 C48.37,37.19 39.92,45.78 39.92,45.78 C39.79,45.91 39.62,45.97 39.45,45.97 C39.28,45.97 39.12,45.91 38.99,45.78 C38.73,45.52 38.73,45.09 38.99,44.83 C38.99,44.83 50.61,33.03 50.61,33.03 C51.92,31.72 51.38,29.58 50.31,28.51 C48.86,27.06 46.83,27.48 46.18,28.14 C46.18,28.14 34.51,40 34.51,40 C34.39,40.12 34.23,40.18 34.08,40.18 C33.92,40.18 33.76,40.12 33.65,40 C33.41,39.75 33.41,39.36 33.65,39.12 C33.65,39.12 46.61,25.94 46.61,25.94 C47.24,25.31 47.81,23.31 46.07,21.72 C44.59,20.36 42.75,21.26 42.26,21.65 C41.45,22.29 28.72,35.41 28.72,35.41 C28.61,35.53 28.45,35.59 28.29,35.59 C28.14,35.59 27.98,35.53 27.86,35.41 C27.62,35.17 27.62,34.78 27.86,34.54 C27.86,34.54 39.03,23.19 39.03,23.19 C39.29,22.89 39.46,22.52 39.55,22.12 C39.88,20.6 38.81,19.18 37.34,18.68 C35.93,18.2 34.53,18.64 33.43,19.76 C33.43,19.76 22.8,30.55 22.8,30.55 C22.8,30.55 20.1,33.28 20.1,33.28 C18.74,34.68 17.63,35.61 16.25,36.55 C16.25,36.55 16.23,36.56 16.23,36.56 C15.65,36.95 14.87,36.65 14.7,35.97 C14.7,35.97 13.53,31.26 13.53,31.26 C12.99,29.1 10.83,27.8 8.71,28.34 C6.58,28.89 5.29,31.08 5.83,33.24 C5.83,33.24 9.95,49.78 9.95,49.78 C10.09,50.32 10.18,50.86 10.27,51.39 C10.8,54.36 12.19,57.21 14.45,59.5 C20.35,65.5 29.93,65.5 35.84,59.5 C35.84,59.5 41.27,53.98 41.27,53.98 C41.41,53.87 41.55,53.76 41.68,53.62 C41.68,53.62 51.88,43.26 51.88,43.26 C53.51,41.61 54.38,39.74 52.29,37.65z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#fdd856"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M52.29 37.65 C51.05,36.41 49.16,36.39 48.37,37.19 C48.37,37.19 39.92,45.78 39.92,45.78 C39.79,45.91 39.62,45.97 39.45,45.97 C39.28,45.97 39.12,45.91 38.99,45.78 C38.73,45.52 38.73,45.09 38.99,44.83 C38.99,44.83 50.61,33.03 50.61,33.03 C51.92,31.72 51.38,29.58 50.31,28.51 C48.86,27.06 46.83,27.48 46.18,28.14 C46.18,28.14 34.51,40 34.51,40 C34.39,40.12 34.23,40.18 34.08,40.18 C33.92,40.18 33.76,40.12 33.65,40 C33.41,39.75 33.41,39.36 33.65,39.12 C33.65,39.12 46.61,25.94 46.61,25.94 C47.24,25.31 47.81,23.31 46.07,21.72 C44.59,20.36 42.75,21.26 42.26,21.65 C41.45,22.29 28.72,35.41 28.72,35.41 C28.61,35.53 28.45,35.59 28.29,35.59 C28.14,35.59 27.98,35.53 27.86,35.41 C27.62,35.17 27.62,34.78 27.86,34.54 C27.86,34.54 39.03,23.19 39.03,23.19 C39.29,22.89 39.46,22.52 39.55,22.12 C39.88,20.6 38.81,19.18 37.34,18.68 C35.93,18.2 34.53,18.64 33.43,19.76 C33.43,19.76 22.8,30.55 22.8,30.55 C22.8,30.55 20.1,33.28 20.1,33.28 C18.74,34.68 17.63,35.61 16.25,36.55 C16.25,36.55 16.23,36.56 16.23,36.56 C15.65,36.95 14.87,36.65 14.7,35.97 C14.7,35.97 13.53,31.26 13.53,31.26 C12.99,29.1 10.83,27.8 8.71,28.34 C6.58,28.89 5.29,31.08 5.83,33.24 C5.83,33.24 9.95,49.78 9.95,49.78 C10.09,50.32 10.18,50.86 10.27,51.39 C10.8,54.36 12.19,57.21 14.45,59.5 C20.35,65.5 29.93,65.5 35.84,59.5 C35.84,59.5 41.27,53.98 41.27,53.98 C41.41,53.87 41.55,53.76 41.68,53.62 C41.68,53.62 51.88,43.26 51.88,43.26 C53.51,41.61 54.38,39.74 52.29,37.65z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M51.24 41.69 C51.44,41.9 51.78,41.88 51.93,41.63 C52.56,40.65 52.45,39.33 51.6,38.47 C50.75,37.61 49.45,37.49 48.48,38.13 C48.25,38.28 48.23,38.63 48.42,38.83 C48.42,38.83 51.24,41.69 51.24,41.69z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M49.22 32.41 C49.42,32.61 49.76,32.59 49.91,32.35 C50.54,31.37 50.42,30.04 49.58,29.18 C48.73,28.32 47.43,28.21 46.46,28.84 C46.22,29 46.2,29.35 46.4,29.55 C46.4,29.55 49.22,32.41 49.22,32.41z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M45.25 25.48 C45.44,25.66 45.76,25.64 45.9,25.42 C46.48,24.51 46.37,23.27 45.59,22.47 C44.8,21.67 43.58,21.57 42.68,22.15 C42.46,22.3 42.44,22.62 42.63,22.81 C42.63,22.81 45.25,25.48 45.25,25.48z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M37.42 23.16 C37.6,23.36 37.93,23.34 38.07,23.11 C38.66,22.18 38.56,20.92 37.76,20.11 C36.95,19.29 35.72,19.19 34.8,19.79 C34.58,19.93 34.56,20.26 34.75,20.45 C34.75,20.45 37.42,23.16 37.42,23.16z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.8900000000000001,-0.4399999999999995 -5.34,-2.66 -5.34,-2.66 C-5.34,-2.66 -0.8900000000000001,-0.4399999999999995 0,0 C0,0 0,0 0,0"
+                                              keyPoints="0;0;0.5;1;1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0"
+                                              to="0"
+                                              type="rotate"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="0;0;-5;0;0"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="1 1"
+                                              to="1 1"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="1 1;1 1;1.05 1.05;1 1;1 1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                        </g>
+                                      </g>
+                                    </svg>
+                                  </div>
+                                  <p
+                                    style={{
+                                      margin: "0",
+                                      fontSize: "0.75rem",
+                                      color: "rgba(0,0,0,.54)",
+                                      marginRight: "0.5rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      lineHeight: "1rem",
+                                      letterSpacing: "0.03333em",
+                                      fontWeight: "400",
+                                      marginLeft: "-0.75rem",
+                                    }}
+                                  >
+                                    {formatNumber(video.Reactions)}
+                                  </p>
+                                </>
+                              )}
+                            </div>
                           </div>
                         ))}
 
@@ -2424,30 +3681,1286 @@ function SeriesPage() {
                         {videos.slice(2, 6).map((video) => (
                           <div
                             key={video.videoId}
-                            style={{ flex: "0 0 calc(25% - 9px)" }} // 25% da largura - metade do gap
+                            style={{
+                              flex: "0 0 calc(25.9% - 1rem)",
+                              paddingTop: "0.5rem",
+                            }} // 25% da largura - metade do gap
                           >
-                            <img
-                              src={getVideoThumbnail(movieId, video.videoId)}
-                              alt={video.Title}
-                              style={{ width: "100%", borderRadius: "8px" }}
-                            />
+                            <div style={{ position: "relative" }}>
+                              <img
+                                src={getVideoThumbnail(movieId, video.videoId)}
+                                alt={video.Title}
+                                style={{
+                                  width: "190px",
+                                  height: "106.867px",
+                                  borderRadius: "8px",
+                                  objectFit: "cover",
+                                  objectPosition: "15% 15%",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  bottom: 20, // afastamento do canto inferior
+                                  left: 20, // afastamento do canto esquerdo
+                                  display: "flex",
+                                  alignItems: "center",
+                                  // espaço entre o círculo e o texto
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    position: "relative",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    top: "4px",
+                                    left: "-8px",
+                                  }}
+                                >
+                                  {/* Círculo com borda branca */}
+                                  <div
+                                    style={{
+                                      width: 24,
+                                      height: 24,
+                                      borderRadius: "50%",
+                                      border: "3px solid white", // borda branca
+                                      display: "flex",
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                      filter:
+                                        "drop-shadow(0 0 4px rgba(0,0,0,0.7))",
+                                      transition: "background-color 0.3s ease",
+                                      position: "relative",
+                                      top: "0px",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="presentation"
+                                      style={{
+                                        transform: "rotate(-90deg)",
+                                        color: "white",
+                                      }}
+                                    >
+                                      <path
+                                        fill="none"
+                                        d="M0 0h24v24H0V0z"
+                                      ></path>
+                                      <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z" />
+                                    </svg>
+                                  </div>
+
+                                  {/* Texto ao lado */}
+                                  <span
+                                    style={{
+                                      color: "white",
+                                      fontSize: "1rem",
+                                      userSelect: "none",
+                                      textShadow: "0 0 5px rgba(0,0,0,0.7)",
+                                      position: "relative",
+                                      left: "-4px",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                    }}
+                                  >
+                                    {video.Type}
+                                  </span>
+                                  <span
+                                    style={{
+                                      color: "white",
+                                      position: "relative",
+                                      left: "-7px",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  >
+                                    {video.Duration}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                             <p
                               style={{
-                                margin: "4px 0 0 0",
-                                fontSize: "0.875rem",
+                                padding: ".50rem .25rem .25rem",
+                                fontSize: "1rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "400",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.03125em",
+                                display: "block",
+                                cursor: "pointer",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxHeight: "48px",
+                                maxWidth: "190px",
+                                margin: "0",
                               }}
                             >
                               {video.Title}
                             </p>
-                            <p
+                            <div
                               style={{
-                                margin: "0",
-                                fontSize: "0.75rem",
-                                color: "rgba(0,0,0,.6)",
+                                display: "flex",
+                                marginLeft: "-0.25rem",
+                                alignItems: "center",
                               }}
                             >
-                              {video.Duration}
-                            </p>
+                              {video.Likes > 0 && (
+                                <>
+                                  <div
+                                    style={{
+                                      width: "24px",
+                                      height: "16px",
+                                      display: "flex",
+                                      alignContent: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="1rem"
+                                      height="1rem"
+                                      style={{ color: "rgb(0,0,0,.54)" }}
+                                      class="ipc-icon ipc-icon--thumb-up ipc-reaction-summary__likes-icon"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="presentation"
+                                    >
+                                      <path d="M13.12 2.06c.58-.59 1.52-.59 2.11-.01.36.36.51.87.41 1.37L14.69 8h5.65c2.15 0 3.6 2.2 2.76 4.18l-3.26 7.61C19.52 20.52 18.8 21 18 21H9c-1.1 0-2-.9-2-2V9.01c0-.53.21-1.04.58-1.41l5.54-5.54zM9.293 8.707A1 1 0 0 0 9 9.414V18a1 1 0 0 0 1 1h7.332a1 1 0 0 0 .924-.617c1.663-4.014 2.527-6.142 2.594-6.383.07-.253.12-.587.15-1v-.002A1 1 0 0 0 20 10h-8l1.34-5.34-4.047 4.047zM3 21c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2s-2 .9-2 2v8c0 1.1.9 2 2 2z"></path>
+                                    </svg>
+                                  </div>
+                                  <p
+                                    style={{
+                                      margin: "0",
+                                      fontSize: "0.75rem",
+                                      color: "rgba(0,0,0,.54)",
+                                      marginRight: "0.5rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      lineHeight: "1rem",
+                                      letterSpacing: "0.03333em",
+                                      fontWeight: "400",
+                                    }}
+                                  >
+                                    {formatNumber(video.Likes)}
+                                  </p>
+                                </>
+                              )}
+                              {video.Reactions > 0 && (
+                                <>
+                                  <div
+                                    style={{
+                                      opacity: "0.7",
+                                      height: "19px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      role="presentation"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 500 500"
+                                      class="ipc-reaction ipc-reaction--heart ipc-reaction--inline ipc-reaction-summary__reaction"
+                                      fill="currentColor"
+                                    >
+                                      <g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(0, 6.312) scale(1, 1.1) translate(-250, -255.738)">
+                                              <path
+                                                fill="#ee3e81"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keyTimes="0;0.0416667;1"
+                                                  values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2083334;0.6041667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.6041667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -58,40 -70,-164 C-70,-164 -70,-164 -70,-164"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.1875;0.1875021;0.875;0.875;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(102.692, -80.302) scale(1, 1.1) translate(-352.692, -176.998)">
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M348.84 166.12 C366.26,174.01 369.73,188 371.64,201.64 C372.13,205.08 375.77,206.98 378.45,206.53 C381.58,206 382.52,203.95 382.62,197.95 C382.87,181.95 370.32,157.23 351.07,153.75 C347.65,153.13 344.39,155.4 343.77,158.82 C343.39,160.91 343.29,163.61 348.84,166.12z "
+                                              ></path>
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M332.5 157.18 C334.74,154.96 334.76,151.34 332.54,149.1 C330.32,146.86 326.7,146.84 324.46,149.06 C322.22,151.28 322.2,154.89 324.42,157.13 C326.64,159.38 330.25,159.39 332.5,157.18z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2083334;0.6041667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.6041667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -58,40 -70,-164 C-70,-164 -70,-164 -70,-164"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.1875;0.1875021;0.875;0.875;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(-37.868, 6.312) scale(1, 1.1) translate(-212.132, -255.738)">
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z "
+                                                  to="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keyTimes="0;0.0416667;1"
+                                                  values="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M333.93 124.88 C296.58,121.15 257.89,141.21 246.59,155.72 C246.59,155.72 251.52,161.62 251.52,161.62 C253.64,164.15 257.59,163.99 259.45,161.26 C267.52,149.35 291.39,126.04 333.93,124.88z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2083334;0.6041667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.6041667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -58,40 -70,-164 C-70,-164 -70,-164 -70,-164"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.1875;0.1875021;0.875;0.875;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(0, 6.312) scale(1, 1.1) translate(-250, -255.738)">
+                                              <path
+                                                fill="#ee3e81"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keyTimes="0;0.0416667;0.1041667;1"
+                                                  values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2708334;0.6666667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1041667;0.6666667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -90,108 -102,-96 C-102,-96 -102,-96 -102,-96"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.25;0.2500021;0.9375;0.9375;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(102.692, -80.302) scale(1, 1.1) translate(-352.692, -176.998)">
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M348.84 166.12 C366.26,174.01 369.73,188 371.64,201.64 C372.13,205.08 375.77,206.98 378.45,206.53 C381.58,206 382.52,203.95 382.62,197.95 C382.87,181.95 370.32,157.23 351.07,153.75 C347.65,153.13 344.39,155.4 343.77,158.82 C343.39,160.91 343.29,163.61 348.84,166.12z "
+                                              ></path>
+                                              <path
+                                                fill="#f8bbad"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M332.5 157.18 C334.74,154.96 334.76,151.34 332.54,149.1 C330.32,146.86 326.7,146.84 324.46,149.06 C322.22,151.28 322.2,154.89 324.42,157.13 C326.64,159.38 330.25,159.39 332.5,157.18z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2708334;0.6666667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1041667;0.6666667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -90,108 -102,-96 C-102,-96 -102,-96 -102,-96"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.25;0.2500021;0.9375;0.9375;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g transform=" translate(130, 250) scale(0.16, 0.16) ">
+                                            <g transform=" translate(-37.868, 6.312) scale(1, 1.1) translate(-212.132, -255.738)">
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                              >
+                                                <animate
+                                                  repeatCount="1"
+                                                  dur="2.002002s"
+                                                  begin="indefinite"
+                                                  fill="remove"
+                                                  attributeName="d"
+                                                  attributeType="XML"
+                                                  from="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  to="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keyTimes="0;0.0416667;0.1041667;1"
+                                                  values="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.83,118.12 130.12,119.67 102.55,165.63 C75.04,212.49 98.91,257.85 125.92,288.64 C150.76,316.97 250.46,389.67 250.46,389.67 C250.46,389.67 251.25,389.12 252.65,388.17 C230.15,370.29 151.58,321.6 125.02,263.95z "
+                                                  keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                  calcMode="spline"
+                                                ></animate>
+                                              </path>
+                                              <path
+                                                fill="#b23f64"
+                                                fill-opacity="1"
+                                                fill-rule="nonzero"
+                                                d=" M333.93 124.88 C296.58,121.15 257.89,141.21 246.59,155.72 C246.59,155.72 251.52,161.62 251.52,161.62 C253.64,164.15 257.59,163.99 259.45,161.26 C267.52,149.35 291.39,126.04 333.93,124.88z "
+                                              ></path>
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="opacity"
+                                                from="1"
+                                                to="0"
+                                                keyTimes="0;0.2708334;0.6666667;1"
+                                                values="1;1;0;0"
+                                                keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </g>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1041667;0.6666667;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0,0 -90,108 -102,-96 C-102,-96 -102,-96 -102,-96"
+                                              keyPoints="0;0;1;1"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0.16 0.16"
+                                              to="0.16 0.16"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;1"
+                                              values="1 1;1 1"
+                                              keySplines="0 0 1 1"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="0"
+                                            keyTimes="0;0.25;0.2500021;0.9375;0.9375;1"
+                                            values="0;0;1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(1.1, 1.1) ">
+                                          <g transform=" translate(0, 5.738) translate(-250, -255.738)">
+                                            <path
+                                              fill="#ee3e81"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                            >
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="d"
+                                                attributeType="XML"
+                                                from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keyTimes="0;0.0625;0.1041667;0.1666667;1"
+                                                values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </path>
+                                            <path
+                                              stroke="#b23f64"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              fill="none"
+                                              stroke-width="6"
+                                              stroke-opacity="1"
+                                              d=" M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                            >
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="d"
+                                                attributeType="XML"
+                                                from="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                to="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keyTimes="0;0.0625;0.1041667;0.1666667;1"
+                                                values="M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,349.69 247.14,372.56 C248.01,373.16 249,372.87 250,372.86 C251,372.87 252,373.16 252.86,372.56 C286.03,349.69 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z ;M370.51 137.24 C327.87,108.27 272.89,136 253.47,155.4 C252.5,156.37 251.25,156.85 250,156.91 C248.75,156.85 247.5,156.37 246.53,155.4 C227.11,136 172.13,108.27 129.49,137.24 C68.5,181.26 86.72,250.91 130.06,292.7 C155.76,319.25 213.97,363.03 247.14,385.9 C248.01,386.5 249,386.78 250,386.77 C251,386.78 252,386.5 252.86,385.9 C286.03,363.03 344.24,319.25 369.95,292.7 C413.28,250.91 431.5,181.26 370.51,137.24z "
+                                                keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </path>
+                                          </g>
+                                          <animateMotion
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            path="M0 0 C0,16.670000000000016 0,83.32999999999998 0,100 C0,100 0,100 0,100 C0,83.32999999999998 0,20 0,0 C0,-20 0,-20.330000000000013 0,-20 C0,-19.669999999999987 0,0.3300000000000125 0,2 C0,3.6699999999999875 0,-9.669999999999987 0,-10 C0,-10.330000000000013 0,-1.6699999999999875 0,0 C0,0 0,0 0,0"
+                                            keyPoints="0;0.38;0.38;0.76;0.83;0.92;0.96;1;1"
+                                            keySplines="0.333 0 0.667 1;0.333 0.333 0.667 0.667;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateMotion>
+                                          <animateTransform
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="transform"
+                                            from="1.1 1.1"
+                                            to="1.1 1.1"
+                                            type="scale"
+                                            additive="sum"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            values="1 1;0.7272727272727273 0.6818181818181818;0.7272727272727273 0.6818181818181818;0.9636363636363636 1;1.0272727272727273 1.0272727272727273;0.8909090909090909 0.8909090909090909;0.9909090909090909 0.9909090909090909;1 1;1 1"
+                                            keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateTransform>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(1.1, 1.1) ">
+                                          <g transform=" translate(102.692, -73.002) translate(-352.692, -176.998)">
+                                            <path
+                                              fill="#f8bbad"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M348.84 166.12 C366.26,174.01 369.73,188 371.64,201.64 C372.13,205.08 375.77,206.98 378.45,206.53 C381.58,206 382.52,203.95 382.62,197.95 C382.87,181.95 370.32,157.23 351.07,153.75 C347.65,153.13 344.39,155.4 343.77,158.82 C343.39,160.91 343.29,163.61 348.84,166.12z "
+                                            ></path>
+                                            <path
+                                              fill="#f8bbad"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M332.5 157.18 C334.74,154.96 334.76,151.34 332.54,149.1 C330.32,146.86 326.7,146.84 324.46,149.06 C322.22,151.28 322.2,154.89 324.42,157.13 C326.64,159.38 330.25,159.39 332.5,157.18z "
+                                            ></path>
+                                          </g>
+                                          <animateMotion
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            path="M0 0 C0,16.670000000000016 0,83.32999999999998 0,100 C0,100 0,100 0,100 C0,83.32999999999998 0,20 0,0 C0,-20 0,-20.330000000000013 0,-20 C0,-19.669999999999987 0,0.3300000000000125 0,2 C0,3.6699999999999875 0,-9.669999999999987 0,-10 C0,-10.330000000000013 0,-1.6699999999999875 0,0 C0,0 0,0 0,0"
+                                            keyPoints="0;0.38;0.38;0.76;0.83;0.92;0.96;1;1"
+                                            keySplines="0.333 0 0.667 1;0.333 0.333 0.667 0.667;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateMotion>
+                                          <animateTransform
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="transform"
+                                            from="1.1 1.1"
+                                            to="1.1 1.1"
+                                            type="scale"
+                                            additive="sum"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            values="1 1;0.7272727272727273 0.6818181818181818;0.7272727272727273 0.6818181818181818;0.9636363636363636 1;1.0272727272727273 1.0272727272727273;0.8909090909090909 0.8909090909090909;0.9909090909090909 0.9909090909090909;1 1;1 1"
+                                            keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateTransform>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(1.1, 1.1) ">
+                                          <g transform=" translate(-37.868, 5.738) translate(-212.132, -255.738)">
+                                            <path
+                                              fill="#b23f64"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C173.18,114.09 127.39,121.03 99.82,166.99 C72.31,213.85 99.37,261.03 126.37,291.83 C151.21,320.15 248.74,389.94 248.74,389.94 C248.74,389.94 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                            >
+                                              <animate
+                                                repeatCount="1"
+                                                dur="2.002002s"
+                                                begin="indefinite"
+                                                fill="remove"
+                                                attributeName="d"
+                                                attributeType="XML"
+                                                from="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C173.18,114.09 127.39,121.03 99.82,166.99 C72.31,213.85 99.37,261.03 126.37,291.83 C151.21,320.15 248.74,389.94 248.74,389.94 C248.74,389.94 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                                to="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.66,114.6 129.01,119.67 101.45,165.63 C73.93,212.49 98.91,260.06 125.92,290.86 C150.76,319.18 249,389.45 249,389.45 C249,389.45 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                                keyTimes="0;0.0625;0.1041667;0.1666667;0.2916667;1"
+                                                values="M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C173.18,114.09 127.39,121.03 99.82,166.99 C72.31,213.85 99.37,261.03 126.37,291.83 C151.21,320.15 248.74,389.94 248.74,389.94 C248.74,389.94 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C176.57,115.1 128.46,118.81 100.9,164.77 C73.38,211.63 98.36,259.85 125.36,290.65 C150.21,318.98 250.1,388.12 250.1,388.12 C250.41,388.12 250.48,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.94,114.33 127.93,119 100.36,164.96 C72.85,211.82 99.23,260.52 126.23,291.31 C151.07,319.64 250.46,374.67 250.46,374.67 C250.46,374.67 251.25,374.13 252.65,373.17 C230.15,355.29 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C178.75,115.33 128.24,118.67 100.68,164.63 C73.16,211.49 97.35,259.52 124.35,290.31 C149.2,318.64 250.1,388.12 250.1,388.12 C250.1,388.12 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.66,114.6 129.01,119.67 101.45,165.63 C73.93,212.49 98.91,260.06 125.92,290.86 C150.76,319.18 249,389.45 249,389.45 C249,389.45 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z ;M125.02 263.95 C107.93,226.84 107.35,183.65 144.91,150.73 C170.25,128.53 193.2,127.35 211.26,133.33 C175.66,114.6 129.01,119.67 101.45,165.63 C73.93,212.49 98.91,260.06 125.92,290.86 C150.76,319.18 249,389.45 249,389.45 C249,389.45 250.05,387.79 251.44,386.83 C228.94,368.96 151.58,321.6 125.02,263.95z "
+                                                keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                                calcMode="spline"
+                                              ></animate>
+                                            </path>
+                                            <path
+                                              fill="#b23f64"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M333.93 124.88 C296.58,121.15 257.89,141.21 246.59,155.72 C246.59,155.72 251.52,161.62 251.52,161.62 C253.64,164.15 257.59,163.99 259.45,161.26 C267.52,149.35 291.39,126.04 333.93,124.88z "
+                                            ></path>
+                                          </g>
+                                          <animateMotion
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            path="M0 0 C0,16.670000000000016 0,83.32999999999998 0,100 C0,100 0,100 0,100 C0,83.32999999999998 0,20 0,0 C0,-20 0,-20.330000000000013 0,-20 C0,-19.669999999999987 0,0.3300000000000125 0,2 C0,3.6699999999999875 0,-9.669999999999987 0,-10 C0,-10.330000000000013 0,-1.6699999999999875 0,0 C0,0 0,0 0,0"
+                                            keyPoints="0;0.38;0.38;0.76;0.83;0.92;0.96;1;1"
+                                            keySplines="0.333 0 0.667 1;0.333 0.333 0.667 0.667;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateMotion>
+                                          <animateTransform
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="transform"
+                                            from="1.1 1.1"
+                                            to="1.1 1.1"
+                                            type="scale"
+                                            additive="sum"
+                                            keyTimes="0;0.1041667;0.1666667;0.2291667;0.2916667;0.3958334;0.5416667;0.7291667;1"
+                                            values="1 1;0.7272727272727273 0.6818181818181818;0.7272727272727273 0.6818181818181818;0.9636363636363636 1;1.0272727272727273 1.0272727272727273;0.8909090909090909 0.8909090909090909;0.9909090909090909 0.9909090909090909;1 1;1 1"
+                                            keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animateTransform>
+                                        </g>
+                                      </g>
+                                    </svg>
+                                    <svg
+                                      style={{
+                                        position: "relative",
+                                        left: "-12px",
+                                        opacity: "0.7",
+                                      }}
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      role="presentation"
+                                      preserveAspectRatio="xMidYMid meet"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 500 500"
+                                      class="ipc-reaction ipc-reaction--clap ipc-reaction--inline ipc-reaction-summary__reaction ipc-reaction-summary__reaction-front"
+                                      fill="currentColor"
+                                    >
+                                      <g>
+                                        <g>
+                                          <g>
+                                            <path
+                                              fill="#ee9dc4"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M234.12 170.88 C233.44,172.09 231.77,172.38 230.75,171.47 C230.75,171.47 184.59,130.07 184.59,130.07 C180.97,126.83 182.72,121.3 187.8,119.91 C187.8,119.91 199.75,116.65 199.75,116.65 C203.1,115.74 206.63,117.07 208.07,119.78 C208.07,119.78 234.15,168.97 234.15,168.97 C234.46,169.56 234.45,170.28 234.12,170.88z "
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="1"
+                                              to="0"
+                                              keyTimes="0;0.0833333;0.3541667;1"
+                                              values="1;1;0;0"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="1"
+                                            to="0"
+                                            keyTimes="0;0.3958333;0.3958334;1"
+                                            values="1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g>
+                                          <g>
+                                            <path
+                                              fill="#ee82ae"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M282.18 163.83 C282.76,164.8 284.13,165 284.94,164.23 C284.94,164.23 321.54,129.36 321.54,129.36 C324.4,126.63 322.85,122.17 318.67,121.16 C318.67,121.16 308.86,118.8 308.86,118.8 C306.11,118.14 303.26,119.31 302.15,121.56 C302.15,121.56 282.11,162.27 282.11,162.27 C281.87,162.77 281.89,163.35 282.18,163.83z "
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="1"
+                                              to="0"
+                                              keyTimes="0;0.0833333;0.3541667;1"
+                                              values="1;1;0;0"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="1"
+                                            to="0"
+                                            keyTimes="0;0.3958333;0.3958334;1"
+                                            values="1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g>
+                                          <g>
+                                            <path
+                                              fill="#5ba7db"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M251.84 168.62 C253.37,169.68 255.56,169.03 256.25,167.32 C256.25,167.32 287.35,89.94 287.35,89.94 C289.79,83.88 284.39,78.24 277.44,79.59 C277.44,79.59 261.08,82.76 261.08,82.76 C256.5,83.65 253.03,87.35 252.9,91.48 C252.9,91.48 250.67,166.33 250.67,166.33 C250.64,167.24 251.08,168.09 251.84,168.62z "
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="1"
+                                              to="0"
+                                              keyTimes="0;0.0833333;0.3541667;1"
+                                              values="1;1;0;0"
+                                              keySplines="0.333 0 0.667 1;0.333 0 0.667 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="1"
+                                            to="0"
+                                            keyTimes="0;0.3958333;0.3958334;1"
+                                            values="1;1;0;0"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g opacity="0">
+                                            <path
+                                              fill="#ee9dc4"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M234.12 170.88 C233.44,172.09 231.77,172.38 230.75,171.47 C230.75,171.47 184.59,130.07 184.59,130.07 C180.97,126.83 182.72,121.3 187.8,119.91 C187.8,119.91 199.75,116.65 199.75,116.65 C203.1,115.74 206.63,117.07 208.07,119.78 C208.07,119.78 234.15,168.97 234.15,168.97 C234.46,169.56 234.45,170.28 234.12,170.88z "
+                                              transform=" translate(22, 40)"
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="0"
+                                              to="1"
+                                              keyTimes="0;0.375;0.5625;0.9583333;1"
+                                              values="0;0;1;1;1"
+                                              keySplines="0.306 0 0.648 1;0.306 0 0.648 1;0.394 0 0.829 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.375;0.7083333;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.3299999999999841,0 1.670000000000016,6.670000000000016 -2,0 C-5.670000000000016,-6.670000000000016 -18.669999999999987,-33.329999999999984 -22,-40 C-22,-40 -22,-40 -22,-40"
+                                              keyPoints="0;0;0.13;1;1"
+                                              keySplines="0.167 0 0.833 1;0.167 0 0.833 1;0.167 0 0 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="1"
+                                            keyTimes="0;0.375;0.3750021;1"
+                                            values="0;0;1;1"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g opacity="0">
+                                            <path
+                                              fill="#ee82ae"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M282.18 163.83 C282.76,164.8 284.13,165 284.94,164.23 C284.94,164.23 321.54,129.36 321.54,129.36 C324.4,126.63 322.85,122.17 318.67,121.16 C318.67,121.16 308.86,118.8 308.86,118.8 C306.11,118.14 303.26,119.31 302.15,121.56 C302.15,121.56 282.11,162.27 282.11,162.27 C281.87,162.77 281.89,163.35 282.18,163.83z "
+                                              transform=" translate(-18, 40)"
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="0"
+                                              to="1"
+                                              keyTimes="0;0.375;0.5625;0.9583333;1"
+                                              values="0;0;1;1;1"
+                                              keySplines="0.306 0 0.648 1;0.306 0 0.648 1;0.394 0 0.829 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.375;0.7083333;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.3300000000000125,0 -5,6.670000000000016 -2,0 C1,-6.670000000000016 14.669999999999987,-33.329999999999984 18,-40 C18,-40 18,-40 18,-40"
+                                              keyPoints="0;0;0.14;1;1"
+                                              keySplines="0.167 0 0.833 1;0.167 0 0.833 1;0.167 0 0 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="1"
+                                            keyTimes="0;0.375;0.3750021;1"
+                                            values="0;0;1;1"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g opacity="0">
+                                          <g opacity="0">
+                                            <path
+                                              fill="#5ba7db"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M251.84 168.62 C253.37,169.68 255.56,169.03 256.25,167.32 C256.25,167.32 287.35,89.94 287.35,89.94 C289.79,83.88 284.39,78.24 277.44,79.59 C277.44,79.59 261.08,82.76 261.08,82.76 C256.5,83.65 253.03,87.35 252.9,91.48 C252.9,91.48 250.67,166.33 250.67,166.33 C250.64,167.24 251.08,168.09 251.84,168.62z "
+                                              transform=" translate(2, 40)"
+                                            ></path>
+                                            <animate
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="opacity"
+                                              from="0"
+                                              to="1"
+                                              keyTimes="0;0.375;0.5625;0.9583333;1"
+                                              values="0;0;1;1;1"
+                                              keySplines="0.195 0 0.562 1;0.195 0 0.562 1;0.352 0 0.843 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animate>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.0416667;0.375;0.7083333;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.3300000000000125,0 -1.6699999999999875,6.670000000000016 -2,0 C-2.3300000000000125,-6.670000000000016 -2,-33.329999999999984 -2,-40 C-2,-40 -2,-40 -2,-40"
+                                              keyPoints="0;0;0.14;1;1"
+                                              keySplines="0.167 0 0.833 1;0.167 0 0.833 1;0.167 0 0 1;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                          </g>
+                                          <animate
+                                            repeatCount="1"
+                                            dur="2.002002s"
+                                            begin="indefinite"
+                                            fill="remove"
+                                            attributeName="opacity"
+                                            from="0"
+                                            to="1"
+                                            keyTimes="0;0.375;0.3750021;1"
+                                            values="0;0;1;1"
+                                            keySplines="0 0 0 0;0 0 0 0;0 0 0 0"
+                                            calcMode="spline"
+                                          ></animate>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(5, 5) translate(0, 0)">
+                                          <g>
+                                            <path
+                                              stroke="#af772a"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              fill="none"
+                                              stroke-width="2"
+                                              stroke-opacity="1"
+                                              d=" M58.11 33.75 C57.87,32.96 57.41,32.31 56.83,31.83 C56.15,31.27 55.21,31.15 54.4,31.5 C54.4,31.5 39.2,38.1 39.2,38.1 C39.04,38.17 38.88,38.17 38.73,38.11 C38.59,38.05 38.46,37.94 38.4,37.78 C38.26,37.46 38.41,37.1 38.72,36.96 C38.72,36.96 55.58,29.64 55.58,29.64 C56.4,29.28 56.97,28.5 57.03,27.6 C57.08,26.91 56.96,26.19 56.63,25.51 C56.41,25.07 56.13,24.7 55.79,24.38 C55.09,23.74 54.08,23.58 53.22,23.96 C52.45,24.3 51.53,24.71 51.49,24.72 C51.49,24.72 35.51,31.66 35.51,31.66 C35.35,31.73 35.19,31.73 35.04,31.67 C34.9,31.61 34.77,31.5 34.71,31.34 C34.57,31.02 34.72,30.66 35.03,30.52 C35.03,30.52 49.55,24.22 49.55,24.22 C50.75,23.7 51.34,22.28 50.83,21.06 C50.83,21.05 50.82,21.04 50.82,21.03 C49.96,18.98 47.62,18.03 45.61,18.91 C45.61,18.91 31.79,24.91 31.79,24.91 C31.79,24.91 28.28,26.42 28.28,26.42 C26.51,27.21 25.14,27.65 23.52,28 C23.52,28 23.49,28.01 23.49,28.01 C22.81,28.15 22.19,27.57 22.29,26.88 C22.29,26.88 22.92,22.07 22.92,22.07 C23.21,19.86 21.69,17.83 19.52,17.53 C17.35,17.24 15.35,18.78 15.06,20.99 C15.06,20.99 12.82,37.91 12.82,37.91 C12.75,38.45 12.64,38.99 12.53,39.52 C11.93,42.48 12.17,45.64 13.43,48.62 C16.71,56.43 25.6,60.05 33.28,56.71 C33.28,56.71 40.35,53.64 40.35,53.64 C40.52,53.59 40.69,53.54 40.86,53.47 C40.86,53.47 54.33,47.61 54.33,47.61 C56.35,46.74 57.28,44.37 56.42,42.32 C56.3,42.02 56.13,41.74 55.95,41.48 C55.29,40.6 54.11,40.3 53.1,40.74 C53.1,40.74 42.1,45.51 42.1,45.51 C41.93,45.59 41.75,45.58 41.6,45.52 C41.44,45.46 41.31,45.33 41.24,45.16 C41.1,44.83 41.25,44.43 41.58,44.29 C41.58,44.29 56.73,37.71 56.73,37.71 C57.29,37.47 57.75,37.02 57.98,36.45 C58.33,35.61 58.4,34.67 58.11,33.75z "
+                                              transform=" translate(-31.995000000000005, -32.004)"
+                                            ></path>
+                                            <path
+                                              fill="#f4b642"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M58.11 33.75 C57.87,32.96 57.41,32.31 56.83,31.83 C56.15,31.27 55.21,31.15 54.4,31.5 C54.4,31.5 39.2,38.1 39.2,38.1 C39.04,38.17 38.88,38.17 38.73,38.11 C38.59,38.05 38.46,37.94 38.4,37.78 C38.26,37.46 38.41,37.1 38.72,36.96 C38.72,36.96 55.58,29.64 55.58,29.64 C56.4,29.28 56.97,28.5 57.03,27.6 C57.08,26.91 56.96,26.19 56.63,25.51 C56.41,25.07 56.13,24.7 55.79,24.38 C55.09,23.74 54.08,23.58 53.22,23.96 C52.45,24.3 51.53,24.71 51.49,24.72 C51.49,24.72 35.51,31.66 35.51,31.66 C35.35,31.73 35.19,31.73 35.04,31.67 C34.9,31.61 34.77,31.5 34.71,31.34 C34.57,31.02 34.72,30.66 35.03,30.52 C35.03,30.52 49.55,24.22 49.55,24.22 C50.75,23.7 51.34,22.28 50.83,21.06 C50.83,21.05 50.82,21.04 50.82,21.03 C49.96,18.98 47.62,18.03 45.61,18.91 C45.61,18.91 31.79,24.91 31.79,24.91 C31.79,24.91 28.28,26.42 28.28,26.42 C26.51,27.21 25.14,27.65 23.52,28 C23.52,28 23.49,28.01 23.49,28.01 C22.81,28.15 22.19,27.57 22.29,26.88 C22.29,26.88 22.92,22.07 22.92,22.07 C23.21,19.86 21.69,17.83 19.52,17.53 C17.35,17.24 15.35,18.78 15.06,20.99 C15.06,20.99 12.82,37.91 12.82,37.91 C12.75,38.45 12.64,38.99 12.53,39.52 C11.93,42.48 12.17,45.64 13.43,48.62 C16.71,56.43 25.6,60.05 33.28,56.71 C33.28,56.71 40.35,53.64 40.35,53.64 C40.52,53.59 40.69,53.54 40.86,53.47 C40.86,53.47 54.33,47.61 54.33,47.61 C56.35,46.74 57.28,44.37 56.42,42.32 C56.3,42.02 56.13,41.74 55.95,41.48 C55.29,40.6 54.11,40.3 53.1,40.74 C53.1,40.74 42.1,45.51 42.1,45.51 C41.93,45.59 41.75,45.58 41.6,45.52 C41.44,45.46 41.31,45.33 41.24,45.16 C41.1,44.83 41.25,44.43 41.58,44.29 C41.58,44.29 56.73,37.71 56.73,37.71 C57.29,37.47 57.75,37.02 57.98,36.45 C58.33,35.61 58.4,34.67 58.11,33.75z "
+                                              transform=" translate(-31.995000000000005, -32.004)"
+                                            ></path>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              path="M0 0 C0,0 0,0 0,0 C0.8799999999999999,-0.4399999999999995 5.33,-2.6599999999999997 5.33,-2.6599999999999997 C5.33,-2.6599999999999997 0.8799999999999999,-0.4399999999999995 0,0 C0,0 0,0 0,0"
+                                              keyPoints="0;0;0.5;1;1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0"
+                                              to="0"
+                                              type="rotate"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="0;0;-10;0;0"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="1 1"
+                                              to="1 1"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="1 1;1 1;0.8 0.8;1 1;1 1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                        </g>
+                                        <g transform=" translate(250, 250) scale(5, 5) translate(0, 0)">
+                                          <g>
+                                            <path
+                                              stroke="#af772a"
+                                              stroke-linecap="round"
+                                              stroke-linejoin="round"
+                                              fill="none"
+                                              stroke-width="2"
+                                              stroke-opacity="1"
+                                              d=" M52.29 37.65 C51.05,36.41 49.16,36.39 48.37,37.19 C48.37,37.19 39.92,45.78 39.92,45.78 C39.79,45.91 39.62,45.97 39.45,45.97 C39.28,45.97 39.12,45.91 38.99,45.78 C38.73,45.52 38.73,45.09 38.99,44.83 C38.99,44.83 50.61,33.03 50.61,33.03 C51.92,31.72 51.38,29.58 50.31,28.51 C48.86,27.06 46.83,27.48 46.18,28.14 C46.18,28.14 34.51,40 34.51,40 C34.39,40.12 34.23,40.18 34.08,40.18 C33.92,40.18 33.76,40.12 33.65,40 C33.41,39.75 33.41,39.36 33.65,39.12 C33.65,39.12 46.61,25.94 46.61,25.94 C47.24,25.31 47.81,23.31 46.07,21.72 C44.59,20.36 42.75,21.26 42.26,21.65 C41.45,22.29 28.72,35.41 28.72,35.41 C28.61,35.53 28.45,35.59 28.29,35.59 C28.14,35.59 27.98,35.53 27.86,35.41 C27.62,35.17 27.62,34.78 27.86,34.54 C27.86,34.54 39.03,23.19 39.03,23.19 C39.29,22.89 39.46,22.52 39.55,22.12 C39.88,20.6 38.81,19.18 37.34,18.68 C35.93,18.2 34.53,18.64 33.43,19.76 C33.43,19.76 22.8,30.55 22.8,30.55 C22.8,30.55 20.1,33.28 20.1,33.28 C18.74,34.68 17.63,35.61 16.25,36.55 C16.25,36.55 16.23,36.56 16.23,36.56 C15.65,36.95 14.87,36.65 14.7,35.97 C14.7,35.97 13.53,31.26 13.53,31.26 C12.99,29.1 10.83,27.8 8.71,28.34 C6.58,28.89 5.29,31.08 5.83,33.24 C5.83,33.24 9.95,49.78 9.95,49.78 C10.09,50.32 10.18,50.86 10.27,51.39 C10.8,54.36 12.19,57.21 14.45,59.5 C20.35,65.5 29.93,65.5 35.84,59.5 C35.84,59.5 41.27,53.98 41.27,53.98 C41.41,53.87 41.55,53.76 41.68,53.62 C41.68,53.62 51.88,43.26 51.88,43.26 C53.51,41.61 54.38,39.74 52.29,37.65z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#fdd856"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M52.29 37.65 C51.05,36.41 49.16,36.39 48.37,37.19 C48.37,37.19 39.92,45.78 39.92,45.78 C39.79,45.91 39.62,45.97 39.45,45.97 C39.28,45.97 39.12,45.91 38.99,45.78 C38.73,45.52 38.73,45.09 38.99,44.83 C38.99,44.83 50.61,33.03 50.61,33.03 C51.92,31.72 51.38,29.58 50.31,28.51 C48.86,27.06 46.83,27.48 46.18,28.14 C46.18,28.14 34.51,40 34.51,40 C34.39,40.12 34.23,40.18 34.08,40.18 C33.92,40.18 33.76,40.12 33.65,40 C33.41,39.75 33.41,39.36 33.65,39.12 C33.65,39.12 46.61,25.94 46.61,25.94 C47.24,25.31 47.81,23.31 46.07,21.72 C44.59,20.36 42.75,21.26 42.26,21.65 C41.45,22.29 28.72,35.41 28.72,35.41 C28.61,35.53 28.45,35.59 28.29,35.59 C28.14,35.59 27.98,35.53 27.86,35.41 C27.62,35.17 27.62,34.78 27.86,34.54 C27.86,34.54 39.03,23.19 39.03,23.19 C39.29,22.89 39.46,22.52 39.55,22.12 C39.88,20.6 38.81,19.18 37.34,18.68 C35.93,18.2 34.53,18.64 33.43,19.76 C33.43,19.76 22.8,30.55 22.8,30.55 C22.8,30.55 20.1,33.28 20.1,33.28 C18.74,34.68 17.63,35.61 16.25,36.55 C16.25,36.55 16.23,36.56 16.23,36.56 C15.65,36.95 14.87,36.65 14.7,35.97 C14.7,35.97 13.53,31.26 13.53,31.26 C12.99,29.1 10.83,27.8 8.71,28.34 C6.58,28.89 5.29,31.08 5.83,33.24 C5.83,33.24 9.95,49.78 9.95,49.78 C10.09,50.32 10.18,50.86 10.27,51.39 C10.8,54.36 12.19,57.21 14.45,59.5 C20.35,65.5 29.93,65.5 35.84,59.5 C35.84,59.5 41.27,53.98 41.27,53.98 C41.41,53.87 41.55,53.76 41.68,53.62 C41.68,53.62 51.88,43.26 51.88,43.26 C53.51,41.61 54.38,39.74 52.29,37.65z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M51.24 41.69 C51.44,41.9 51.78,41.88 51.93,41.63 C52.56,40.65 52.45,39.33 51.6,38.47 C50.75,37.61 49.45,37.49 48.48,38.13 C48.25,38.28 48.23,38.63 48.42,38.83 C48.42,38.83 51.24,41.69 51.24,41.69z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M49.22 32.41 C49.42,32.61 49.76,32.59 49.91,32.35 C50.54,31.37 50.42,30.04 49.58,29.18 C48.73,28.32 47.43,28.21 46.46,28.84 C46.22,29 46.2,29.35 46.4,29.55 C46.4,29.55 49.22,32.41 49.22,32.41z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M45.25 25.48 C45.44,25.66 45.76,25.64 45.9,25.42 C46.48,24.51 46.37,23.27 45.59,22.47 C44.8,21.67 43.58,21.57 42.68,22.15 C42.46,22.3 42.44,22.62 42.63,22.81 C42.63,22.81 45.25,25.48 45.25,25.48z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <path
+                                              fill="#ffe38d"
+                                              fill-opacity="1"
+                                              fill-rule="nonzero"
+                                              d=" M37.42 23.16 C37.6,23.36 37.93,23.34 38.07,23.11 C38.66,22.18 38.56,20.92 37.76,20.11 C36.95,19.29 35.72,19.19 34.8,19.79 C34.58,19.93 34.56,20.26 34.75,20.45 C34.75,20.45 37.42,23.16 37.42,23.16z "
+                                              transform=" translate(-31.994999999999997, -32.001999999999995)"
+                                            ></path>
+                                            <animateMotion
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              path="M0 0 C0,0 0,0 0,0 C-0.8900000000000001,-0.4399999999999995 -5.34,-2.66 -5.34,-2.66 C-5.34,-2.66 -0.8900000000000001,-0.4399999999999995 0,0 C0,0 0,0 0,0"
+                                              keyPoints="0;0;0.5;1;1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateMotion>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="0"
+                                              to="0"
+                                              type="rotate"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="0;0;-5;0;0"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                            <animateTransform
+                                              repeatCount="1"
+                                              dur="2.002002s"
+                                              begin="indefinite"
+                                              fill="remove"
+                                              attributeName="transform"
+                                              from="1 1"
+                                              to="1 1"
+                                              type="scale"
+                                              additive="sum"
+                                              keyTimes="0;0.1510417;0.2708334;0.3420208;1"
+                                              values="1 1;1 1;1.05 1.05;1 1;1 1"
+                                              keySplines="0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0.167 0.167 0.833 0.833;0 0 0 0"
+                                              calcMode="spline"
+                                            ></animateTransform>
+                                          </g>
+                                        </g>
+                                      </g>
+                                    </svg>
+                                  </div>
+                                  <p
+                                    style={{
+                                      margin: "0",
+                                      fontSize: "0.75rem",
+                                      color: "rgba(0,0,0,.54)",
+                                      marginRight: "0.5rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      lineHeight: "1rem",
+                                      letterSpacing: "0.03333em",
+                                      fontWeight: "400",
+                                      marginLeft: "-0.75rem",
+                                    }}
+                                  >
+                                    {formatNumber(video.Reactions)}
+                                  </p>
+                                </>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -2455,244 +4968,249 @@ function SeriesPage() {
                   </section>
 
                   {/*Images*/}
-                  <section
-                    style={{
-                      padding: "24px",
-                      width: "856px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "block",
-                        marginBottom: "30px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: "20px",
-                          width: "808px",
-                          height: "38.4px",
-                        }}
-                      >
-                        <div
+                  {sortedImages.length > 0 &&
+                    (() => {
+                      const visibleImages = sortedImages.slice(0, 5);
+                      const remainingCount =
+                        sortedImages.length - visibleImages.length;
+                      return (
+                        <section
                           style={{
-                            width: "4px",
-                            height: "28.8px",
-                            borderRadius: "12px",
-                            backgroundColor: "rgb(245, 197, 24)",
-                            maxHeight: "28.8px",
-                          }}
-                        />
-                        <div>
-                          <Link
-                            to={`/episodepage/${movieId}`}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              color: "black",
-                              cursor: "pointer",
-                            }}
-                            onMouseEnter={() => setHovered(true)}
-                            onMouseLeave={() => setHovered(false)}
-                          >
-                            <h3
-                              style={{
-                                padding: "0 0 0 10px",
-                                margin: 0,
-                                fontSize: "1.5rem",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                letterSpacing: "normal",
-                                lineHeight: "1.2em",
-                                fontWeight: "600",
-                              }}
-                            >
-                              Photos
-                            </h3>
-                            <span
-                              style={{
-                                paddingLeft: "12px",
-                                color: "rgb(0,0,0,.54)",
-                                fontSize: "0.875rem",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                fontWeight: "400",
-                                alignSelf: "center",
-                                letterSpacing: "0.01786em",
-                                lineHeight: "unset",
-                                marginRight: "2px",
-                              }}
-                            >
-                              {data.Photos2}
-                            </span>
-                            <svg
-                              width="19.2"
-                              height="19.2"
-                              xmlns="http://www.w3.org/2000/svg"
-                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                              style={{
-                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
-                                transition: "color 0.2s ease",
-                              }}
-                            >
-                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
-                            </svg>
-                          </Link>
-                        </div>
-                        <div
-                          style={{
-                            marginLeft: "auto",
-                            display: "flex",
-                            alignItems: "center",
-                            color: "rgb(14,99,190)",
-                            cursor: "pointer",
-                            padding: "0 8px 0 8px",
+                            padding: "24px",
+                            width: "856px",
+                            marginBottom: "8px",
                           }}
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
-                            style={{
-                              marginRight: "4px",
-                            }}
-                          >
-                            <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
-                          </svg>
-                          <span
-                            style={{
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              lineHeight: "1.25rem",
-                              letterSpacing: ".02em",
-                              height: "24px",
-                              display: "flex",
-                              alignItems: "center",
-                              position: "relative",
-                              top: "1px",
-                            }}
-                          >
-                            Add photo
-                          </span>
-                        </div>
-                      </div>
-                      <div>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexFlow: "row",
-                            gap: "1rem",
-                            marginBottom: "1rem",
-                          }}
-                        >
-                          <img
-                            src={Img1}
-                            style={{
-                              width: "396px",
-                              height: "162.5px",
-                              borderRadius: "0.75rem",
-                              objectFit: "cover",
-                              objectPosition: "15% 15%",
-                              cursor: "pointer",
-                            }}
-                          />
-                          <img
-                            src={Img2}
-                            style={{
-                              width: "396px",
-                              height: "162.5px",
-                              borderRadius: "0.75rem",
-                              objectFit: "cover",
-                              cursor: "pointer",
-                            }}
-                          />
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexFlow: "row",
-                            gap: "1rem",
-                            marginBottom: "1rem",
-                          }}
-                        >
-                          <img
-                            src={Img3}
-                            style={{
-                              width: "338.333px",
-                              height: "149.817px",
-                              borderRadius: "0.75rem",
-                              objectFit: "cover",
-                              objectPosition: "15% 15%",
-                              cursor: "pointer",
-                            }}
-                          />
-                          <img
-                            src={Img4}
-                            style={{
-                              width: "338.333px",
-                              height: "149.817px",
-                              borderRadius: "0.75rem",
-                              objectFit: "cover",
-                              objectPosition: "20% 20%",
-                              cursor: "pointer",
-                            }}
-                          />
                           <div
                             style={{
-                              position: "relative",
-                              width: "100px",
-                              height: "149.817px",
-                              borderRadius: "0.75rem",
-                              overflow: "hidden",
+                              display: "block",
+                              marginBottom: "30px",
                             }}
                           >
-                            <img
-                              src={Img5}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                objectPosition: "70% 70%",
-                                cursor: "pointer",
-                              }}
-                            />
-
-                            {/* Overlay */}
                             <div
                               style={{
-                                position: "absolute",
-                                inset: 0,
-                                background: "rgba(0,0,0,0.5)",
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
-                                color: "white",
-                                fontWeight: 600,
-                                fontSize: "0.875rem",
-                                textAlign: "center",
-                                borderRadius: "0.75rem",
-                                pointerEvents: "none",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                lineHeight: "1.25rem",
-                                letterSpacing: "normal",
+                                marginBottom: "20px",
+                                width: "808px",
+                                height: "38.4px",
                               }}
                             >
-                              + {formatVotes(data.Photos2 - 4)}
+                              <div
+                                style={{
+                                  width: "4px",
+                                  height: "28.8px",
+                                  borderRadius: "12px",
+                                  backgroundColor: "rgb(245, 197, 24)",
+                                  maxHeight: "28.8px",
+                                }}
+                              />
+                              <div>
+                                <Link
+                                  to={`/episodepage/${movieId}`}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    color: "black",
+                                    cursor: "pointer",
+                                  }}
+                                  onMouseEnter={() => setHovered(true)}
+                                  onMouseLeave={() => setHovered(false)}
+                                >
+                                  <h3
+                                    style={{
+                                      padding: "0 0 0 10px",
+                                      margin: 0,
+                                      fontSize: "1.5rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      letterSpacing: "normal",
+                                      lineHeight: "1.2em",
+                                      fontWeight: "600",
+                                    }}
+                                  >
+                                    Photos
+                                  </h3>
+                                  <span
+                                    style={{
+                                      paddingLeft: "12px",
+                                      color: "rgb(0,0,0,.54)",
+                                      fontSize: "0.875rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      fontWeight: "400",
+                                      alignSelf: "center",
+                                      letterSpacing: "0.01786em",
+                                      lineHeight: "unset",
+                                      marginRight: "2px",
+                                    }}
+                                  >
+                                    {sortedImages.length}
+                                  </span>
+                                  <svg
+                                    width="19.2"
+                                    height="19.2"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      color: hovered
+                                        ? "#F5C518"
+                                        : "rgba(0,0,0)",
+                                      transition: "color 0.2s ease",
+                                    }}
+                                  >
+                                    <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                                  </svg>
+                                </Link>
+                              </div>
+                              <div
+                                style={{
+                                  marginLeft: "auto",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  color: "rgb(14,99,190)",
+                                  cursor: "pointer",
+                                  padding: "0 8px 0 8px",
+                                }}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  role="presentation"
+                                  style={{
+                                    marginRight: "4px",
+                                  }}
+                                >
+                                  <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                                </svg>
+                                <span
+                                  style={{
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "0.875rem",
+                                    fontWeight: "600",
+                                    lineHeight: "1.25rem",
+                                    letterSpacing: ".02em",
+                                    height: "24px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    position: "relative",
+                                    top: "1px",
+                                  }}
+                                >
+                                  Add photo
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* GRID */}
+                            <div>
+                              {/* Linha 1 – 2 imagens grandes */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexFlow: "row",
+                                  gap: "1rem",
+                                  marginBottom: "1rem",
+                                }}
+                              >
+                                {visibleImages.slice(0, 2).map((img, i) => (
+                                  <img
+                                    key={i}
+                                    src={img.url}
+                                    style={{
+                                      width: "396px",
+                                      height: "162.5px",
+                                      borderRadius: "0.75rem",
+                                      objectFit: "cover",
+                                      objectPosition: "15% 15%",
+                                      cursor: "pointer",
+                                    }}
+                                    onError={(e) =>
+                                      (e.currentTarget.style.display = "none")
+                                    }
+                                  />
+                                ))}
+                              </div>
+
+                              {/* Linha 2 – 2 médias + 1 pequena */}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexFlow: "row",
+                                  gap: "1rem",
+                                  marginBottom: "1rem",
+                                }}
+                              >
+                                {visibleImages.slice(2, 5).map((img, i) => {
+                                  const isLast = i === 2 && remainingCount > 0;
+                                  return (
+                                    <div
+                                      key={i}
+                                      style={{
+                                        position: "relative",
+                                        width: i < 2 ? "338.333px" : "100px",
+                                        height: "149.817px",
+                                        borderRadius: "0.75rem",
+                                        overflow: "hidden",
+                                      }}
+                                    >
+                                      <img
+                                        src={img.url}
+                                        style={{
+                                          width: "100%",
+                                          height: "100%",
+                                          objectFit: "cover",
+                                          objectPosition: "15% 15%",
+                                          cursor: "pointer",
+                                        }}
+                                        onError={(e) =>
+                                          (e.currentTarget.style.display =
+                                            "none")
+                                        }
+                                      />
+
+                                      {/* Overlay */}
+                                      {isLast && (
+                                        <div
+                                          style={{
+                                            position: "absolute",
+                                            inset: 0,
+                                            background: "rgba(0,0,0,0.5)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "white",
+                                            fontWeight: 600,
+                                            fontSize: "0.875rem",
+                                            textAlign: "center",
+                                            borderRadius: "0.75rem",
+                                            pointerEvents: "none",
+                                            fontFamily:
+                                              "Roboto,Helvetica,Arial,sans-serif",
+                                            lineHeight: "1.25rem",
+                                            letterSpacing: "normal",
+                                          }}
+                                        >
+                                          + {formatVotes(remainingCount)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
+                        </section>
+                      );
+                    })()}
 
                   {/*Stars*/}
                   <section
