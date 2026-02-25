@@ -111,12 +111,11 @@ const createStorage = (type) => {
           };
         };
 case "videoThumbnail": {
-  const { movieId } = req.params;
-
+  const vidNum = file.originalname.match(/ep(\d+)/i)?.[1] || "1";
   return {
     ...baseParams,
-    folder: `rating-graph/show/${movieId}/videos`,
-    public_id: (req) => req.body.videoId,
+    folder: `rating-graph/show/${req.params.movieId}/videos`,
+    public_id: `video${vidNum}`,
   };
 }
         default:
