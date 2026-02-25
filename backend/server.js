@@ -109,7 +109,17 @@ const createStorage = (type) => {
             folder: `rating-graph/show/${req.params.movieId}/imgs`,
             public_id: `ep${episodeNum}_img${imgNum}`,
           };
-        }
+        };
+        case "videoThumbnail": {
+  const { movieId } = req.params;
+  const { videoId } = req.body; // IMPORTANT
+
+  return {
+    ...baseParams,
+    folder: `rating-graph/show/${movieId}/videos`,
+    public_id: videoId, // ex: video1
+  };
+}
         default:
           throw new Error(`Tipo de upload inválido: ${type}`);
       }
@@ -155,6 +165,10 @@ const uploadEpisode = multer({
 
 const uploadEpisodeImages = multer({
   storage: createStorage("episodeImage"),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+const uploadVideoThumbnail = multer({
+  storage: createStorage("videoThumbnail"),
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
@@ -255,6 +269,20 @@ app.post(
     res.json({
       message: `${results.length} imagens de episódio enviadas com sucesso`,
       images: results,
+    });
+  }
+);
+app.post(
+  "/upload/video-thumbnail/:movieId",
+  authenticate,
+  multer({
+    storage: createStorage("videoThumbnail"),
+    limits: { fileSize: 5 * 1024 * 1024 },
+  }).single("thumbnail"),
+  (req, res) => {
+    res.json({
+      url: req.file.path,
+      publicId: req.file.filename,
     });
   }
 );

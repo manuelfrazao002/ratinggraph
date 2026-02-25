@@ -4,7 +4,7 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { getShowCoverSrc, getTrailerSrc } from "./ShowImageSrc";
+import { getShowCoverSrc, getTrailerSrc, getVideoThumbnail } from "./ShowImageSrc";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -642,12 +642,28 @@ function SeriesPage() {
                   }}
                 >
                   {hasVotes && (
-                    <div style={{ padding: "4px", marginRight:"0.5rem", display: "flex", alignItems: "center", flexDirection: "column" }}>
-                      <img src={IMDBRating} alt="" style={{
-                        marginBottom:"7px",
-                      }}/>
+                    <div
+                      style={{
+                        padding: "4px",
+                        marginRight: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <img
+                        src={IMDBRating}
+                        alt=""
+                        style={{
+                          marginBottom: "7px",
+                        }}
+                      />
                       <div
-                        style={{ display: "flex", justifyContent: "center", padding:"0 8px 0 8px"}}
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          padding: "0 8px 0 8px",
+                        }}
                       >
                         <img
                           src={StarImdb}
@@ -667,42 +683,40 @@ function SeriesPage() {
                             flexDirection: "column",
                             position: "relative",
                             top: "-3px",
-                            paddingRight:"0.25rem",
+                            paddingRight: "0.25rem",
                           }}
                         >
                           <div
                             style={{
-                                lineHeight: "1.5rem",
-                                marginBottom: "-0.125rem",
-                                display: "flex",
-                                alignItems: "center",
+                              lineHeight: "1.5rem",
+                              marginBottom: "-0.125rem",
+                              display: "flex",
+                              alignItems: "center",
                             }}
                           >
                             <span
                               style={{
-                                  fontSize: "1.25rem",
-                                  color: "white",
-                                  letterSpacing: "0.0125em",
-                                  fontWeight: "600",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  paddingRight: "0.125rem",
-                                  lineHeight: "1.5rem",
+                                fontSize: "1.25rem",
+                                color: "white",
+                                letterSpacing: "0.0125em",
+                                fontWeight: "600",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                paddingRight: "0.125rem",
+                                lineHeight: "1.5rem",
                               }}
                             >
                               {data.Rating}
                             </span>
                             <span
                               style={{
-                                  color: "rgb(255,255,255,0.7)",
-                                  fontSize: "1rem",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  fontWeight: "500",
-                                  letterSpacing: "0.03125em",
-                                  lineHeight: "1.5rem",
-                                  position: "relative",
-                                  top: "1px",
+                                color: "rgb(255,255,255,0.7)",
+                                fontSize: "1rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "500",
+                                letterSpacing: "0.03125em",
+                                lineHeight: "1.5rem",
+                                position: "relative",
+                                top: "1px",
                               }}
                             >
                               /10
@@ -711,14 +725,14 @@ function SeriesPage() {
 
                           <span
                             style={{
-                                fontSize: "0.75rem",
-                                color: "#BCBCBC",
-                                position: "relative",
-                                letterSpacing: "0.03333em",
-                                lineHeight: "1rem",
-                                fontWeight: "400",
-                                WebkitTextStroke: "0.1px #BCBCBC",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "0.75rem",
+                              color: "#BCBCBC",
+                              position: "relative",
+                              letterSpacing: "0.03333em",
+                              lineHeight: "1rem",
+                              fontWeight: "400",
+                              WebkitTextStroke: "0.1px #BCBCBC",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             }}
                           >
                             {formatVotes(data.Votes) || "N/A"}
@@ -728,10 +742,22 @@ function SeriesPage() {
                     </div>
                   )}
                   {hasVotes && (
-                    <div style={{ padding: "4px", marginRight:"0.5rem", display: "flex", alignItems: "center", flexDirection: "column"}}>
-                      <img src={YourRating} alt="" style={{
-                        marginBottom:"7px",
-                      }}/>
+                    <div
+                      style={{
+                        padding: "4px",
+                        marginRight: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <img
+                        src={YourRating}
+                        alt=""
+                        style={{
+                          marginBottom: "7px",
+                        }}
+                      />
                       <div
                         style={{
                           display: "flex",
@@ -749,107 +775,116 @@ function SeriesPage() {
                     </div>
                   )}
 
-                  <Link to={"https://www.imdb.com/chart/tvmeter/?ref_=tt_ov_pop"} style={{
-                    cursor: "pointer",
-                  }}>
-                  <div style={{ padding: "4px", display: "flex", alignItems: "center", flexDirection: "column" }}>
-                    <img
-                      src={Popularity}
-                      alt=""
-                      style={{
-                        display: "flex",
-                        paddingBottom: "7px",
-                        alignContent: "center",
-                      }}
-                    />
+                  <Link
+                    to={"https://www.imdb.com/chart/tvmeter/?ref_=tt_ov_pop"}
+                    style={{
+                      cursor: "pointer",
+                    }}
+                  >
                     <div
                       style={{
+                        padding: "4px",
                         display: "flex",
-                        justifyContent: "center",
                         alignItems: "center",
-                        position: "relative",
-                        top: "-1.5px",
-                        padding: "0 8px",
+                        flexDirection: "column",
                       }}
                     >
                       <img
-                        src={
-                          data.PopStatus === "up"
-                            ? ArrowUp
-                            : data.PopStatus === "down"
-                              ? ArrowDown
-                              : ArrowStay
-                        }
+                        src={Popularity}
                         alt=""
-                        style={{ marginRight: "4px" }}
-                      />
-
-                      {/* Popularidade sempre visível */}
-                      <span
                         style={{
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize:"1.25rem",
-                          fontWeight: "600",
-                          letterSpacing:"0.0125em",
-                          paddingRight: "0.125rem",
-                          color:"white",
+                          display: "flex",
+                          paddingBottom: "7px",
+                          alignContent: "center",
+                        }}
+                      />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
                           position: "relative",
-                          top: "1px",
+                          top: "-1.5px",
+                          padding: "0 8px",
                         }}
                       >
-                        {data.Popularity}
-                      </span>
+                        <img
+                          src={
+                            data.PopStatus === "up"
+                              ? ArrowUp
+                              : data.PopStatus === "down"
+                                ? ArrowDown
+                                : ArrowStay
+                          }
+                          alt=""
+                          style={{ marginRight: "4px" }}
+                        />
 
-                      {/* Condicional para SmallArrowUp */}
-                      {data.PopStatus !== "stay" && (
-                        <div
-                          style={{
-                            width:"24px",
-                            height:"24px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            marginRight:"-0.25rem",
-                          }}
-                        >
-                          <img
-                            src={SmallArrowUp}
-                            alt=""
-                            style={{
-                              width: "8px",
-                              position: "relative",
-                              top: "0.109rem",
-                              transform:
-                                data.PopStatus === "down"
-                                  ? "rotate(180deg)"
-                                  : "rotate(0deg)",
-                              transformOrigin: "center center",
-                              transition: "transform 0.3s ease",
-                              display: "block",
-                              
-                            }}
-                          />
-                        </div>
-                      )}
-                      {/* Texto PopUp aparece só se PopStatus diferente de "stay" */}
-                      {data.PopStatus !== "stay" && (
+                        {/* Popularidade sempre visível */}
                         <span
                           style={{
-                            color: "rgba(255,255,255,0.7)",
-                            letterSpacing: "0.03125em",
-                            fontSize:"1rem",
-                            fontWeight:"500",
                             fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1.25rem",
+                            fontWeight: "600",
+                            letterSpacing: "0.0125em",
+                            paddingRight: "0.125rem",
+                            color: "white",
                             position: "relative",
-                            lineHeight:"1.5rem",
-                            top: "1px",                            
+                            top: "1px",
                           }}
                         >
-                          {data.PopUp}
+                          {data.Popularity}
                         </span>
-                      )}
+
+                        {/* Condicional para SmallArrowUp */}
+                        {data.PopStatus !== "stay" && (
+                          <div
+                            style={{
+                              width: "24px",
+                              height: "24px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              marginRight: "-0.25rem",
+                            }}
+                          >
+                            <img
+                              src={SmallArrowUp}
+                              alt=""
+                              style={{
+                                width: "8px",
+                                position: "relative",
+                                top: "0.109rem",
+                                transform:
+                                  data.PopStatus === "down"
+                                    ? "rotate(180deg)"
+                                    : "rotate(0deg)",
+                                transformOrigin: "center center",
+                                transition: "transform 0.3s ease",
+                                display: "block",
+                              }}
+                            />
+                          </div>
+                        )}
+                        {/* Texto PopUp aparece só se PopStatus diferente de "stay" */}
+                        {data.PopStatus !== "stay" && (
+                          <span
+                            style={{
+                              color: "rgba(255,255,255,0.7)",
+                              letterSpacing: "0.03125em",
+                              fontSize: "1rem",
+                              fontWeight: "500",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              position: "relative",
+                              lineHeight: "1.5rem",
+                              top: "1px",
+                            }}
+                          >
+                            {data.PopUp}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
                   </Link>
                 </div>
               </div>
@@ -1230,61 +1265,76 @@ function SeriesPage() {
                       </p>
                     </div>
                   )}
-                  <div
-                    style={{
-                      borderBottom: "1px solid #4B4B4B",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        height: "49.283px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        <p
+                  {Array.isArray(cast) &&
+                    cast.length > 0 &&
+                    (() => {
+                      const topThree = cast.slice(0, 3);
+                      const hasMoreThanThree = cast.length > 3;
+                      return (
+                        <div
                           style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                            color: "white",
+                            borderBottom: "1px solid #4B4B4B",
                           }}
                         >
-                          Stars
-                        </p>
-                        <p
-                          style={{
-                            fontWeight: "400",
-                            letterSpacing: "0.03125em",
-                            wordBreak: "break-word",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          {renderListWithDotSeparator(data.Stars)}
-                        </p>
-                      </div>
-                      <ChevronRight
-                        size={20}
-                        style={{
-                          color: isHovered ? "#F5C518" : "white",
-                          transition: "color 0.2s ease",
-                          cursor: "pointer",
-                          marginLeft: "auto",
-                          alignSelf: "center",
-                        }}
-                      />
-                    </div>
-                  </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              height: "49.283px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              <p
+                                style={{
+                                  paddingRight: "0.75rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "1rem",
+                                  lineHeight: "1.5rem",
+                                  letterSpacing: "0.00937em",
+                                  fontWeight: "600",
+                                  color: "white",
+                                }}
+                              >
+                                Stars
+                              </p>
+                              <p
+                                style={{
+                                  fontWeight: "400",
+                                  letterSpacing: "0.03125em",
+                                  wordBreak: "break-word",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "1rem",
+                                  color: "#5799ef",
+                                }}
+                              >
+                                {renderListWithDotSeparator(
+              topThree.map(actor => actor.Name)
+            )}
+                              </p>
+                            </div>
+                            {hasMoreThanThree && (
+                              <ChevronRight
+                                size={20}
+                                style={{
+                                  color: isHovered ? "#F5C518" : "white",
+                                  transition: "color 0.2s ease",
+                                  cursor: "pointer",
+                                  marginLeft: "auto",
+                                  alignSelf: "center",
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   <div>
                     <img src={IMDBPro} alt="" />
                   </div>
@@ -1621,7 +1671,9 @@ function SeriesPage() {
                                 lineHeight: "1.25rem",
                               }}
                             >
-                              {userReviewsNumber === 1 ? "User review" : "User reviews"}
+                              {userReviewsNumber === 1
+                                ? "User review"
+                                : "User reviews"}
                             </span>
                           </div>
                         )}
@@ -1656,7 +1708,9 @@ function SeriesPage() {
                                 lineHeight: "1.25rem",
                               }}
                             >
-                              {criticReviewsNumber === 1 ? "Critic review" : "Critic reviews"}
+                              {criticReviewsNumber === 1
+                                ? "Critic review"
+                                : "Critic reviews"}
                             </span>
                           </div>
                         )}
@@ -1971,22 +2025,33 @@ function SeriesPage() {
                                 </a>
                               ) : null}
                             </div>
-                            {([data.AwardsWon, data.AwardsNom, data.Wins, data.Nom]
-  .map(Number)
-  .every(value => value === 0)) && (
-                             <div>
-                          <span style={{
-                            fontWeight:"400",
-                            letterSpacing:"0.03125em",
-                            wordBreak:"break-word",
-                            fontFamily:"Roboto,Helvetica,Arial,sans-serif",
-                            fontSize:"1rem",
-                            textTransform:"none",
-                            lineHeight:"1.5rem",
-                            cursor:"pointer",
-                          }}>See the Top 250 TV shows as rated by IMDb users</span>
-                        </div>
-                        )}
+                            {[
+                              data.AwardsWon,
+                              data.AwardsNom,
+                              data.Wins,
+                              data.Nom,
+                            ]
+                              .map(Number)
+                              .every((value) => value === 0) && (
+                              <div>
+                                <span
+                                  style={{
+                                    fontWeight: "400",
+                                    letterSpacing: "0.03125em",
+                                    wordBreak: "break-word",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "1rem",
+                                    textTransform: "none",
+                                    lineHeight: "1.5rem",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  See the Top 250 TV shows as rated by IMDb
+                                  users
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div
@@ -3204,9 +3269,11 @@ function SeriesPage() {
                           </span>
                         </div>
                       </div>
-                      <div style={{
-                        maxWidth:"808px",
-                      }}>
+                      <div
+                        style={{
+                          maxWidth: "808px",
+                        }}
+                      >
                         <span
                           style={{
                             color: "rgb(0,0,0,0.87)",
@@ -3806,64 +3873,66 @@ function SeriesPage() {
                         {data.Language}
                       </span>
                     </div>
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Also known as
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        {data.AlsoKnownAs}
-                      </span>
+                    {data.AlsoKnownAs == "N/A" ? null : (
                       <div
                         style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
                           display: "flex",
-                          alignItems: "center",
-                          marginLeft: "auto",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
                         }}
                       >
-                        <svg
-                          style={{ color: "rgb(0,0,0,0.54)" }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--chevron-right"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                        </svg>
+                          Also known as
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color: "rgb(14,99,190)",
+                          }}
+                        >
+                          {data.AlsoKnownAs}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div
                       style={{
                         borderTopWidth: "1px",
@@ -4104,54 +4173,56 @@ function SeriesPage() {
                       width: "808px",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.25rem",
-                        paddingTop: "0.25rem",
-                      }}
-                    >
-                      <span
+                    {data.EpDuration == "m" ? null : (
+                      <div
                         style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
+                          display: "flex",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.25rem",
+                          paddingTop: "0.25rem",
                         }}
                       >
-                        Runtime
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                        }}
-                      >
-                        {data.EpDuration}
-                      </span>
-                      {data.epDuration2 > 60 && (
                         <span
                           style={{
-                            marginLeft: "0.5rem",
-                            color: "rgb(0,0,0,.54)",
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Runtime
+                        </span>
+                        <span
+                          style={{
                             fontWeight: "400",
                             letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
                             fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                             fontSize: "1rem",
                             lineHeight: "1.5rem",
                           }}
                         >
-                          ({data.EpDuration2})
+                          {data.EpDuration}
                         </span>
-                      )}
-                    </div>
+                        {data.epDuration2 > 60 && (
+                          <span
+                            style={{
+                              marginLeft: "0.5rem",
+                              color: "rgb(0,0,0,.54)",
+                              fontWeight: "400",
+                              letterSpacing: "0.03125em",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              fontSize: "1rem",
+                              lineHeight: "1.5rem",
+                            }}
+                          >
+                            ({data.EpDuration2})
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <div
                       style={{
                         display: "flex",

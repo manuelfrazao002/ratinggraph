@@ -676,7 +676,6 @@ function SeriesPageDetails() {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        
                       }}
                     >
                       {/* ◀ Anterior */}
@@ -684,8 +683,8 @@ function SeriesPageDetails() {
                         <Link
                           to={`/episodepage/${movieId}/${prevEpisode.episodeId}`}
                           style={{
-                            width:"22px",
-                            height:"22px",
+                            width: "22px",
+                            height: "22px",
                             padding: "8px",
                           }}
                         >
@@ -701,8 +700,9 @@ function SeriesPageDetails() {
                           style={{
                             color: "rgba(255,255,255,0.3)",
                             cursor: "default",
-                            position: "relative",
-                            top: "4px"
+                            width: "22px",
+                            height: "22px",
+                            padding: "8px",
                           }}
                         />
                       )}
@@ -727,9 +727,9 @@ function SeriesPageDetails() {
                       {nextEpisodeNav ? (
                         <Link
                           to={`/episodepage/${movieId}/${nextEpisodeNav.episodeId}`}
-                            style={{
-                            width:"22px",
-                            height:"22px",
+                          style={{
+                            width: "22px",
+                            height: "22px",
                             padding: "8px",
                           }}
                         >
@@ -745,8 +745,9 @@ function SeriesPageDetails() {
                           style={{
                             color: "rgba(255,255,255,0.3)",
                             cursor: "default",
-                            position: "relative",
-                            top: "4px"
+                            width: "22px",
+                            height: "22px",
+                            padding: "8px",
                           }}
                         />
                       )}
@@ -787,7 +788,9 @@ function SeriesPageDetails() {
                       top: "3px",
                     }}
                   >
-                    {episodeData?.TitleName2}
+                    {episodeData?.TitleName?.trim()
+                      ? episodeData.TitleName2
+                      : episodeData?.TitleName3}
                   </h1>
                   <div
                     style={{
@@ -1262,61 +1265,76 @@ function SeriesPageDetails() {
                         {renderListWithDotSeparator(episodeData?.Writers)}
                       </p>
                     </div>
-                    <div
-                      style={{
-                        borderBottom: "1px solid #4B4B4B",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          height: "49.283px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <p
+                    {Array.isArray(episodeCast) &&
+                      episodeCast.length > 0 &&
+                      (() => {
+                        const topThree = episodeCast.slice(0, 3);
+                        const hasMoreThanThree = episodeCast.length > 3;
+                        return (
+                          <div
                             style={{
-                              paddingRight: "0.75rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "1rem",
-                              lineHeight: "1.5rem",
-                              letterSpacing: "0.00937em",
-                              fontWeight: "600",
-                              color: "white",
+                              borderBottom: "1px solid #4B4B4B",
                             }}
                           >
-                            Stars
-                          </p>
-                          <p
-                            style={{
-                              fontWeight: "400",
-                              letterSpacing: "0.03125em",
-                              wordBreak: "break-word",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "1rem",
-                            }}
-                          >
-                            {renderListWithDotSeparator(data.Stars)}
-                          </p>
-                        </div>
-                        <ChevronRight
-                          size={20}
-                          style={{
-                            color: isHovered ? "#F5C518" : "white",
-                            transition: "color 0.2s ease",
-                            cursor: "pointer",
-                            marginLeft: "auto",
-                            alignSelf: "center",
-                          }}
-                        />
-                      </div>
-                    </div>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                height: "49.283px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <p
+                                  style={{
+                                    paddingRight: "0.75rem",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "1rem",
+                                    lineHeight: "1.5rem",
+                                    letterSpacing: "0.00937em",
+                                    fontWeight: "600",
+                                    color: "white",
+                                  }}
+                                >
+                                  Stars
+                                </p>
+                                <p
+                                  style={{
+                                    fontWeight: "400",
+                                    letterSpacing: "0.03125em",
+                                    wordBreak: "break-word",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontSize: "1rem",
+                                    color: "#5799ef",
+                                  }}
+                                >
+                                  {renderListWithDotSeparator(
+              topThree.map(actor => actor.Name)
+            )}
+                                </p>
+                              </div>
+                              {hasMoreThanThree && (
+                                <ChevronRight
+                                  size={20}
+                                  style={{
+                                    color: isHovered ? "#F5C518" : "white",
+                                    transition: "color 0.2s ease",
+                                    cursor: "pointer",
+                                    marginLeft: "auto",
+                                    alignSelf: "center",
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     <div>
                       <img src={IMDBPro} alt="" />
                     </div>
@@ -2036,7 +2054,7 @@ function SeriesPageDetails() {
                   )}
 
                   {/*Stars*/}
-                  {episodeData?.Sum > 0 && (
+                  {Array.isArray(episodeCast) && episodeCast.length > 0 && (
                     <section
                       style={{
                         padding: "24px",
@@ -2168,7 +2186,11 @@ function SeriesPageDetails() {
                             </span>
                           </div>
                         </div>
-                        <CastList cast={episodeCast} showEpisodes={false} isAnimation={data.Genres?.includes("Animation")}/>
+                        <CastList
+                          cast={episodeCast}
+                          showEpisodes={false}
+                          isAnimation={data.Genres?.includes("Animation")}
+                        />
                       </div>
                       <div
                         style={{
@@ -2679,9 +2701,11 @@ function SeriesPageDetails() {
                       </div>
                       {episodeData?.Votes2 > 0 && (
                         <>
-                          <div style={{
-                            maxWidth:"808px",
-                          }}>
+                          <div
+                            style={{
+                              maxWidth: "808px",
+                            }}
+                          >
                             <span
                               style={{
                                 color: "rgb(0,0,0,0.87)",
@@ -3044,7 +3068,7 @@ function SeriesPageDetails() {
                           color: "rgb(14,99,190)",
                         }}
                       >
-                        {episodeData.Date4} {"(United States)"}
+                        {episodeData?.Date4} {"(United States)"}
                       </span>
 
                       <div

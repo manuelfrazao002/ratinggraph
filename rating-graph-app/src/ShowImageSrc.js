@@ -164,3 +164,15 @@ export const getEpisodeImages = (
     getEpisodeImageSrc(movieId, episodeNum, i + 1, noCache)
   );
 };
+
+/**
+ * Gera URL de um video
+ * @param {string} movieId
+ * @param {string|number} videoId
+ * @param {boolean} noCache
+ */
+
+export const getVideoThumbnail = (movieId, videoId, noCache = false) => {
+  const publicId = `rating-graph/show/${movieId}/videos/${videoId}`;
+  return getCacheFreeUrl(publicId, noCache);
+};
