@@ -28,6 +28,10 @@ const authenticate = (req, res, next) => {
   res.status(401).json({ error: "Unauthorized" });
 };
 
+// Se estiver usando CommonJS
+const imagesRoute = require("./routes/images"); // ajuste o caminho se necessário
+app.use("/api", imagesRoute);
+
 // Factory function para criar storages
 const createStorage = (type) => {
   return new CloudinaryStorage({
