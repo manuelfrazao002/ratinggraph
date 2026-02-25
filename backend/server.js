@@ -111,7 +111,10 @@ const createStorage = (type) => {
           };
         }
         case "videoThumbnail": {
-          const vidNum = file.originalname.match(/ep(\d+)/i)?.[1] || "1";
+          // Pega o nome do ficheiro sem extensão
+          const fileName = file.originalname.split(".")[0];
+          const vidNum = fileName; // assume que o nome é "1", "2", etc.
+          
           return {
             ...baseParams,
             folder: `rating-graph/show/${req.params.movieId}/videos`,

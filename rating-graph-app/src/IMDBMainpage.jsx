@@ -2372,48 +2372,85 @@ function SeriesPage() {
                       </div>
                       {/* Lista de vídeos */}
                       <div
-  style={{
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "12px",
-  }}
->
-  {/* Primeira linha: 2 vídeos */}
-  {videos.slice(0, 2).map(video => (
-    <div
-      key={video.videoId}
-      style={{ flex: "0 0 calc(50% - 6px)" }} // 50% da largura - metade do gap
-    >
-      <img
-        src={getVideoThumbnail(movieId, video.videoId)}
-        alt={video.Title}
-        style={{ width: "396px", height:"222.75px", borderRadius: "0.75rem", objectFit: "cover"}}
-      />
-      <p style={{ margin: "4px 0 0 0", fontSize: "0.875rem" }}>{video.Title}</p>
-      <p style={{ margin: "0", fontSize: "0.75rem", color: "rgba(0,0,0,.6)" }}>
-        {video.Duration}
-      </p>
-    </div>
-  ))}
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "12px",
+                        }}
+                      >
+                        {/* Primeira linha: 2 vídeos */}
+                        {videos.slice(0, 2).map((video) => (
+                          <div
+                            key={video.videoId}
+                            style={{ flex: "0 0 calc(50% - 6px)" }} // 50% da largura - metade do gap
+                          >
+                            <img
+                              src={getVideoThumbnail(movieId, video.videoId)}
+                              alt={video.Title}
+                              style={{
+                                width: "396px",
+                                height: "222.75px",
+                                borderRadius: "0.75rem",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <p
+                              style={{
+                                margin: "4px 0 0 0",
+                                fontSize: "1rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontWeight: "400",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.03125em",
+                                display: "block",
+                                cursor: "pointer",
+                              }}
+                            >
+                              {video.Title}
+                            </p>
+                            <p
+                              style={{
+                                margin: "0",
+                                fontSize: "0.75rem",
+                                color: "rgba(0,0,0,.6)",
+                              }}
+                            >
+                              {video.Duration}
+                            </p>
+                          </div>
+                        ))}
 
-  {/* Segunda linha: 4 vídeos */}
-  {videos.slice(2, 6).map(video => (
-    <div
-      key={video.videoId}
-      style={{ flex: "0 0 calc(25% - 9px)" }} // 25% da largura - metade do gap
-    >
-      <img
-        src={getVideoThumbnail(movieId, video.videoId)}
-        alt={video.Title}
-        style={{ width: "100%", borderRadius: "8px" }}
-      />
-      <p style={{ margin: "4px 0 0 0", fontSize: "0.875rem" }}>{video.Title}</p>
-      <p style={{ margin: "0", fontSize: "0.75rem", color: "rgba(0,0,0,.6)" }}>
-        {video.Duration}
-      </p>
-    </div>
-  ))}
-</div>
+                        {/* Segunda linha: 4 vídeos */}
+                        {videos.slice(2, 6).map((video) => (
+                          <div
+                            key={video.videoId}
+                            style={{ flex: "0 0 calc(25% - 9px)" }} // 25% da largura - metade do gap
+                          >
+                            <img
+                              src={getVideoThumbnail(movieId, video.videoId)}
+                              alt={video.Title}
+                              style={{ width: "100%", borderRadius: "8px" }}
+                            />
+                            <p
+                              style={{
+                                margin: "4px 0 0 0",
+                                fontSize: "0.875rem",
+                              }}
+                            >
+                              {video.Title}
+                            </p>
+                            <p
+                              style={{
+                                margin: "0",
+                                fontSize: "0.75rem",
+                                color: "rgba(0,0,0,.6)",
+                              }}
+                            >
+                              {video.Duration}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </section>
 
