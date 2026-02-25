@@ -4,7 +4,11 @@ import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { getShowCoverSrc, getTrailerSrc, getVideoThumbnail } from "./ShowImageSrc";
+import {
+  getShowCoverSrc,
+  getTrailerSrc,
+  getVideoThumbnail,
+} from "./ShowImageSrc";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -84,8 +88,28 @@ function SeriesPage() {
   const [nextEpisode, setNextEpisode] = useState(null);
   const [recentAndTopEpisodes, setRecentAndTopEpisodes] = useState([]);
   const [cast, setCast] = useState([]);
+  const [videos, setVideos] = useState([]);
 
   const urls = movieMap[movieId];
+
+  useEffect(() => {
+    // Buscar e parsear CSV
+    fetch(urls[6])
+      .then((res) => res.text())
+      .then((csvText) => {
+        const parsed = Papa.parse(csvText, { header: true }).data;
+        console.log("CSV completo:", parsed); // <--- Mostra tudo que vem do CSV
+
+        // Filtra apenas os vídeos do movieId atual
+        const filtered = parsed.filter(
+          (v) => v.movieId === movieId || v.movieId === undefined,
+        );
+        console.log("Vídeos filtrados para movieId:", movieId, filtered); // <--- Mostra os vídeos que vão ser renderizados
+
+        setVideos(filtered);
+      })
+      .catch((err) => console.error("Erro ao carregar vídeos:", err));
+  }, [movieId]);
 
   useEffect(() => {
     if (!urls || urls.length < 5) return;
@@ -1315,8 +1339,8 @@ function SeriesPage() {
                                 }}
                               >
                                 {renderListWithDotSeparator(
-              topThree.map(actor => actor.Name)
-            )}
+                                  topThree.map((actor) => actor.Name),
+                                )}
                               </p>
                             </div>
                             {hasMoreThanThree && (
@@ -2346,15 +2370,51 @@ function SeriesPage() {
                           </Link>
                         </div>
                       </div>
+                      {/* Lista de vídeos */}
                       <div
-                        style={{
-                          position: "relative",
-                          left: "-24px",
-                        }}
-                      >
-                        <img src={Video1} alt="" />
-                        <img src={Video2} alt="" />
-                      </div>
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "12px",
+    paddingLeft: "24px",
+  }}
+>
+  {/* Primeira linha: 2 vídeos */}
+  {videos.slice(0, 2).map(video => (
+    <div
+      key={video.videoId}
+      style={{ flex: "0 0 calc(50% - 6px)" }} // 50% da largura - metade do gap
+    >
+      <img
+        src={getVideoThumbnail(movieId, video.videoId)}
+        alt={video.Title}
+        style={{ width: "396px", height:"222.75px", borderRadius: "0.75rem", objectFit: "cover"}}
+      />
+      <p style={{ margin: "4px 0 0 0", fontSize: "0.875rem" }}>{video.Title}</p>
+      <p style={{ margin: "0", fontSize: "0.75rem", color: "rgba(0,0,0,.6)" }}>
+        {video.Duration}
+      </p>
+    </div>
+  ))}
+
+  {/* Segunda linha: 4 vídeos */}
+  {videos.slice(2, 6).map(video => (
+    <div
+      key={video.videoId}
+      style={{ flex: "0 0 calc(25% - 9px)" }} // 25% da largura - metade do gap
+    >
+      <img
+        src={getVideoThumbnail(movieId, video.videoId)}
+        alt={video.Title}
+        style={{ width: "100%", borderRadius: "8px" }}
+      />
+      <p style={{ margin: "4px 0 0 0", fontSize: "0.875rem" }}>{video.Title}</p>
+      <p style={{ margin: "0", fontSize: "0.75rem", color: "rgba(0,0,0,.6)" }}>
+        {video.Duration}
+      </p>
+    </div>
+  ))}
+</div>
                     </div>
                   </section>
 

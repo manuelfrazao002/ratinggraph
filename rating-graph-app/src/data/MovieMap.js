@@ -14,6 +14,8 @@ export const movieMap = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=1732778719&single=true&output=csv",
     //EpCharCount
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=1229177673&single=true&output=csv",
+    //Videos
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSJw0CO3rwdc7Zuc_x-Gn2mx_SU15aSJDVKqij3HPAdeSJKyOys69vM8nOYOY19rJy_pV_V_S6uFWc1/pub?gid=918225426&single=true&output=csv",
   ],
   spacemetro: [
     //IMDBData
@@ -28,6 +30,8 @@ export const movieMap = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQx609J66dk5s3kodv4cfRUo0jkm6HDy7_oFmgInXuO1gq2mZUB7zESWeG55DqIANP2JPUjIAmxj8mq/pub?gid=1732778719&single=true&output=csv",
     //EpCharCount
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQx609J66dk5s3kodv4cfRUo0jkm6HDy7_oFmgInXuO1gq2mZUB7zESWeG55DqIANP2JPUjIAmxj8mq/pub?gid=1229177673&single=true&output=csv",
+    //Videos
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQx609J66dk5s3kodv4cfRUo0jkm6HDy7_oFmgInXuO1gq2mZUB7zESWeG55DqIANP2JPUjIAmxj8mq/pub?gid=918225426&single=true&output=csv",
   ]
 };
 

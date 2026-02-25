@@ -109,15 +109,15 @@ const createStorage = (type) => {
             folder: `rating-graph/show/${req.params.movieId}/imgs`,
             public_id: `ep${episodeNum}_img${imgNum}`,
           };
-        };
-case "videoThumbnail": {
-  const vidNum = file.originalname.match(/ep(\d+)/i)?.[1] || "1";
-  return {
-    ...baseParams,
-    folder: `rating-graph/show/${req.params.movieId}/videos`,
-    public_id: `video${vidNum}`,
-  };
-}
+        }
+        case "videoThumbnail": {
+          const vidNum = file.originalname.match(/ep(\d+)/i)?.[1] || "1";
+          return {
+            ...baseParams,
+            folder: `rating-graph/show/${req.params.movieId}/videos`,
+            public_id: `video${vidNum}`,
+          };
+        }
         default:
           throw new Error(`Tipo de upload inválido: ${type}`);
       }
@@ -268,7 +268,7 @@ app.post(
       message: `${results.length} imagens de episódio enviadas com sucesso`,
       images: results,
     });
-  }
+  },
 );
 app.post(
   "/upload/video-thumbnail/:movieId",
@@ -276,13 +276,13 @@ app.post(
   multer({
     storage: createStorage("videoThumbnail"),
     limits: { fileSize: 5 * 1024 * 1024 },
-  }).single("thumbnail"),
+  }).array("thumbnail"),
   (req, res) => {
     res.json({
       url: req.file.path,
       publicId: req.file.filename,
     });
-  }
+  },
 );
 
 // Endpoint para deletar com invalidação de cache
