@@ -281,7 +281,7 @@ function parseVoteCount(voteStr) {
                     alignItems: "center",
                   }}
                 >
-                  {filterAnime(sortedData).length ===! 1 &&
+                  {filterAnime(sortedData).length !== 1 &&
                   <p style={{ color: "black" }}>{filterAnime(sortedData).length} Titles</p>
                   }
                   {filterAnime(sortedData).length === 1 &&

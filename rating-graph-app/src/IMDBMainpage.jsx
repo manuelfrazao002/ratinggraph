@@ -1293,6 +1293,7 @@ function SeriesPage() {
                       </p>
                     </div>
                   )}
+                  {data.Cast > 0 && (<>
                   {Array.isArray(cast) &&
                     cast.length > 0 &&
                     (() => {
@@ -1363,6 +1364,7 @@ function SeriesPage() {
                         </div>
                       );
                     })()}
+                    </>)}
                   <div>
                     <img src={IMDBPro} alt="" />
                   </div>
@@ -5308,6 +5310,7 @@ function SeriesPage() {
                     </section>
                   )}
 
+                  {data.Cast > 0 && (<>
                   {/*Stars*/}
                   <section
                     style={{
@@ -5574,6 +5577,7 @@ function SeriesPage() {
                       </div>
                     </div>
                   </section>
+                  </>)}
 
                   {/*User Reviews*/}
                   {data.UserReviews > 0 && (
