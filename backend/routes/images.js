@@ -1,6 +1,6 @@
 // backend/routes/images.js
-import express from "express";
-import { v2 as cloudinary } from "cloudinary";
+const express = require("express");
+const { v2: cloudinary } = require("cloudinary");
 
 cloudinary.config({
   cloud_name: "duaapwky8",
@@ -30,4 +30,4 @@ router.get("/all-images", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
