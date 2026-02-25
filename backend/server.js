@@ -110,14 +110,13 @@ const createStorage = (type) => {
             public_id: `ep${episodeNum}_img${imgNum}`,
           };
         };
-        case "videoThumbnail": {
+case "videoThumbnail": {
   const { movieId } = req.params;
-  const { videoId } = req.body; // IMPORTANT
 
   return {
     ...baseParams,
     folder: `rating-graph/show/${movieId}/videos`,
-    public_id: videoId, // ex: video1
+    public_id: (req) => req.body.videoId,
   };
 }
         default:
