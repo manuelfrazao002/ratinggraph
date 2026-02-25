@@ -17,6 +17,7 @@ router.get("/all-images/:movieId", async (req, res) => {
     const result = await cloudinary.api.resources({
       type: "upload",
       prefix: `rating-graph/show/${movieId}/imgs`,
+      max_results: 500,
     });
 
     const images = result.resources.map(img => ({
