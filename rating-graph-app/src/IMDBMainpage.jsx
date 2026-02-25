@@ -5202,7 +5202,7 @@ function SeriesPage() {
                     })()}
 
                   {/*Images*/}
-                  {data.Photos2 < 5 && (
+                  {data.Photos2 < 1 && (
                     <section
                       style={{
                         padding: "24px",
