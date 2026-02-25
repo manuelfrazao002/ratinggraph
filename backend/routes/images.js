@@ -12,10 +12,11 @@ const router = express.Router();
 
 router.get("/all-images", async (req, res) => {
   try {
+    const { movieId } = req.params;
+
     const result = await cloudinary.api.resources({
       type: "upload",
-      prefix: "rating-graph/show/toe/imgs/",
-      max_results: 100
+      prefix: `rating-graph/show/${movieId}/imgs`,
     });
 
     const images = result.resources.map(img => ({

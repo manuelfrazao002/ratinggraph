@@ -54,16 +54,6 @@ import RatingsBarChart from "./components/RatingsBarChart.jsx";
 import ThemesChips from "./components/ThemeChips.jsx";
 import PlotKeywords from "./components/PlotKeywords.jsx";
 
-import Video1 from "./imgs/imdb/video1.png";
-import Video2 from "./imgs/imdb/video2.png";
-
-//Images for section Images
-import Img1 from "./imgs/imdb/imgs/img1.jpg";
-import Img2 from "./imgs/imdb/imgs/img2.jpg";
-import Img3 from "./imgs/imdb/imgs/img3.jpg";
-import Img4 from "./imgs/imdb/imgs/img4.jpg";
-import Img5 from "./imgs/imdb/imgs/img5.jpg";
-
 import FeaturedReviews from "./imgs/imdb/featuredreviews.png";
 import MoreLikeThis from "./imgs/imdb/morelikethis.png";
 import RelatedInterests from "./imgs/imdb/relatedinterests.png";
@@ -290,9 +280,10 @@ function SeriesPage() {
   );
 
   useEffect(() => {
-    fetch("/api/all-images")
-      .then(res => res.json())
-      .then(data => {
+    fetch("https://backend-ratinggraph.onrender.com/api/all-images") // ou URL do Render
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Imagens do backend:", data); // <--- veja no console
         if (data?.images) setAllImages(data.images);
       });
   }, []);
@@ -4967,11 +4958,10 @@ function SeriesPage() {
                   </section>
 
                   {/*Images*/}
-                  {sortedImages.length > 0 &&
+                  {data.Photos2 > 0 &&
                     (() => {
                       const visibleImages = sortedImages.slice(0, 5);
-                      const remainingCount =
-                        sortedImages.length - visibleImages.length;
+                      const remainingCount = data.Photos2 - 5;
                       return (
                         <section
                           style={{
@@ -5044,7 +5034,7 @@ function SeriesPage() {
                                       marginRight: "2px",
                                     }}
                                   >
-                                    {sortedImages.length}
+                                    {data.Photos2}
                                   </span>
                                   <svg
                                     width="19.2"
@@ -5210,6 +5200,113 @@ function SeriesPage() {
                         </section>
                       );
                     })()}
+
+                  {/*Images*/}
+                  {data.Photos2 < 5 && (
+                    <section
+                      style={{
+                        padding: "24px",
+                        width: "856px",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "block",
+                          marginBottom: "30px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "20px",
+                            width: "808px",
+                            height: "38.4px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "4px",
+                              height: "28.8px",
+                              borderRadius: "12px",
+                              backgroundColor: "rgb(245, 197, 24)",
+                              maxHeight: "28.8px",
+                            }}
+                          />
+                          <div>
+                            <Link
+                              to={`#`}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                color: "black",
+                                cursor: "pointer",
+                              }}
+                              onMouseEnter={() => setHovered(true)}
+                              onMouseLeave={() => setHovered(false)}
+                            >
+                              <h3
+                                style={{
+                                  padding: "0 0 0 10px",
+                                  margin: 0,
+                                  fontSize: "1.5rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  letterSpacing: "normal",
+                                  lineHeight: "1.2em",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Photos
+                              </h3>
+                            </Link>
+                          </div>
+                          <div
+                            style={{
+                              marginLeft: "auto",
+                              display: "flex",
+                              alignItems: "center",
+                              color: "rgb(14,99,190)",
+                              cursor: "pointer",
+                              padding: "0 8px 0 8px",
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              role="presentation"
+                              style={{
+                                marginRight: "4px",
+                              }}
+                            >
+                              <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                            </svg>
+                            <span
+                              style={{
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "0.875rem",
+                                fontWeight: "600",
+                                lineHeight: "1.25rem",
+                                letterSpacing: ".02em",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                position: "relative",
+                                top: "1px",
+                              }}
+                            >
+                              Add photo
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
 
                   {/*Stars*/}
                   <section
