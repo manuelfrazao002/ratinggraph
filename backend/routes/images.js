@@ -2,8 +2,10 @@
 import express from "express";
 import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.config({ 
-  cloudinary_url: process.env.CLOUDINARY_URL 
+cloudinary.config({
+  cloud_name: "duaapwky8",
+  api_key: "943211793267165",
+  api_secret: "ZnkzL08rrQK7dTpNGl3K4qbYegM"
 });
 
 const router = express.Router();
