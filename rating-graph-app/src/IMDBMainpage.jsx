@@ -5381,7 +5381,7 @@ function SeriesPage() {
                                 marginRight: "2px",
                               }}
                             >
-                              {data.Cast}
+                              {data.Cast > 99 ? "99+" : data.Cast}
                             </span>
                             <svg
                               width="19.2"

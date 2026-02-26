@@ -2126,7 +2126,7 @@ function SeriesPageDetails() {
                                   marginRight: "2px",
                                 }}
                               >
-                                {episodeCast.length}
+                                {episodeCast.length > 99 ? "99+" : episodeCast.length}
                               </span>
                               <svg
                                 width="19.2"
@@ -3034,6 +3034,7 @@ function SeriesPageDetails() {
                       width: "808px",
                     }}
                   >
+                  {episodeData?.Date4 != "" && (
                     <div
                       style={{
                         borderTopWidth: "1px",
@@ -3093,6 +3094,7 @@ function SeriesPageDetails() {
                         </svg>
                       </div>
                     </div>
+                    )}
                     {parsedDate && parsedDate < new Date() && (
                       <>
                         <div
