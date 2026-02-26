@@ -158,19 +158,19 @@ export default function Episodes() {
             const allEpisodes = [];
 
             results.data.forEach((ep) => {
-  const seasonNumber = parseInt(ep.Season);
+              const seasonNumber = parseInt(ep.Season);
 
-  // Ignora episódios sem Season válida (ex: "", null, undefined, NaN)
-  if (!ep.Season || isNaN(seasonNumber)) {
-    return; // simplesmente salta este episódio
-  }
+              // Ignora episódios sem Season válida (ex: "", null, undefined, NaN)
+              if (!ep.Season || isNaN(seasonNumber)) {
+                return; // simplesmente salta este episódio
+              }
 
-  const season = seasonNumber.toString();
+              const season = seasonNumber.toString();
 
-  if (!grouped[season]) grouped[season] = [];
-  grouped[season].push(ep);
-  allEpisodes.push(ep);
-});
+              if (!grouped[season]) grouped[season] = [];
+              grouped[season].push(ep);
+              allEpisodes.push(ep);
+            });
 
             const seasons = Object.keys(grouped).sort((a, b) => a - b);
             setSeasonList(seasons);
@@ -1228,36 +1228,36 @@ export default function Episodes() {
                       ))
                   )}
                   <a
-                        href="https://www.imdb.com/search/title/?title_type=tv_episode&sort=num_votes,desc"
-                        style={{
-                          cursor: "pointer",
-                          background: "none",
-                          border: "none",
-                          padding: "0 1rem",
-                          minHeight: "2.25rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "0.875rem",
-                          fontWeight: "600",
-                          lineHeight: "1.25",
-                          color: "rgb(14,99,190)",
-                          minWidth: "3rem",
-                          width:"100&",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          letterSpacing: "0.02em",
-                          margin:"0 4px 0 0"
-                        }}
-                      >
-                        <span>Show more</span>
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
-                        </svg>
-                      </a>
+                    href="https://www.imdb.com/search/title/?title_type=tv_episode&sort=num_votes,desc"
+                    style={{
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      padding: "0 1rem",
+                      minHeight: "2.25rem",
+                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      lineHeight: "1.25",
+                      color: "rgb(14,99,190)",
+                      minWidth: "3rem",
+                      width: "100&",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      letterSpacing: "0.02em",
+                      margin: "0 4px 0 0",
+                    }}
+                  >
+                    <span>Show more</span>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
+                    </svg>
+                  </a>
                 </div>
               )}
 
