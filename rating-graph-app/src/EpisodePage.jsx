@@ -158,11 +158,19 @@ export default function Episodes() {
             const allEpisodes = [];
 
             results.data.forEach((ep) => {
-              const season = ep.Season || "Desconhecida";
-              if (!grouped[season]) grouped[season] = [];
-              grouped[season].push(ep);
-              allEpisodes.push(ep);
-            });
+  const seasonNumber = parseInt(ep.Season);
+
+  // Ignora episódios sem Season válida (ex: "", null, undefined, NaN)
+  if (!ep.Season || isNaN(seasonNumber)) {
+    return; // simplesmente salta este episódio
+  }
+
+  const season = seasonNumber.toString();
+
+  if (!grouped[season]) grouped[season] = [];
+  grouped[season].push(ep);
+  allEpisodes.push(ep);
+});
 
             const seasons = Object.keys(grouped).sort((a, b) => a - b);
             setSeasonList(seasons);
