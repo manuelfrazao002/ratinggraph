@@ -5843,7 +5843,7 @@ function SeriesPage() {
                               </div>
                             </div>
                           )}
-                          {data.Runtime > 30 && (
+                          {data.Runtime > 90 && (
                             <div
                               style={{
                                 marginBottom: "16px",
@@ -6920,7 +6920,7 @@ function SeriesPage() {
                         >
                           {data.EpDuration}
                         </span>
-                        {data.epDuration2 > 60 && (
+                        {data.epDuration2 >= 60 && (
                           <span
                             style={{
                               marginLeft: "0.5rem",

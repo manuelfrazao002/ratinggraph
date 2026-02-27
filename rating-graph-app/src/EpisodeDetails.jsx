@@ -3535,7 +3535,7 @@ function SeriesPageDetails() {
                           >
                             {episodeData?.epDuration2}
                           </span>
-                          {episodeData?.epDuration > 60 && (
+                          {episodeData?.epDuration >= 60 && (
                             <span
                               style={{
                                 marginLeft: "0.5rem",
