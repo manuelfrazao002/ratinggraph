@@ -882,7 +882,7 @@ function SeriesPage() {
                               style={{
                                 width: "8px",
                                 position: "relative",
-                                top: "0.109rem",
+                                top: data.PopStatus === "down" ? "1px" : "0px",
                                 transform:
                                   data.PopStatus === "down"
                                     ? "rotate(180deg)"
