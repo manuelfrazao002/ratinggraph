@@ -144,13 +144,7 @@ export default function RatingChart() {
     return { a, b };
   }
 
-  const pointStyles = [
-    "rect", // Season 1
-    "triangle", // Season 2
-    "circle", // Season 3
-    "rectRot", // Season 4
-    "rect", // Season 5
-  ];
+  const pointStyles = ["triangle", "triangle", "circle", "rectRot", "rect"];
 
   const datasets = Object.keys(seasonData)
     .sort((a, b) => a - b)
@@ -164,7 +158,7 @@ export default function RatingChart() {
       const validRatings = dataForSeason.filter((r) => r !== null);
       const average =
         validRatings.reduce((sum, r) => sum + r, 0) / validRatings.length;
-        const roundedAverage = Math.round(average * 10) / 10;
+      const roundedAverage = Math.round(average * 10) / 10;
 
       return {
         label: `Season ${season} (${roundedAverage.toFixed(1)})`,
@@ -178,6 +172,12 @@ export default function RatingChart() {
         showLine: false,
         tension: 0,
         pointStyle: pointStyles[index % pointStyles.length],
+        pointRotation:
+          pointStyles[index % pointStyles.length] === "triangle"
+            ? index % pointStyles.length === 1
+              ? 180
+              : 0
+            : 0,
       };
     });
 

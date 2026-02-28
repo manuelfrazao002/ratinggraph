@@ -149,13 +149,7 @@ export default function VotesChart() {
     return { a, b };
   }
 
-  const pointStyles = [
-    "rect", // Season 1
-    "triangle", // Season 2
-    "circle", // Season 3
-    "rectRot", // Season 4
-    "rect", // Season 5
-  ];
+  const pointStyles = ["triangle", "triangle", "circle", "rectRot", "rect"];
 
   const datasets = Object.keys(seasonData)
     .sort((a, b) => a - b)
@@ -184,6 +178,12 @@ export default function VotesChart() {
         showLine: false,
         tension: 0,
         pointStyle: pointStyles[index % pointStyles.length],
+        pointRotation:
+          pointStyles[index % pointStyles.length] === "triangle"
+            ? index % pointStyles.length === 1
+              ? 180
+              : 0
+            : 0,
       };
     });
 
