@@ -1818,6 +1818,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                   </svg>
                                 </Link>
                               </div>
+                              {episodeImages.length > 1 && (
                               <div
                                 style={{
                                   marginLeft: "auto",
@@ -1860,6 +1861,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                   Add photo
                                 </span>
                               </div>
+                              )}
                             </div>
 
                             {/* GRID */}
@@ -1890,6 +1892,33 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                     }
                                   />
                                 ))}
+                                {/* Overlay */}
+                                      {episodeImages.length < 2 && (
+                                        <div
+                                          style={{
+                                            position: "relative",
+                                            inset: 0,
+                                            background: "rgba(0,0,0,0.5)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "white",
+                                            fontWeight: 600,
+                                            fontSize: "0.875rem",
+                                            textAlign: "center",
+                                            borderRadius: "0.75rem",
+                                            pointerEvents: "none",
+                                            fontFamily:
+                                              "Roboto,Helvetica,Arial,sans-serif",
+                                            lineHeight: "1.25rem",
+                                            letterSpacing: "normal",
+                                            width: "100px",
+                                            cursor: "pointer",
+                                          }}
+                                        >
+                                          + Add photo
+                                        </div>
+                                      )}
                               </div>
 
                               {/* Linha 2 – 2 médias + 1 pequena */}

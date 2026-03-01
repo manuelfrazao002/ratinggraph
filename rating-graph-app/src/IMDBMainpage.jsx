@@ -5159,6 +5159,7 @@ const getPluralLabel = (text, singular, plural) => {
                                   </svg>
                                 </Link>
                               </div>
+                              {data.Photos2 > 1 && (
                               <div
                                 style={{
                                   marginLeft: "auto",
@@ -5201,6 +5202,7 @@ const getPluralLabel = (text, singular, plural) => {
                                   Add photo
                                 </span>
                               </div>
+                              )}
                             </div>
 
                             {/* GRID */}
@@ -5231,6 +5233,33 @@ const getPluralLabel = (text, singular, plural) => {
                                     }
                                   />
                                 ))}
+                                {/* Overlay */}
+                                      {data.Photos2 < 2 && (
+                                        <div
+                                          style={{
+                                            position: "relative",
+                                            inset: 0,
+                                            background: "rgba(0,0,0,0.5)",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "white",
+                                            fontWeight: 600,
+                                            fontSize: "0.875rem",
+                                            textAlign: "center",
+                                            borderRadius: "0.75rem",
+                                            pointerEvents: "none",
+                                            fontFamily:
+                                              "Roboto,Helvetica,Arial,sans-serif",
+                                            lineHeight: "1.25rem",
+                                            letterSpacing: "normal",
+                                            width: "100px",
+                                            cursor: "pointer",
+                                          }}
+                                        >
+                                          + Add photo
+                                        </div>
+                                      )}
                               </div>
 
                               {/* Linha 2 – 2 médias + 1 pequena */}
@@ -5295,10 +5324,10 @@ const getPluralLabel = (text, singular, plural) => {
                                         >
                                           + {formatVotes(remainingCount)}
                                         </div>
-                                      )}
+                                      )}                                      
                                     </div>
                                   );
-                                })}
+                                })}                                
                               </div>
                               )}
                             </div>
