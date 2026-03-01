@@ -2374,7 +2374,7 @@ const getPluralLabel = (text, singular, plural) => {
                         </svg>
                       </span>
                       )}
-                      {data.Years === 1 && (
+                      {data.Years === "1" && (
                       <span
                         style={{
                           display: "flex",
