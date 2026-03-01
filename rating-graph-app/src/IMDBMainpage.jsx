@@ -158,21 +158,32 @@ function SeriesPage() {
       });
   }, [movieId]);
 
-  useEffect(() => {
-    if (!allEpisodes.length) return;
+  function parseEpisodeDate(dateStr) {
+  if (!dateStr) return null;
 
-    const now = new Date();
+  // Se for apenas ano (ex: "2026")
+  if (/^\d{4}$/.test(dateStr)) {
+    return new Date(`${dateStr}-12-31`);
+  }
 
-    const futureEpisodes = allEpisodes
-      .map((ep) => ({
-        ...ep,
-        parsedDate: new Date(ep.Date),
-      }))
-      .filter((ep) => !isNaN(ep.parsedDate) && ep.parsedDate > now)
-      .sort((a, b) => a.parsedDate - b.parsedDate);
+  return new Date(dateStr);
+}
 
-    setNextEpisode(futureEpisodes[0] || null);
-  }, [allEpisodes]);
+useEffect(() => {
+  if (!allEpisodes.length) return;
+
+  const now = new Date();
+
+  const futureEpisodes = allEpisodes
+    .map((ep) => {
+      const parsedDate = parseEpisodeDate(ep.Date);
+      return { ...ep, parsedDate };
+    })
+    .filter((ep) => ep.parsedDate && ep.parsedDate > now)
+    .sort((a, b) => a.parsedDate - b.parsedDate);
+
+  setNextEpisode(futureEpisodes[0] || null);
+}, [allEpisodes]);
 
   useEffect(() => {
     if (!allEpisodes.length) return;
@@ -181,17 +192,19 @@ function SeriesPage() {
     const daysAgo30 = new Date(now);
     daysAgo30.setDate(now.getDate() - 30);
 
-    const validEpisodes = allEpisodes.filter((ep) => {
-      const rating = parseFloat(ep["Average Rating 2"]);
-      const votes = parseInt(ep.Votes2);
-      const hasSynopsis = ep.Synopsis?.trim();
+const validEpisodes = allEpisodes.filter((ep) => {
+  const parsedDate = parseEpisodeDate(ep.Date);
 
-      return (
-        ep.Date &&
-        !isNaN(new Date(ep.Date)) &&
-        (hasSynopsis || rating > 0 || votes > 0)
-      );
-    });
+  const rating = parseFloat(ep["Average Rating 2"]);
+  const votes = parseInt(ep.Votes2);
+  const hasSynopsis = ep.Synopsis?.trim();
+
+  return (
+    parsedDate &&
+    !isNaN(parsedDate) &&
+    (hasSynopsis || rating > 0 || votes > 0)
+  );
+});
 
     if (!validEpisodes.length) {
       setRecentAndTopEpisodes([]);
@@ -202,9 +215,9 @@ function SeriesPage() {
     // tenta últimos 30 dias, senão usa o mais recente disponível
     let mostRecent =
       validEpisodes
-        .filter((ep) => new Date(ep.Date) >= daysAgo30)
-        .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0] ||
-      validEpisodes.sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
+        .filter((ep) => ep.parsedDate >= daysAgo30)
+        .sort((a, b) => b.parsedDate - a.parsedDate)[0] ||
+      validEpisodes.sort((a, b) => b.parsedDate - a.parsedDate)[0];
 
     // ✅ Top Rated (pode ser o mesmo se só existir um)
     const topRated =
@@ -1438,6 +1451,61 @@ function SeriesPage() {
                         </p>
                       </div>
                     </div>
+                  ) : isTVShow && data.NextEpisode2?.trim() ? (
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        paddingRight: 24,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "4px",
+                          height: "36px",
+                          borderRadius: "12px",
+                          backgroundColor: "#F5C518",
+                          maxHeight: 36,
+                        }}
+                      />
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "0.75rem",
+                            letterSpacing: "0.16667em",
+                            paddingLeft: 8,
+                            margin: 0,
+                            color: "white",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: 600,
+                            lineHeight: "1rem",
+                          }}
+                        >
+                          {Number(data.NextEpisodeSeason) === 1 &&
+                          Number(data.NextEpisodeNumber) === 1
+                            ? "SERIES PREMIERE"
+                            : Number(data.NextEpisodeNumber) === 1
+                              ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
+                              : "NEXT EPISODE"}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "0.875rem",
+                            letterSpacing: "0.01786em",
+                            position: "relative",
+                            color: "white",
+                            paddingLeft: 8,
+                            margin: 0,
+                            lineHeight: "1.25rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: 400,
+                          }}
+                        >
+                          {data.NextEpisode2}
+                        </p>
+                      </div>
+                    </div>
                   ) : data.Type === "Movie" && data.NextEpisode ? (
                     <div
                       style={{
@@ -2217,6 +2285,7 @@ function SeriesPage() {
                       >
                         Browse episodes
                       </span>
+                      {data.Status != 0 && (
                       <span
                         style={{
                           padding: "0 12px 0 12px",
@@ -2231,6 +2300,7 @@ function SeriesPage() {
                       >
                         Top-rated
                       </span>
+                      )}
                       <span
                         style={{
                           display: "flex",
@@ -2246,6 +2316,7 @@ function SeriesPage() {
                         }}
                       >
                         {data.Seasons} season{data.Seasons > 1 ? "s" : ""}
+                        {data.Seasons > 1 && (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="24"
@@ -2258,7 +2329,9 @@ function SeriesPage() {
                           <path fill="none" d="M0 0h24v24H0V0z"></path>
                           <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
                         </svg>
+                        )}
                       </span>
+                      {data.Years > 1 && (
                       <span
                         style={{
                           display: "flex",
@@ -2287,6 +2360,25 @@ function SeriesPage() {
                           <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
                         </svg>
                       </span>
+                      )}
+                      {data.Years < 2 && (
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "0 12px 0 12px",
+                          cursor: "pointer",
+                          color: "rgb(14,99,190)",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25rem",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {data.BeginingYear}
+                      </span>
+                      )}
                     </div>
                   </section>
 
@@ -4962,8 +5054,7 @@ function SeriesPage() {
                   {/*Images*/}
                   {data.Photos2 > 0 &&
                     (() => {
-                      const visibleImages = sortedImages.slice(0, 5);
-                      const remainingCount = data.Photos2 - 5;
+                      const remainingCount = Math.max(data.Photos2 - 5, 0);
                       return (
                         <section
                           style={{
@@ -5112,7 +5203,7 @@ function SeriesPage() {
                                   marginBottom: "1rem",
                                 }}
                               >
-                                {visibleImages.slice(0, 2).map((img, i) => (
+                                {sortedImages.slice(0, Math.min(2, data.Photos2)).map((img, i) => (
                                   <img
                                     key={i}
                                     src={img.url}
@@ -5132,6 +5223,7 @@ function SeriesPage() {
                               </div>
 
                               {/* Linha 2 – 2 médias + 1 pequena */}
+                              {sortedImages.length > 2 && (
                               <div
                                 style={{
                                   display: "flex",
@@ -5140,7 +5232,7 @@ function SeriesPage() {
                                   marginBottom: "1rem",
                                 }}
                               >
-                                {visibleImages.slice(2, 5).map((img, i) => {
+                                {sortedImages.slice(2, Math.min(5, data.Photos2)).map((img, i) => {
                                   const isLast = i === 2 && remainingCount > 0;
                                   return (
                                     <div
@@ -5197,6 +5289,7 @@ function SeriesPage() {
                                   );
                                 })}
                               </div>
+                              )}
                             </div>
                           </div>
                         </section>
@@ -6402,7 +6495,7 @@ function SeriesPage() {
                           lineHeight: "1.5rem",
                           color: "rgb(14,99,190)",
                         }}
-                      >
+                      >                        
                         {data.ReleaseDate} {"(United States)"}
                       </span>
                       <div

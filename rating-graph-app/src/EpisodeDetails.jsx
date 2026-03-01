@@ -109,7 +109,6 @@ function SeriesPageDetails() {
           header: true,
           complete: (results) => {
             setData(results.data[0]);
-            console.log("CSV RAW DATA:", results.data[0]);
           },
           error: (err) => console.error("Erro ao carregar CSV", err),
         });
@@ -223,8 +222,6 @@ function SeriesPageDetails() {
     ]);
   }, [allEpisodes]);
 
-  console.log("Recent & Top Episodes:", recentAndTopEpisodes);
-
   useEffect(() => {
     if (!allEpisodes.length || !episodeId) return;
 
@@ -243,11 +240,6 @@ function SeriesPageDetails() {
         ? sortedEpisodes[currentIndex + 1]
         : null,
     );
-
-    // DEBUG (remove depois)
-    console.log("CURRENT:", episodeId);
-    console.log("PREV:", sortedEpisodes[currentIndex - 1]?.episodeId);
-    console.log("NEXT:", sortedEpisodes[currentIndex + 1]?.episodeId);
   }, [allEpisodes, episodeId]);
 
   useEffect(() => {
@@ -343,10 +335,6 @@ function SeriesPageDetails() {
   }, [movieId, episodeData]);
 
   console.log("movieId da URL:", movieId);
-  console.log(
-    "Filmes disponíveis:",
-    movies.map((m) => m.id),
-  );
 
   const episodeImages = React.useMemo(() => {
     if (!episodeData || !movieId) return [];
@@ -565,9 +553,28 @@ function SeriesPageDetails() {
   const isMovie = data.Type === "Movie";
   const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
 
-  const parsedDate = episodeData?.Date3
-    ? new Date(episodeData.Date3.replace(/\u00A0/g, " "))
-    : null;
+const parseDateSafe = (dateStr) => {
+  if (!dateStr) return null;
+
+  // Remove todos os espaços invisíveis, incluindo nbsp
+  const cleaned = dateStr.replace(/[\s\u00A0]+/g, " ").trim();
+
+  // Se só tiver o ano (YYYY)
+  if (/^\d{4}$/.test(cleaned)) {
+    return new Date(`${cleaned}-12-31`);
+  }
+
+  // Tenta criar data normal
+  const d = new Date(cleaned);
+  if (!isNaN(d)) return d;
+
+  // Se falhar, tenta Date.parse como fallback
+  const timestamp = Date.parse(cleaned);
+  return isNaN(timestamp) ? null : new Date(timestamp);
+};
+
+// Uso no teu componente:
+const parsedDate = parseDateSafe(episodeData?.Date3);
 
   const hasComingSoonEpisode = (() => {
     if (!isTVShow) return false;

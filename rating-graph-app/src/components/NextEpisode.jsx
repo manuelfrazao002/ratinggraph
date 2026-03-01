@@ -1,18 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Papa from "papaparse";
 import { useParams, Link } from "react-router-dom";
 import AddBtn from "../imgs/imdb/addbtn.png";
 import AddPlot2 from "../imgs/imdb/addplot2.png";
+//Data
+import { movieMap } from "../data/MovieMap";
 
 export default function NextEpisode({ nextEpisode, coverSrc }) {
   const { movieId, episodeId } = useParams();
+  const [data, setData] = useState(null);
+  const urls = movieMap[movieId];
+
+    useEffect(() => {
+      if (!urls || urls.length === 0) return;
+  
+      fetch(urls[0])
+        .then((res) => res.text())
+        .then((csv) => {
+          Papa.parse(csv, {
+            header: true,
+            complete: (results) => {
+              setData(results.data[0]);
+            },
+            error: (err) => console.error("Erro ao carregar CSV", err),
+          });
+        });
+    }, [movieId]);
+
   if (!nextEpisode) return null;
 
-  const isSeriesPremiere =
-    Number(nextEpisode.season) === 1 &&
-    Number(nextEpisode.number) === 1;
+const isSeriesPremiere =
+  Number(data?.NextEpisodeSeason) === 1 &&
+  Number(data?.NextEpisodeNumber) === 1;
 
-  const isSeasonPremiere =
-    Number(nextEpisode.number) === 1 && !isSeriesPremiere;
+const isSeasonPremiere =
+  Number(data?.NextEpisodeNumber) === 1 && !isSeriesPremiere;
 
   return (
     <section style={{ margin: "0 auto", width: "856px" }}>
@@ -55,7 +77,7 @@ export default function NextEpisode({ nextEpisode, coverSrc }) {
             {isSeriesPremiere
               ? "SERIES PREMIERE"
               : isSeasonPremiere
-              ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
+              ? `SEASON ${Number(data?.NextEpisodeSeason)} PREMIERE`
               : "NEXT EPISODE"}
           </h2>
 

@@ -28,6 +28,8 @@ import MoreTitle from "./imgs/imdb/moretitle.png";
 import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
 
+import NextEpisode from "./components/NextEpisode.jsx";
+
 export default function Episodes() {
   const { movieId, episodeId } = useParams();
   const [episodesBySeason, setEpisodesBySeason] = useState({});
@@ -133,6 +135,18 @@ export default function Episodes() {
       return;
     }
 
+    const parseCustomDate = (dateStr) => {
+      if (!dateStr) return null;
+
+      // Se for apenas ano (YYYY)
+      if (/^\d{4}$/.test(dateStr.trim())) {
+        return new Date(`${dateStr}-12-31`);
+      }
+
+      const d = new Date(dateStr);
+      return isNaN(d) ? null : d;
+    };
+
     const urls = movieMap[movieId];
 
     fetch(urls[1])
@@ -181,7 +195,8 @@ export default function Episodes() {
             const groupedByYear = {};
             allEpisodes.forEach((ep) => {
               const year = ep.Date
-                ? new Date(ep.Date).getFullYear().toString()
+                ? (parseCustomDate(ep.Date)?.getFullYear().toString() ??
+                  "Desconhecido")
                 : "Desconhecido";
               if (!groupedByYear[year]) groupedByYear[year] = [];
               groupedByYear[year].push(ep);
@@ -238,6 +253,12 @@ export default function Episodes() {
 
     const parseCustomDate = (dateStr) => {
       if (!dateStr) return null;
+
+      // Se for apenas ano (YYYY)
+      if (/^\d{4}$/.test(dateStr.trim())) {
+        return new Date(`${dateStr}-12-31`);
+      }
+
       const d = new Date(dateStr);
       return isNaN(d) ? null : d;
     };
@@ -773,117 +794,7 @@ export default function Episodes() {
       <div style={{ display: "flex", margin: "0 auto", width: "1280px" }}>
         <div>
           {/* Next Episode */}
-          <div>
-            <section
-              style={{
-                margin: "0 auto",
-                width: "856px",
-              }}
-            >
-              {nextEpisode && (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "25px",
-                    width: "808px",
-                    marginLeft: 3,
-                    marginBottom: 12,
-                    position: "relative",
-                    top: -7,
-                  }}
-                >
-                  <img
-                    src={
-                      nextEpisode.Image?.startsWith("http")
-                        ? nextEpisode.Image
-                        : coverSrc
-                    }
-                    alt="Next Episode"
-                    style={{
-                      width: "224px",
-                      height: "126px",
-                      objectFit: "cover",
-                      borderRadius: "12px",
-                    }}
-                  />
-                  <div>
-                    <div style={{}}>
-                      <h2
-                        style={{
-                          fontSize: "0.73rem",
-                          marginBottom: "0px",
-                          color: "#000000",
-                          letterSpacing: "2.2px",
-                          marginTop: 0,
-                        }}
-                      >
-                        {Number(nextEpisode.season) === 1 &&
-                        Number(nextEpisode.number) === 1
-                          ? "SERIES PREMIERE"
-                          : Number(nextEpisode.number) === 1
-                            ? `SEASON ${Number(nextEpisode.season)} PREMIERE`
-                            : "NEXT EPISODE"}
-                      </h2>
-                    </div>
-                    <div style={{ display: "flex", marginTop: 10 }}>
-                      <div>
-                        <img
-                          src={AddBtn}
-                          alt=""
-                          style={{ position: "relative", top: "1px" }}
-                        />
-                      </div>
-                      <div
-                        style={{
-                          marginLeft: 12,
-                          position: "relative",
-                          top: "-2px",
-                        }}
-                      >
-                        <Link
-                          to={`/episodepage/${movieId}/${nextEpisode?.episodeId}`}
-                        >
-                          <h3
-                            style={{
-                              color: "#212121",
-                              fontWeight: "bold",
-                              margin: 0,
-                              paddingTop: 1,
-                              paddingBottom: 2.5,
-                              letterSpacing: "0.00937em",
-                              fontSize: "1rem",
-                              position: "relative",
-                              left: "0px",
-                              top: "0px",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              lineHeight: "1.25rem",
-                            }}
-                          >
-                            {nextEpisode.Title}
-                          </h3>
-                        </Link>
-                        <p
-                          style={{
-                            margin: 0,
-                            fontSize: "14px",
-                            color: "#7C7C7C",
-                            letterSpacing: 0.5,
-                          }}
-                        >
-                          {nextEpisode.Date}
-                        </p>
-                      </div>
-                    </div>
-                    <div
-                      style={{ marginTop: 8, position: "relative", top: -1 }}
-                    >
-                      <img src={AddPlot2} alt="" />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </section>
-          </div>
+          <NextEpisode nextEpisode={nextEpisode} coverSrc={coverSrc} />
           <div>
             {/*Most Recent*/}
             <section
