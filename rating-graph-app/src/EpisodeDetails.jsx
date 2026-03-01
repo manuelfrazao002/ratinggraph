@@ -1947,7 +1947,7 @@ function SeriesPageDetails() {
                     })()}
 
                   {/*Images*/}
-                  {episodeData?.Photos < 5 && (
+                  {episodeData?.Photos < 1 && (
                     <section
                       style={{
                         padding: "24px",
