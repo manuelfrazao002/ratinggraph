@@ -32,7 +32,23 @@ export const movieMap = {
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQx609J66dk5s3kodv4cfRUo0jkm6HDy7_oFmgInXuO1gq2mZUB7zESWeG55DqIANP2JPUjIAmxj8mq/pub?gid=1229177673&single=true&output=csv",
     //Videos
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQx609J66dk5s3kodv4cfRUo0jkm6HDy7_oFmgInXuO1gq2mZUB7zESWeG55DqIANP2JPUjIAmxj8mq/pub?gid=918225426&single=true&output=csv",
-  ]
+  ],
+  mythologicalheroes: [
+    //IMDBData
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=1334662158&single=true&output=csv",
+    //DataBase TVSHOW
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=190829179&single=true&output=csv",
+    //RatingGraphData
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=1942396010&single=true&output=csv",
+    //Daily Count
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=1140739200&single=true&output=csv",
+    //Stars
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=1732778719&single=true&output=csv",
+    //EpCharCount
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=1229177673&single=true&output=csv",
+    //Videos
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUIXEbt-D8cAshubFqtGvkLx_tEQlQUFfsjhP3deHm3NSWbISC-9EPWx5Tn0SbxqRtxY_CNMW75809/pub?gid=918225426&single=true&output=csv",
+  ],
 };
 
 export const animeMap = {
