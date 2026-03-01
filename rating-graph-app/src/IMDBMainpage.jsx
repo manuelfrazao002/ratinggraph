@@ -649,11 +649,13 @@ const getPluralLabel = (text, singular, plural) => {
                         </span>
                       </>
                     )}
+                    {data.BeginingYear !== "" &&  (<>
                     {data.BeginingYear}
-                    {data.Type === "TV Series" && `—${data.EndingYear || ""}`}
+                    {data.Type === "TV Series" && `—${data.EndingYear || ""}`}                   
                     <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                       ·
                     </span>
+                    </>)}
                     {data.AgeRating}
                     {!isMovie && (
                       <>
@@ -2372,7 +2374,7 @@ const getPluralLabel = (text, singular, plural) => {
                         </svg>
                       </span>
                       )}
-                      {data.Years < 2 && (
+                      {data.Years === 1 && (
                       <span
                         style={{
                           display: "flex",
@@ -6502,6 +6504,7 @@ const getPluralLabel = (text, singular, plural) => {
                       width: "808px",
                     }}
                   >
+                    {data.ReleaseDate !== "" && (
                     <div
                       style={{
                         borderTopWidth: "1px",
@@ -6512,7 +6515,7 @@ const getPluralLabel = (text, singular, plural) => {
                         paddingBottom: "0.75rem",
                         paddingTop: "0.75rem",
                       }}
-                    >
+                    >                      
                       <span
                         style={{
                           paddingRight: "0.75rem",
@@ -6537,7 +6540,7 @@ const getPluralLabel = (text, singular, plural) => {
                         }}
                       >                        
                         {data.ReleaseDate} {"(United States)"}
-                      </span>
+                      </span>                      
                       <div
                         style={{
                           display: "flex",
@@ -6560,6 +6563,7 @@ const getPluralLabel = (text, singular, plural) => {
                         </svg>
                       </div>
                     </div>
+                    )}                    
                     <div
                       style={{
                         borderTopWidth: "1px",
