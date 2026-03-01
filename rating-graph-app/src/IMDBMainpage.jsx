@@ -501,6 +501,17 @@ const validEpisodes = allEpisodes.filter((ep) => {
   const isMovie = data.Type === "Movie";
   const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
 
+const getPluralLabel = (text, singular, plural) => {
+  if (!text) return singular;
+
+  const items = text
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+
+  return items.length > 1 ? plural : singular;
+};
+
   return (
     <>
       <GlobalStyle />
@@ -1255,7 +1266,7 @@ const validEpisodes = allEpisodes.filter((ep) => {
                         color: "white",
                       }}
                     >
-                      Creators
+                      {getPluralLabel(data.Creators, "Creator", "Creators")}
                     </p>
                     <p
                       style={{
@@ -1290,7 +1301,7 @@ const validEpisodes = allEpisodes.filter((ep) => {
                           color: "white",
                         }}
                       >
-                        Writers
+                        {getPluralLabel(data.Writers, "Writer", "Writers")}
                       </p>
                       <p
                         style={{
@@ -1343,7 +1354,7 @@ const validEpisodes = allEpisodes.filter((ep) => {
                                   color: "white",
                                 }}
                               >
-                                Stars
+                                {hasMoreThanThree ? "Stars" : "Star"}
                               </p>
                               <p
                                 style={{
@@ -5562,7 +5573,7 @@ const validEpisodes = allEpisodes.filter((ep) => {
                             fontWeight: "600",
                           }}
                         >
-                          Creators
+                          {getPluralLabel(data.Creators, "Creator", "Creators")}
                         </span>
                         <span
                           style={{

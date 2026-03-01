@@ -589,6 +589,17 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
     return parsed > new Date();
   })();
 
+  const getPluralLabel = (text, singular, plural) => {
+  if (!text) return singular;
+
+  const items = text
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+
+  return items.length > 1 ? plural : singular;
+};
+
   return (
     <>
       <GlobalStyle />
@@ -1223,7 +1234,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                           color: "white",
                         }}
                       >
-                        Directors
+                        {getPluralLabel(episodeData?.Directors, "Director", "Directors")}
                       </p>
                       <p
                         style={{
@@ -1257,7 +1268,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                           color: "white",
                         }}
                       >
-                        Writers
+                        {getPluralLabel(episodeData?.Writers, "Writer", "Writers")}
                       </p>
                       <p
                         style={{
@@ -1308,7 +1319,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                     color: "white",
                                   }}
                                 >
-                                  Stars
+                                  {episodeCast?.length > 1 ? "Stars" : "Star"}
                                 </p>
                                 <p
                                   style={{
@@ -2225,7 +2236,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                               fontWeight: "600",
                             }}
                           >
-                            Directors
+                            {getPluralLabel(episodeData?.Directors, "Director", "Directors")}
                           </span>
                           <span
                             style={{
@@ -2263,7 +2274,7 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                               fontWeight: "600",
                             }}
                           >
-                            Writer
+                            {getPluralLabel(episodeData?.Writers, "Writer", "Writers")}
                           </span>
                           <span
                             style={{
