@@ -553,28 +553,28 @@ function SeriesPageDetails() {
   const isMovie = data.Type === "Movie";
   const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
 
-const parseDateSafe = (dateStr) => {
-  if (!dateStr) return null;
+  const parseDateSafe = (dateStr) => {
+    if (!dateStr) return null;
 
-  // Remove todos os espaços invisíveis, incluindo nbsp
-  const cleaned = dateStr.replace(/[\s\u00A0]+/g, " ").trim();
+    // Remove todos os espaços invisíveis, incluindo nbsp
+    const cleaned = dateStr.replace(/[\s\u00A0]+/g, " ").trim();
 
-  // Se só tiver o ano (YYYY)
-  if (/^\d{4}$/.test(cleaned)) {
-    return new Date(`${cleaned}-12-31`);
-  }
+    // Se só tiver o ano (YYYY)
+    if (/^\d{4}$/.test(cleaned)) {
+      return new Date(`${cleaned}-12-31`);
+    }
 
-  // Tenta criar data normal
-  const d = new Date(cleaned);
-  if (!isNaN(d)) return d;
+    // Tenta criar data normal
+    const d = new Date(cleaned);
+    if (!isNaN(d)) return d;
 
-  // Se falhar, tenta Date.parse como fallback
-  const timestamp = Date.parse(cleaned);
-  return isNaN(timestamp) ? null : new Date(timestamp);
-};
+    // Se falhar, tenta Date.parse como fallback
+    const timestamp = Date.parse(cleaned);
+    return isNaN(timestamp) ? null : new Date(timestamp);
+  };
 
-// Uso no teu componente:
-const parsedDate = parseDateSafe(episodeData?.Date3);
+  // Uso no teu componente:
+  const parsedDate = parseDateSafe(episodeData?.Date3);
 
   const hasComingSoonEpisode = (() => {
     if (!isTVShow) return false;
@@ -590,15 +590,15 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
   })();
 
   const getPluralLabel = (text, singular, plural) => {
-  if (!text) return singular;
+    if (!text) return singular;
 
-  const items = text
-    .split(",")
-    .map(item => item.trim())
-    .filter(Boolean);
+    const items = text
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
-  return items.length > 1 ? plural : singular;
-};
+    return items.length > 1 ? plural : singular;
+  };
 
   return (
     <>
@@ -1234,7 +1234,11 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                           color: "white",
                         }}
                       >
-                        {getPluralLabel(episodeData?.Directors, "Director", "Directors")}
+                        {getPluralLabel(
+                          episodeData?.Directors,
+                          "Director",
+                          "Directors",
+                        )}
                       </p>
                       <p
                         style={{
@@ -1268,7 +1272,11 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                           color: "white",
                         }}
                       >
-                        {getPluralLabel(episodeData?.Writers, "Writer", "Writers")}
+                        {getPluralLabel(
+                          episodeData?.Writers,
+                          "Writer",
+                          "Writers",
+                        )}
                       </p>
                       <p
                         style={{
@@ -1333,8 +1341,8 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                   }}
                                 >
                                   {renderListWithDotSeparator(
-              topThree.map(actor => actor.Name)
-            )}
+                                    topThree.map((actor) => actor.Name),
+                                  )}
                                 </p>
                               </div>
                               {hasMoreThanThree && (
@@ -1819,48 +1827,48 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                 </Link>
                               </div>
                               {episodeImages.length > 1 && (
-                              <div
-                                style={{
-                                  marginLeft: "auto",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  color: "rgb(14,99,190)",
-                                  cursor: "pointer",
-                                  padding: "0 8px 0 8px",
-                                }}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  role="presentation"
+                                <div
                                   style={{
-                                    marginRight: "4px",
-                                  }}
-                                >
-                                  <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
-                                </svg>
-                                <span
-                                  style={{
-                                    fontFamily:
-                                      "Roboto,Helvetica,Arial,sans-serif",
-                                    fontSize: "0.875rem",
-                                    fontWeight: "600",
-                                    lineHeight: "1.25rem",
-                                    letterSpacing: ".02em",
-                                    height: "24px",
+                                    marginLeft: "auto",
                                     display: "flex",
                                     alignItems: "center",
-                                    position: "relative",
-                                    top: "1px",
+                                    color: "rgb(14,99,190)",
+                                    cursor: "pointer",
+                                    padding: "0 8px 0 8px",
                                   }}
                                 >
-                                  Add photo
-                                </span>
-                              </div>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      marginRight: "4px",
+                                    }}
+                                  >
+                                    <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                                  </svg>
+                                  <span
+                                    style={{
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      fontSize: "0.875rem",
+                                      fontWeight: "600",
+                                      lineHeight: "1.25rem",
+                                      letterSpacing: ".02em",
+                                      height: "24px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      position: "relative",
+                                      top: "1px",
+                                    }}
+                                  >
+                                    Add photo
+                                  </span>
+                                </div>
                               )}
                             </div>
 
@@ -1893,32 +1901,32 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                   />
                                 ))}
                                 {/* Overlay */}
-                                      {episodeImages.length < 2 && (
-                                        <div
-                                          style={{
-                                            position: "relative",
-                                            inset: 0,
-                                            background: "rgba(0,0,0,0.5)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            color: "white",
-                                            fontWeight: 600,
-                                            fontSize: "0.875rem",
-                                            textAlign: "center",
-                                            borderRadius: "0.75rem",
-                                            pointerEvents: "none",
-                                            fontFamily:
-                                              "Roboto,Helvetica,Arial,sans-serif",
-                                            lineHeight: "1.25rem",
-                                            letterSpacing: "normal",
-                                            width: "100px",
-                                            cursor: "pointer",
-                                          }}
-                                        >
-                                          + Add photo
-                                        </div>
-                                      )}
+                                {episodeImages.length < 2 && (
+                                  <div
+                                    style={{
+                                      position: "relative",
+                                      inset: 0,
+                                      background: "rgba(0,0,0,0.5)",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      color: "white",
+                                      fontWeight: 600,
+                                      fontSize: "0.875rem",
+                                      textAlign: "center",
+                                      borderRadius: "0.75rem",
+                                      pointerEvents: "none",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      lineHeight: "1.25rem",
+                                      letterSpacing: "normal",
+                                      width: "100px",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    + Add photo
+                                  </div>
+                                )}
                               </div>
 
                               {/* Linha 2 – 2 médias + 1 pequena */}
@@ -2173,7 +2181,9 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                   marginRight: "2px",
                                 }}
                               >
-                                {episodeCast.length > 99 ? "99+" : episodeCast.length}
+                                {episodeCast.length > 99
+                                  ? "99+"
+                                  : episodeCast.length}
                               </span>
                               <svg
                                 width="19.2"
@@ -2265,7 +2275,11 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                               fontWeight: "600",
                             }}
                           >
-                            {getPluralLabel(episodeData?.Directors, "Director", "Directors")}
+                            {getPluralLabel(
+                              episodeData?.Directors,
+                              "Director",
+                              "Directors",
+                            )}
                           </span>
                           <span
                             style={{
@@ -2303,7 +2317,11 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                               fontWeight: "600",
                             }}
                           >
-                            {getPluralLabel(episodeData?.Writers, "Writer", "Writers")}
+                            {getPluralLabel(
+                              episodeData?.Writers,
+                              "Writer",
+                              "Writers",
+                            )}
                           </span>
                           <span
                             style={{
@@ -2597,7 +2615,9 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                                   lineHeight: "3.75rem",
                                 }}
                               >
-                                {episodeData?.["Average Rating 2"]}
+                                {episodeData?.["Average Rating 2"] === "10.0"
+                                  ? 10
+                                  : episodeData?.["Average Rating 2"]}
                               </span>
                             </span>
                             <span
@@ -3081,66 +3101,66 @@ const parsedDate = parseDateSafe(episodeData?.Date3);
                       width: "808px",
                     }}
                   >
-                  {episodeData?.Date4 != "" && (
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Release date
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >
-                        {episodeData?.Date4} {"(United States)"}
-                      </span>
-
+                    {episodeData?.Date4 != "" && (
                       <div
                         style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
                           display: "flex",
-                          alignItems: "center",
-                          marginLeft: "auto",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
                         }}
                       >
-                        <svg
-                          style={{ color: "rgb(0,0,0,0.54)" }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--chevron-right"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                        </svg>
+                          Release date
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color: "rgb(14,99,190)",
+                          }}
+                        >
+                          {episodeData?.Date4} {"(United States)"}
+                        </span>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
                       </div>
-                    </div>
                     )}
                     {parsedDate && parsedDate < new Date() && (
                       <>
