@@ -1727,6 +1727,177 @@ function SeriesPageDetails() {
                     padding: "0",
                   }}
                 >
+                  {/*Top Rated */}
+                  {(
+                    episodeData?.Wins > 0 ||
+                    episodeData?.Nom > 0) && (
+                    <section
+                      style={{
+                        paddingTop: "24px",
+                        paddingBottom: "24px",
+                        width: "856px",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "806px",
+                          marginLeft: "24px",
+                          marginRight: "24px",
+                          borderWidth: "1px",
+                          borderStyle: "solid",
+                          borderRadius: "4px",
+                          borderImage: "none",
+                          borderColor: "rgb(245, 197, 24)",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                          <div
+                            style={{
+                              backgroundColor: "rgba(245, 197, 24)",
+                              height: "49.2833px",
+                              minWidth: "24px",
+                              width: "max-content",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <a
+                              href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                              style={{
+                                color: "black",
+                                textDecoration: "none",
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                letterSpacing: "0.00937em",
+                                lineHeight: "1.25rem",
+                                textTransform: "none",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                padding: "12px 7.5px 12px 12px",
+                                zIndex: 1,
+                                width: "max-content",
+                              }}
+                            ></a>
+                          </div>
+
+                        <div
+                          style={{
+                            aspectRatio: "0.364 / 1",
+                            height: "49.283px",
+                            backgroundColor: "rgb(245,197,24)",
+                            transform: "skewX(-20deg) translateX(-50%)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            width: "625.867px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              paddingLeft: "1rem",
+                              display: "flex",
+                              paddingTop: "12px",
+                              paddingBottom: "12px",
+                              paddingRight: "26px",
+                              alignItems: "end",
+                            }}
+                          >
+                            <div style={{ cursor: "pointer" }}>
+                              <a
+                                    href=""
+                                    style={{
+                                      cursor: "pointer",
+                                      color: "black",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      paddingRight: "0.75rem",
+                                      textAlign: "start",
+                                      fontWeight: "600",
+                                      letterSpacing: "0.00937em",
+                                      fontSize: "1rem",
+                                      lineHeight: "1.5rem",
+                                    }}
+                                  >
+                                    Awards
+                                  </a>
+                              {episodeData?.Wins > 0 && episodeData?.Nom > 0 ? (
+                                <a
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    cursor: "pointer",
+                                    letterSpacing: "0.03125em",
+                                    fontWeight: "400",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                  }}
+                                >
+                                  {episodeData?.Wins} win{episodeData?.Wins > 1 ? "s" : ""} &{" "}
+                                  {episodeData?.Nom} nomination{episodeData?.Nom > 1 ? "s" : ""}{" "}
+                                  total
+                                </a>
+                              ) : episodeData.Wins > 0 ? (
+                                <a
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    cursor: "pointer",
+                                    letterSpacing: "0.03125em",
+                                    fontWeight: "400",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                  }}
+                                >
+                                  {episodeData?.Wins} win{episodeData?.Wins > 1 ? "s" : ""}{" "}
+                                  total
+                                </a>
+                              ) : episodeData?.Nom > 0 ? (
+                                <a
+                                  style={{
+                                    textDecoration: "none",
+                                    color: "black",
+                                    cursor: "pointer",
+                                    letterSpacing: "0.03125em",
+                                    fontWeight: "400",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                  }}
+                                >
+                                  {episodeData?.Nom} nomination{episodeData?.Nom > 1 ? "s" : ""}{" "}
+                                  total
+                                </a>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </section>
+                  )}
                   {/*Images*/}
                   {episodeImages.length > 0 &&
                     (() => {
