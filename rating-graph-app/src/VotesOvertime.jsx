@@ -262,10 +262,21 @@ const VotesOverTime = () => {
         position: "left",
         min: y1Min,
         max: y1Max,
-        ticks: {
-          stepSize: y1Step,
-          callback: (v) => (v === 0 ? "0" : `${(v / 1000).toFixed(0)}k`),
-        },
+  ticks: {
+    stepSize: y1Step,
+    callback: (v) => {
+      if (v === 0) return "0";
+
+      const range = y1Max - y1Min;
+
+      // Switch to millions only if axis range ≥ 7M
+      if (range >= 7000000) {
+        return `${(v / 1000000).toFixed(0)}M`;
+      }
+
+      return `${(v / 1000).toLocaleString("en-US").replace(/,/g, " ")}k`;
+    },
+  },
         grid: {
           drawOnChartArea: true,
         },
