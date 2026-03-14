@@ -35,19 +35,28 @@ function getRatingStep(range) {
   return 2;
 }
 
-function buildNiceAxis(minValue, maxValue, tickCount = 8) {
-  const range = maxValue - minValue;
-  const step = getRatingStep(range);
+function buildCenteredRatingAxis(dataRatings, tickCount = 8) {
 
-  const center = (minValue + maxValue) / 2;
-  const alignedCenter = Math.round(center / step) * step;
+  const latest = dataRatings[dataRatings.length - 1]
+  const maxVal = Math.max(...dataRatings)
 
-  const halfRange = (tickCount / 2) * step;
+  // escolhe o maior entre o último e o máximo
+  const reference = Math.max(latest, maxVal)
 
-  const niceMin = Number((alignedCenter - halfRange + step).toFixed(2));
-  const niceMax = Number((alignedCenter + halfRange).toFixed(2));
+  const range = Math.max(...dataRatings) - Math.min(...dataRatings)
 
-  return { min: niceMin, max: niceMax, step };
+  const step = getRatingStep(range)
+
+  // arredonda para o tick mais próximo
+  const center = Math.round(reference / step) * step
+
+  const downTicks = 4
+  const upTicks = tickCount - downTicks - 1
+
+  const min = Number((center - downTicks * step).toFixed(2))
+  const max = Number((center + upTicks * step).toFixed(2))
+
+  return { min, max, step }
 }
 
 function buildNiceVotesAxis(minVotes, maxVotes, tickCount = 8) {
@@ -148,11 +157,8 @@ const VotesOverTime = () => {
       /* -------- y2 (Rating) -------- */
 
       const ratings = data.map((d) => d.averageRating);
-      const {
-        min: rMin,
-        max: rMax,
-        step: rStep,
-      } = buildNiceAxis(Math.min(...ratings), Math.max(...ratings));
+const {min:rMin,max:rMax,step:rStep} =
+buildCenteredRatingAxis(ratings);
 
       setY2Min(rMin);
       setY2Max(rMax);
