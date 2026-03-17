@@ -24,6 +24,8 @@ import RatingsHeatmap from "./components/RatingsHeatMap.jsx";
 
 import MoreFromThisTitle from "./imgs/imdb/morefromthistitle.png";
 
+import SortByEpisode from "./imgs/imdb/sortbyepisode.png";
+
 export default function Episodes() {
   const { movieId, episodeId } = useParams();
   const [episodesBySeason, setEpisodesBySeason] = useState({});
@@ -917,6 +919,9 @@ export default function Episodes() {
                   </svg>
                 </Link>
               </div>
+            </div>
+            <div>
+                <img src={SortByEpisode} alt="" />
             </div>
             <div style={{ marginTop: "16px" }}>
               <RatingsHeatmap data={heatmapData} />
