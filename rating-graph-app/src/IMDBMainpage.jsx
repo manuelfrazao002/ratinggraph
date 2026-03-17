@@ -10,6 +10,8 @@ import {
   getVideoThumbnail,
 } from "./ShowImageSrc";
 
+import '../src/Styles.css';
+
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
 
@@ -649,13 +651,16 @@ const getPluralLabel = (text, singular, plural) => {
                         </span>
                       </>
                     )}
-                    {data.BeginingYear !== "" &&  (<>
-                    {data.BeginingYear}
-                    {data.Type === "TV Series" && `—${data.EndingYear || ""}`}                   
-                    <span style={{ fontWeight: "bold", margin: "0 7px" }}>
-                      ·
-                    </span>
-                    </>)}
+                    {data.BeginingYear !== "" && (
+                      <>
+                        {data.BeginingYear}
+                        {data.Type === "TV Series" &&
+                          `—${data.EndingYear || ""}`}
+                        <span style={{ fontWeight: "bold", margin: "0 7px" }}>
+                          ·
+                        </span>
+                      </>
+                    )}
                     {data.AgeRating}
                     {!isMovie && (
                       <>
@@ -712,31 +717,38 @@ const getPluralLabel = (text, singular, plural) => {
                           marginBottom: "7px",
                         }}
                       />
+                      <Link to={`/imdb/${movieId}/ratings`}>
                       <div
+                        className="round-container-hover"
                         style={{
                           display: "flex",
                           justifyContent: "center",
                           padding: "0 8px 0 8px",
+                          position: "relative",
+                          top: "-2px",
                         }}
                       >
-                        <img
-                          src={StarImdb}
-                          alt=""
-                          width={32}
-                          height={32}
-                          style={{
-                            marginRight: "0.25rem",
-                            position: "relative",
-                            top: "-1px",
-                            left: "1px",
-                          }}
-                        />
+                        <svg
+                        style={{
+                          marginRight:"0.25rem",
+                          color:"rgb(245,197,24)",
+                        }}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="32"
+                          height="32"
+                          class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
+                        </svg>
                         <div
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             position: "relative",
-                            top: "-3px",
+                            top: "-1px",
                             paddingRight: "0.25rem",
                           }}
                         >
@@ -793,6 +805,7 @@ const getPluralLabel = (text, singular, plural) => {
                           </span>
                         </div>
                       </div>
+                      </Link>
                     </div>
                   )}
                   {hasVotes && (
@@ -816,15 +829,27 @@ const getPluralLabel = (text, singular, plural) => {
                         style={{
                           display: "flex",
                           justifyContent: "center",
+                          alignItems:"center",
                           position: "relative",
                           top: "-2px",
+                          padding: "0 8px 0 8px",
                         }}
                       >
-                        <img
-                          src={RateIMDB}
-                          alt=""
-                          style={{ position: "relative", left: "-1px" }}
-                        />
+                        <svg style={{
+                          marginRight:"0.25rem",
+                          marginBottom:"0.125rem",
+                          color:"rgb(87,153,239)",
+                          position: "relative",
+                        }} xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="ipc-icon ipc-icon--star-border sc-c3f6308f-4 haKFkk" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path fill="none" d="M0 0h24v24H0V0z"></path><path d="M19.65 9.04l-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"></path></svg>
+                      <span style={{
+                        paddingRight:"0.25rem",
+                        lineHeight:"1.5rem",
+                        fontFamily:"Roboto,Helvetica,Arial,sans-serif",
+                        fontSize:"1.25rem",
+                        fontWeight:"600",
+                        letterSpacing:"0.0125em",
+                        color:"rgb(87,153,239)",
+                      }}>Rate</span>
                       </div>
                     </div>
                   )}
@@ -1319,78 +1344,80 @@ const getPluralLabel = (text, singular, plural) => {
                       </p>
                     </div>
                   )}
-                  {data.Cast > 0 && (<>
-                  {Array.isArray(cast) &&
-                    cast.length > 0 &&
-                    (() => {
-                      const topThree = cast.slice(0, 3);
-                      const hasMoreThanThree = cast.length > 3;
-                      return (
-                        <div
-                          style={{
-                            borderBottom: "1px solid #4B4B4B",
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              height: "49.283px",
-                            }}
-                          >
+                  {data.Cast > 0 && (
+                    <>
+                      {Array.isArray(cast) &&
+                        cast.length > 0 &&
+                        (() => {
+                          const topThree = cast.slice(0, 3);
+                          const hasMoreThanThree = cast.length > 3;
+                          return (
                             <div
                               style={{
-                                display: "flex",
-                                alignItems: "center",
+                                borderBottom: "1px solid #4B4B4B",
                               }}
                             >
-                              <p
+                              <div
                                 style={{
-                                  paddingRight: "0.75rem",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  fontSize: "1rem",
-                                  lineHeight: "1.5rem",
-                                  letterSpacing: "0.00937em",
-                                  fontWeight: "600",
-                                  color: "white",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  height: "49.283px",
                                 }}
                               >
-                                {hasMoreThanThree ? "Stars" : "Star"}
-                              </p>
-                              <p
-                                style={{
-                                  fontWeight: "400",
-                                  letterSpacing: "0.03125em",
-                                  wordBreak: "break-word",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  fontSize: "1rem",
-                                  color: "#5799ef",
-                                }}
-                              >
-                                {renderListWithDotSeparator(
-                                  topThree.map((actor) => actor.Name),
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <p
+                                    style={{
+                                      paddingRight: "0.75rem",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      fontSize: "1rem",
+                                      lineHeight: "1.5rem",
+                                      letterSpacing: "0.00937em",
+                                      fontWeight: "600",
+                                      color: "white",
+                                    }}
+                                  >
+                                    {hasMoreThanThree ? "Stars" : "Star"}
+                                  </p>
+                                  <p
+                                    style={{
+                                      fontWeight: "400",
+                                      letterSpacing: "0.03125em",
+                                      wordBreak: "break-word",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      fontSize: "1rem",
+                                      color: "#5799ef",
+                                    }}
+                                  >
+                                    {renderListWithDotSeparator(
+                                      topThree.map((actor) => actor.Name),
+                                    )}
+                                  </p>
+                                </div>
+                                {hasMoreThanThree && (
+                                  <ChevronRight
+                                    size={20}
+                                    style={{
+                                      color: isHovered ? "#F5C518" : "white",
+                                      transition: "color 0.2s ease",
+                                      cursor: "pointer",
+                                      marginLeft: "auto",
+                                      alignSelf: "center",
+                                    }}
+                                  />
                                 )}
-                              </p>
+                              </div>
                             </div>
-                            {hasMoreThanThree && (
-                              <ChevronRight
-                                size={20}
-                                style={{
-                                  color: isHovered ? "#F5C518" : "white",
-                                  transition: "color 0.2s ease",
-                                  cursor: "pointer",
-                                  marginLeft: "auto",
-                                  alignSelf: "center",
-                                }}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                    </>)}
+                          );
+                        })()}
+                    </>
+                  )}
                   <div>
                     <img src={IMDBPro} alt="" />
                   </div>
@@ -2299,20 +2326,20 @@ const getPluralLabel = (text, singular, plural) => {
                         Browse episodes
                       </span>
                       {data.Status != 0 && (
-                      <span
-                        style={{
-                          padding: "0 12px 0 12px",
-                          cursor: "pointer",
-                          color: "rgb(14,99,190)",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "0.875rem",
-                          fontWeight: "600",
-                          lineHeight: "1.25rem",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        Top-rated
-                      </span>
+                        <span
+                          style={{
+                            padding: "0 12px 0 12px",
+                            cursor: "pointer",
+                            color: "rgb(14,99,190)",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            lineHeight: "1.25rem",
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          Top-rated
+                        </span>
                       )}
                       <span
                         style={{
@@ -2330,67 +2357,67 @@ const getPluralLabel = (text, singular, plural) => {
                       >
                         {data.Seasons} season{data.Seasons > 1 ? "s" : ""}
                         {data.Seasons > 1 && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--arrow-drop-down ipc-simple-select__icon--post"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
-                        >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
-                        </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--arrow-drop-down ipc-simple-select__icon--post"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
+                          </svg>
                         )}
                       </span>
                       {data.Years > 1 && (
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "0 12px 0 12px",
-                          cursor: "pointer",
-                          color: "rgb(14,99,190)",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "0.875rem",
-                          fontWeight: "600",
-                          lineHeight: "1.25rem",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {data.Years} year{data.Years > 1 ? "s" : ""}
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--arrow-drop-down ipc-simple-select__icon--post"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 12px 0 12px",
+                            cursor: "pointer",
+                            color: "rgb(14,99,190)",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            lineHeight: "1.25rem",
+                            letterSpacing: "0.02em",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
-                        </svg>
-                      </span>
+                          {data.Years} year{data.Years > 1 ? "s" : ""}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--arrow-drop-down ipc-simple-select__icon--post"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M8.71 11.71l2.59 2.59c.39.39 1.02.39 1.41 0l2.59-2.59c.63-.63.18-1.71-.71-1.71H9.41c-.89 0-1.33 1.08-.7 1.71z"></path>
+                          </svg>
+                        </span>
                       )}
                       {data.Years === "1" && (
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "0 12px 0 12px",
-                          cursor: "pointer",
-                          color: "rgb(14,99,190)",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "0.875rem",
-                          fontWeight: "600",
-                          lineHeight: "1.25rem",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {data.BeginingYear}
-                      </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 12px 0 12px",
+                            cursor: "pointer",
+                            color: "rgb(14,99,190)",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            lineHeight: "1.25rem",
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          {data.BeginingYear}
+                        </span>
                       )}
                     </div>
                   </section>
@@ -5162,48 +5189,48 @@ const getPluralLabel = (text, singular, plural) => {
                                 </Link>
                               </div>
                               {data.Photos2 > 1 && (
-                              <div
-                                style={{
-                                  marginLeft: "auto",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  color: "rgb(14,99,190)",
-                                  cursor: "pointer",
-                                  padding: "0 8px 0 8px",
-                                }}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  role="presentation"
+                                <div
                                   style={{
-                                    marginRight: "4px",
-                                  }}
-                                >
-                                  <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
-                                </svg>
-                                <span
-                                  style={{
-                                    fontFamily:
-                                      "Roboto,Helvetica,Arial,sans-serif",
-                                    fontSize: "0.875rem",
-                                    fontWeight: "600",
-                                    lineHeight: "1.25rem",
-                                    letterSpacing: ".02em",
-                                    height: "24px",
+                                    marginLeft: "auto",
                                     display: "flex",
                                     alignItems: "center",
-                                    position: "relative",
-                                    top: "1px",
+                                    color: "rgb(14,99,190)",
+                                    cursor: "pointer",
+                                    padding: "0 8px 0 8px",
                                   }}
                                 >
-                                  Add photo
-                                </span>
-                              </div>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    class="ipc-icon ipc-icon--add ipc-btn__icon ipc-btn__icon--pre"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    role="presentation"
+                                    style={{
+                                      marginRight: "4px",
+                                    }}
+                                  >
+                                    <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"></path>
+                                  </svg>
+                                  <span
+                                    style={{
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      fontSize: "0.875rem",
+                                      fontWeight: "600",
+                                      lineHeight: "1.25rem",
+                                      letterSpacing: ".02em",
+                                      height: "24px",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      position: "relative",
+                                      top: "1px",
+                                    }}
+                                  >
+                                    Add photo
+                                  </span>
+                                </div>
                               )}
                             </div>
 
@@ -5218,119 +5245,125 @@ const getPluralLabel = (text, singular, plural) => {
                                   marginBottom: "1rem",
                                 }}
                               >
-                                {sortedImages.slice(0, Math.min(2, data.Photos2)).map((img, i) => (
-                                  <img
-                                    key={i}
-                                    src={img.url}
+                                {sortedImages
+                                  .slice(0, Math.min(2, data.Photos2))
+                                  .map((img, i) => (
+                                    <img
+                                      key={i}
+                                      src={img.url}
+                                      style={{
+                                        width: "396px",
+                                        height: "162.5px",
+                                        borderRadius: "0.75rem",
+                                        objectFit: "cover",
+                                        objectPosition: "15% 15%",
+                                        cursor: "pointer",
+                                      }}
+                                      onError={(e) =>
+                                        (e.currentTarget.style.display = "none")
+                                      }
+                                    />
+                                  ))}
+                                {/* Overlay */}
+                                {data.Photos2 < 2 && (
+                                  <div
                                     style={{
-                                      width: "396px",
-                                      height: "162.5px",
+                                      position: "relative",
+                                      inset: 0,
+                                      background: "rgba(0,0,0,0.5)",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      color: "white",
+                                      fontWeight: 600,
+                                      fontSize: "0.875rem",
+                                      textAlign: "center",
                                       borderRadius: "0.75rem",
-                                      objectFit: "cover",
-                                      objectPosition: "15% 15%",
+                                      pointerEvents: "none",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      lineHeight: "1.25rem",
+                                      letterSpacing: "normal",
+                                      width: "100px",
                                       cursor: "pointer",
                                     }}
-                                    onError={(e) =>
-                                      (e.currentTarget.style.display = "none")
-                                    }
-                                  />
-                                ))}
-                                {/* Overlay */}
-                                      {data.Photos2 < 2 && (
-                                        <div
-                                          style={{
-                                            position: "relative",
-                                            inset: 0,
-                                            background: "rgba(0,0,0,0.5)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            color: "white",
-                                            fontWeight: 600,
-                                            fontSize: "0.875rem",
-                                            textAlign: "center",
-                                            borderRadius: "0.75rem",
-                                            pointerEvents: "none",
-                                            fontFamily:
-                                              "Roboto,Helvetica,Arial,sans-serif",
-                                            lineHeight: "1.25rem",
-                                            letterSpacing: "normal",
-                                            width: "100px",
-                                            cursor: "pointer",
-                                          }}
-                                        >
-                                          + Add photo
-                                        </div>
-                                      )}
+                                  >
+                                    + Add photo
+                                  </div>
+                                )}
                               </div>
 
                               {/* Linha 2 – 2 médias + 1 pequena */}
                               {sortedImages.length > 2 && (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexFlow: "row",
-                                  gap: "1rem",
-                                  marginBottom: "1rem",
-                                }}
-                              >
-                                {sortedImages.slice(2, Math.min(5, data.Photos2)).map((img, i) => {
-                                  const isLast = i === 2 && remainingCount > 0;
-                                  return (
-                                    <div
-                                      key={i}
-                                      style={{
-                                        position: "relative",
-                                        width: i < 2 ? "338.333px" : "100px",
-                                        height: "149.817px",
-                                        borderRadius: "0.75rem",
-                                        overflow: "hidden",
-                                      }}
-                                    >
-                                      <img
-                                        src={img.url}
-                                        style={{
-                                          width: "100%",
-                                          height: "100%",
-                                          objectFit: "cover",
-                                          objectPosition: "15% 15%",
-                                          cursor: "pointer",
-                                        }}
-                                        onError={(e) =>
-                                          (e.currentTarget.style.display =
-                                            "none")
-                                        }
-                                      />
-
-                                      {/* Overlay */}
-                                      {isLast && (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexFlow: "row",
+                                    gap: "1rem",
+                                    marginBottom: "1rem",
+                                  }}
+                                >
+                                  {sortedImages
+                                    .slice(2, Math.min(5, data.Photos2))
+                                    .map((img, i) => {
+                                      const isLast =
+                                        i === 2 && remainingCount > 0;
+                                      return (
                                         <div
+                                          key={i}
                                           style={{
-                                            position: "absolute",
-                                            inset: 0,
-                                            background: "rgba(0,0,0,0.5)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            color: "white",
-                                            fontWeight: 600,
-                                            fontSize: "0.875rem",
-                                            textAlign: "center",
+                                            position: "relative",
+                                            width:
+                                              i < 2 ? "338.333px" : "100px",
+                                            height: "149.817px",
                                             borderRadius: "0.75rem",
-                                            pointerEvents: "none",
-                                            fontFamily:
-                                              "Roboto,Helvetica,Arial,sans-serif",
-                                            lineHeight: "1.25rem",
-                                            letterSpacing: "normal",
+                                            overflow: "hidden",
                                           }}
                                         >
-                                          + {formatVotes(remainingCount)}
+                                          <img
+                                            src={img.url}
+                                            style={{
+                                              width: "100%",
+                                              height: "100%",
+                                              objectFit: "cover",
+                                              objectPosition: "15% 15%",
+                                              cursor: "pointer",
+                                            }}
+                                            onError={(e) =>
+                                              (e.currentTarget.style.display =
+                                                "none")
+                                            }
+                                          />
+
+                                          {/* Overlay */}
+                                          {isLast && (
+                                            <div
+                                              style={{
+                                                position: "absolute",
+                                                inset: 0,
+                                                background: "rgba(0,0,0,0.5)",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                color: "white",
+                                                fontWeight: 600,
+                                                fontSize: "0.875rem",
+                                                textAlign: "center",
+                                                borderRadius: "0.75rem",
+                                                pointerEvents: "none",
+                                                fontFamily:
+                                                  "Roboto,Helvetica,Arial,sans-serif",
+                                                lineHeight: "1.25rem",
+                                                letterSpacing: "normal",
+                                              }}
+                                            >
+                                              + {formatVotes(remainingCount)}
+                                            </div>
+                                          )}
                                         </div>
-                                      )}                                      
-                                    </div>
-                                  );
-                                })}                                
-                              </div>
+                                      );
+                                    })}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -5445,274 +5478,283 @@ const getPluralLabel = (text, singular, plural) => {
                     </section>
                   )}
 
-                  {data.Cast > 0 && (<>
-                  {/*Stars*/}
-                  <section
-                    style={{
-                      padding: "24px",
-                      width: "856px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "block",
-                        marginBottom: "24px",
-                      }}
-                    >
-                      <div
+                  {data.Cast > 0 && (
+                    <>
+                      {/*Stars*/}
+                      <section
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: "20px",
-                          width: "808px",
-                          height: "38.4px",
+                          padding: "24px",
+                          width: "856px",
+                          marginBottom: "8px",
                         }}
                       >
                         <div
                           style={{
-                            width: "4px",
-                            height: "28.8px",
-                            borderRadius: "12px",
-                            backgroundColor: "rgb(245, 197, 24)",
-                            maxHeight: "28.8px",
+                            display: "block",
+                            marginBottom: "24px",
                           }}
-                        />
-                        <div>
-                          <Link
-                            to={`/episodepage/${movieId}`}
+                        >
+                          <div
                             style={{
                               display: "flex",
                               alignItems: "center",
-                              color: "black",
-                              cursor: "pointer",
+                              marginBottom: "20px",
+                              width: "808px",
+                              height: "38.4px",
                             }}
-                            onMouseEnter={() => setHovered(true)}
-                            onMouseLeave={() => setHovered(false)}
                           >
-                            <h3
+                            <div
                               style={{
-                                padding: "0 0 0 10px",
-                                margin: 0,
-                                fontSize: "1.5rem",
+                                width: "4px",
+                                height: "28.8px",
+                                borderRadius: "12px",
+                                backgroundColor: "rgb(245, 197, 24)",
+                                maxHeight: "28.8px",
+                              }}
+                            />
+                            <div>
+                              <Link
+                                to={`/episodepage/${movieId}`}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  color: "black",
+                                  cursor: "pointer",
+                                }}
+                                onMouseEnter={() => setHovered(true)}
+                                onMouseLeave={() => setHovered(false)}
+                              >
+                                <h3
+                                  style={{
+                                    padding: "0 0 0 10px",
+                                    margin: 0,
+                                    fontSize: "1.5rem",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    letterSpacing: "normal",
+                                    lineHeight: "1.2em",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  Top Cast
+                                </h3>
+                                <span
+                                  style={{
+                                    paddingLeft: "12px",
+                                    color: "rgb(0,0,0,.54)",
+                                    fontSize: "0.875rem",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontWeight: "400",
+                                    alignSelf: "center",
+                                    letterSpacing: "0.01786em",
+                                    lineHeight: "unset",
+                                    marginRight: "2px",
+                                  }}
+                                >
+                                  {data.Cast > 99 ? "99+" : data.Cast}
+                                </span>
+                                <svg
+                                  width="19.2"
+                                  height="19.2"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  role="presentation"
+                                  style={{
+                                    color: hovered ? "#F5C518" : "rgba(0,0,0)",
+                                    transition: "color 0.2s ease",
+                                  }}
+                                >
+                                  <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
+                                </svg>
+                              </Link>
+                            </div>
+                            <div
+                              style={{
+                                marginLeft: "auto",
+                                display: "flex",
+                                alignItems: "center",
+                                color: "rgb(0,0,0,.54)",
+                                cursor: "pointer",
+                                padding: "0 8px 0 8px",
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                                style={{ marginRight: "4px" }}
+                              >
+                                <path fill="none" d="M0 0h24v24H0V0z"></path>
+                                <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                              </svg>
+                              <span
+                                style={{
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "600",
+                                  lineHeight: "1.25rem",
+                                  letterSpacing: ".02em",
+                                  height: "24px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  position: "relative",
+                                  top: "1px",
+                                }}
+                              >
+                                Edit
+                              </span>
+                            </div>
+                          </div>
+                          <CastList cast={cast} />
+                        </div>
+                        <div
+                          style={{
+                            width: "808px",
+                          }}
+                        >
+                          <div
+                            style={{
+                              borderTopWidth: "1px",
+                              borderTopStyle: "solid",
+                              borderColor: "rgb(0,0,0,0.12)",
+                              display: "flex",
+                              flexWrap: "wrap",
+                              paddingBottom: "0.75rem",
+                              paddingTop: "0.75rem",
+                            }}
+                          >
+                            <span
+                              style={{
+                                paddingRight: "0.75rem",
                                 fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                letterSpacing: "normal",
-                                lineHeight: "1.2em",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.00937em",
                                 fontWeight: "600",
                               }}
                             >
-                              Top Cast
-                            </h3>
+                              {getPluralLabel(
+                                data.Creators,
+                                "Creator",
+                                "Creators",
+                              )}
+                            </span>
                             <span
                               style={{
-                                paddingLeft: "12px",
-                                color: "rgb(0,0,0,.54)",
-                                fontSize: "0.875rem",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                                 fontWeight: "400",
-                                alignSelf: "center",
-                                letterSpacing: "0.01786em",
-                                lineHeight: "unset",
-                                marginRight: "2px",
+                                letterSpacing: "0.03125em",
+                                wordBreak: "break-word",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
                               }}
                             >
-                              {data.Cast > 99 ? "99+" : data.Cast}
+                              {renderListWithDotSeparator2(data.Creators)}
                             </span>
-                            <svg
-                              width="19.2"
-                              height="19.2"
-                              xmlns="http://www.w3.org/2000/svg"
-                              class="ipc-icon ipc-icon--chevron-right-inline ipc-icon--inline ipc-title-link ipc-title-link-chevron"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                              style={{
-                                color: hovered ? "#F5C518" : "rgba(0,0,0)",
-                                transition: "color 0.2s ease",
-                              }}
-                            >
-                              <path d="M5.622.631A2.153 2.153 0 0 0 5 2.147c0 .568.224 1.113.622 1.515l8.249 8.34-8.25 8.34a2.16 2.16 0 0 0-.548 2.07c.196.74.768 1.317 1.499 1.515a2.104 2.104 0 0 0 2.048-.555l9.758-9.866a2.153 2.153 0 0 0 0-3.03L8.62.61C7.812-.207 6.45-.207 5.622.63z"></path>
-                            </svg>
-                          </Link>
-                        </div>
-                        <div
-                          style={{
-                            marginLeft: "auto",
-                            display: "flex",
-                            alignItems: "center",
-                            color: "rgb(0,0,0,.54)",
-                            cursor: "pointer",
-                            padding: "0 8px 0 8px",
-                          }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--edit ipc-responsive-button__icon"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
-                            style={{ marginRight: "4px" }}
-                          >
-                            <path fill="none" d="M0 0h24v24H0V0z"></path>
-                            <path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
-                          </svg>
-                          <span
+                          </div>
+                          <div
                             style={{
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              lineHeight: "1.25rem",
-                              letterSpacing: ".02em",
-                              height: "24px",
+                              borderTopWidth: "1px",
+                              borderTopStyle: "solid",
+                              borderColor: "rgb(0,0,0,0.12)",
                               display: "flex",
-                              alignItems: "center",
-                              position: "relative",
-                              top: "1px",
+                              flexWrap: "wrap",
+                              paddingBottom: "0.75rem",
+                              paddingTop: "0.75rem",
                             }}
                           >
-                            Edit
-                          </span>
-                        </div>
-                      </div>
-                      <CastList cast={cast} />
-                    </div>
-                    <div
-                      style={{
-                        width: "808px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {getPluralLabel(data.Creators, "Creator", "Creators")}
-                        </span>
-                        <span
-                          style={{
-                            fontWeight: "400",
-                            letterSpacing: "0.03125em",
-                            wordBreak: "break-word",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                          }}
-                        >
-                          {renderListWithDotSeparator2(data.Creators)}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          All cast & crew
-                        </span>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginLeft: "auto",
-                          }}
-                        >
-                          <svg
-                            style={{ color: "rgb(0,0,0,0.54)" }}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--chevron-right"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
+                            <span
+                              style={{
+                                paddingRight: "0.75rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.00937em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              All cast & crew
+                            </span>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "auto",
+                              }}
+                            >
+                              <svg
+                                style={{ color: "rgb(0,0,0,0.54)" }}
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                class="ipc-icon ipc-icon--chevron-right"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                              >
+                                <path fill="none" d="M0 0h24v24H0V0z"></path>
+                                <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                              </svg>
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              borderTopWidth: "1px",
+                              borderBottomWidth: "1px",
+                              borderTopStyle: "solid",
+                              borderBottomStyle: "solid",
+                              borderColor: "rgb(0,0,0,0.12)",
+                              display: "flex",
+                              flexWrap: "wrap",
+                              paddingBottom: "0.75rem",
+                              paddingTop: "0.75rem",
+                            }}
                           >
-                            <path fill="none" d="M0 0h24v24H0V0z"></path>
-                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                          </svg>
+                            <span
+                              style={{
+                                paddingRight: "0.75rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                fontSize: "1rem",
+                                lineHeight: "1.5rem",
+                                letterSpacing: "0.00937em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Production, box office & more at IMDbPro
+                            </span>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginLeft: "auto",
+                              }}
+                            >
+                              <svg
+                                style={{ color: "rgb(0,0,0,0.54)" }}
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                class="ipc-icon ipc-icon--launch"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
+                              >
+                                <path d="M16 16.667H8A.669.669 0 0 1 7.333 16V8c0-.367.3-.667.667-.667h3.333c.367 0 .667-.3.667-.666C12 6.3 11.7 6 11.333 6h-4C6.593 6 6 6.6 6 7.333v9.334C6 17.4 6.6 18 7.333 18h9.334C17.4 18 18 17.4 18 16.667v-4c0-.367-.3-.667-.667-.667-.366 0-.666.3-.666.667V16c0 .367-.3.667-.667.667zm-2.667-10c0 .366.3.666.667.666h1.727L9.64 13.42a.664.664 0 1 0 .94.94l6.087-6.087V10c0 .367.3.667.666.667.367 0 .667-.3.667-.667V6h-4c-.367 0-.667.3-.667.667z"></path>
+                              </svg>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div
-                        style={{
-                          borderTopWidth: "1px",
-                          borderBottomWidth: "1px",
-                          borderTopStyle: "solid",
-                          borderBottomStyle: "solid",
-                          borderColor: "rgb(0,0,0,0.12)",
-                          display: "flex",
-                          flexWrap: "wrap",
-                          paddingBottom: "0.75rem",
-                          paddingTop: "0.75rem",
-                        }}
-                      >
-                        <span
-                          style={{
-                            paddingRight: "0.75rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                            letterSpacing: "0.00937em",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Production, box office & more at IMDbPro
-                        </span>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginLeft: "auto",
-                          }}
-                        >
-                          <svg
-                            style={{ color: "rgb(0,0,0,0.54)" }}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            class="ipc-icon ipc-icon--launch"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                            role="presentation"
-                          >
-                            <path d="M16 16.667H8A.669.669 0 0 1 7.333 16V8c0-.367.3-.667.667-.667h3.333c.367 0 .667-.3.667-.666C12 6.3 11.7 6 11.333 6h-4C6.593 6 6 6.6 6 7.333v9.334C6 17.4 6.6 18 7.333 18h9.334C17.4 18 18 17.4 18 16.667v-4c0-.367-.3-.667-.667-.667-.366 0-.666.3-.666.667V16c0 .367-.3.667-.667.667zm-2.667-10c0 .366.3.666.667.666h1.727L9.64 13.42a.664.664 0 1 0 .94.94l6.087-6.087V10c0 .367.3.667.666.667.367 0 .667-.3.667-.667V6h-4c-.367 0-.667.3-.667.667z"></path>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-                  </>)}
+                      </section>
+                    </>
+                  )}
 
                   {/*User Reviews*/}
                   {data.UserReviews > 0 && (
@@ -6505,65 +6547,65 @@ const getPluralLabel = (text, singular, plural) => {
                     }}
                   >
                     {data.ReleaseDate !== "" && (
-                    <div
-                      style={{
-                        borderTopWidth: "1px",
-                        borderTopStyle: "solid",
-                        borderColor: "rgb(0,0,0,0.12)",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        paddingBottom: "0.75rem",
-                        paddingTop: "0.75rem",
-                      }}
-                    >                      
-                      <span
-                        style={{
-                          paddingRight: "0.75rem",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          letterSpacing: "0.00937em",
-                          fontWeight: "600",
-                        }}
-                      >
-                        Release date
-                      </span>
-                      <span
-                        style={{
-                          fontWeight: "400",
-                          letterSpacing: "0.03125em",
-                          wordBreak: "break-word",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontSize: "1rem",
-                          lineHeight: "1.5rem",
-                          color: "rgb(14,99,190)",
-                        }}
-                      >                        
-                        {data.ReleaseDate} {"(United States)"}
-                      </span>                      
                       <div
                         style={{
+                          borderTopWidth: "1px",
+                          borderTopStyle: "solid",
+                          borderColor: "rgb(0,0,0,0.12)",
                           display: "flex",
-                          alignItems: "center",
-                          marginLeft: "auto",
+                          flexWrap: "wrap",
+                          paddingBottom: "0.75rem",
+                          paddingTop: "0.75rem",
                         }}
                       >
-                        <svg
-                          style={{ color: "rgb(0,0,0,0.54)" }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          class="ipc-icon ipc-icon--chevron-right"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
+                        <span
+                          style={{
+                            paddingRight: "0.75rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            letterSpacing: "0.00937em",
+                            fontWeight: "600",
+                          }}
                         >
-                          <path fill="none" d="M0 0h24v24H0V0z"></path>
-                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
-                        </svg>
+                          Release date
+                        </span>
+                        <span
+                          style={{
+                            fontWeight: "400",
+                            letterSpacing: "0.03125em",
+                            wordBreak: "break-word",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1rem",
+                            lineHeight: "1.5rem",
+                            color: "rgb(14,99,190)",
+                          }}
+                        >
+                          {data.ReleaseDate} {"(United States)"}
+                        </span>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          <svg
+                            style={{ color: "rgb(0,0,0,0.54)" }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            class="ipc-icon ipc-icon--chevron-right"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path fill="none" d="M0 0h24v24H0V0z"></path>
+                            <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z"></path>
+                          </svg>
+                        </div>
                       </div>
-                    </div>
-                    )}                    
+                    )}
                     <div
                       style={{
                         borderTopWidth: "1px",
