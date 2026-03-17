@@ -367,17 +367,27 @@ export default function Episodes() {
     }
   }
 
-  const heatmapData = seasonList.map((season) => {
-    const episodes = episodesBySeason[season] || [];
+const heatmapData = seasonList.map((season) => {
+  const episodes = episodesBySeason[season] || [];
 
-    return {
-      season,
-      episodes: episodes.map((ep) => {
-        const rating = parseFloat(ep["Average Rating 2"]);
-        return isNaN(rating) ? "-" : rating;
-      }),
+  const episodeMap = {};
+
+  episodes.forEach((ep) => {
+    const epNumber = parseInt(ep.Episode2); // ✅ use Episode2
+
+    episodeMap[epNumber] = {
+      rating: ep["Average Rating 2"]
+        ? parseFloat(ep["Average Rating 2"])
+        : "-",
+      episodeId: ep.episodeId, // still used for routing
     };
   });
+
+  return {
+    season,
+    episodes: episodeMap, // key = episode number
+  };
+});
 
   return (
     <div>
