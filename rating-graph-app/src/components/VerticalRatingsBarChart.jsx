@@ -28,6 +28,7 @@ const RatingsBarChart = ({ ratings }) => {
         flexDirection: "column",
         gap: "3px",
         fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+        maxWidth: "808px",
       }}
     >
       {Object.entries(ratings)
