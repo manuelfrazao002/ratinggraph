@@ -732,6 +732,8 @@ const getPluralLabel = (text, singular, plural) => {
                         style={{
                           marginRight:"0.25rem",
                           color:"rgb(245,197,24)",
+                          position: "relative",
+                          top: "2px"
                         }}
                           xmlns="http://www.w3.org/2000/svg"
                           width="32"
@@ -826,12 +828,12 @@ const getPluralLabel = (text, singular, plural) => {
                         }}
                       />
                       <div
+                      className="round-container-hover"
                         style={{
                           display: "flex",
                           justifyContent: "center",
                           alignItems:"center",
                           position: "relative",
-                          top: "-2px",
                           padding: "0 8px 0 8px",
                         }}
                       >
@@ -883,7 +885,6 @@ const getPluralLabel = (text, singular, plural) => {
                           justifyContent: "center",
                           alignItems: "center",
                           position: "relative",
-                          top: "-1.5px",
                           padding: "0 8px",
                         }}
                       >

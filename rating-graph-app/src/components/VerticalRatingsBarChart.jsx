@@ -42,6 +42,7 @@ const RatingsBarChart = ({ ratings }) => {
               style={{
                 display: "flex",
                 alignItems: "center",
+                maxWidth: "808px",
               }}
             >
               {/* Rating number */}
