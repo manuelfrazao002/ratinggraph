@@ -749,7 +749,7 @@ export default function Episodes() {
                       fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                     }}
                   >
-                    {formatVotes(currentEpisode.Votes) || "N/A"}
+                    {formatVotes(currentEpisode.Votes2) || "N/A"}
                   </span>
                 </div>
               </div>
