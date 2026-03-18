@@ -51,19 +51,19 @@ export const movieMap = {
   ],
   darkcases: [
     //IMDBData
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=1334662158&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=1334662158&single=true&output=csv",
     //DataBase TVShow
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=190829179&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=190829179&single=true&output=csv",
     //RatingGraphData
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=1942396010&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=1942396010&single=true&output=csv",
     //Daily Count
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=1140739200&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=1140739200&single=true&output=csv",
     //Stars
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=1732778719&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=1732778719&single=true&output=csv",
     //EpCharCount
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=1229177673&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=1229177673&single=true&output=csv",
     //Videos
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZY8wwmCBAp0JQj4QTtcS3E8yThrbYhnA9o_9jlDM9kO7DSihbIJGBA9spDt3Bne_VbRUcJKJhFPo-/pub?gid=918225426&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjX76ivzgi6uj8I1HNkKS27fDA5YPnr0t2exytyrMOj9vzxok68mEdeu_8_UMwnZupEEoPOg4U8WY9/pub?gid=918225426&single=true&output=csv",
   ],
   template: [
     //IMDBData
