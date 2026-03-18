@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { getShowCoverSrc, getTrailerSrc } from "./ShowImageSrc";
 
+import "../src/Styles.css";
+
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
 
@@ -888,7 +890,9 @@ function SeriesPageDetails() {
                         >
                           IMDb RATING
                         </div>
+                        <Link to={`/imdb/${movieId}/ratings/${episodeId}`}>
                         <div
+                        className="round-container-hover"
                           style={{
                             display: "flex",
                             justifyContent: "center",
@@ -905,7 +909,22 @@ function SeriesPageDetails() {
                               marginBottom: "0.125rem",
                             }}
                           >
-                            <img src={StarImdb} alt="" width={32} height={32} />
+                            <svg
+                        style={{
+                          marginRight:"0.25rem",
+                          color:"rgb(245,197,24)",
+                          position: "relative",
+                        }}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="32"
+                          height="32"
+                          class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
+                        </svg>
                           </div>
                           <div
                             style={{
@@ -971,6 +990,7 @@ function SeriesPageDetails() {
                             </div>
                           </div>
                         </div>
+                        </Link>
                       </div>
                     )}
                     {hasVotes && (
