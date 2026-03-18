@@ -1009,23 +1009,24 @@ function SeriesPageDetails() {
                         >
                           YOUR RATING
                         </div>
-                        <button
+                        <div
+                        className="round-container-hover"
                           style={{
-                            background: "transparent",
                             height: "auto",
                             margin: "auto",
                             padding: "0px 0.5rem",
                             justifyContent: "center",
+                            borderRadius: "24px",
                           }}
                         >
                           <span>
-                            <div
+                            <div                            
                               style={{
                                 display: "flex",
                                 alignItems: "center",
                               }}
                             >
-                              <div
+                              <div                              
                                 style={{
                                   display: "flex",
                                   justifyContent: "center",
@@ -1033,7 +1034,7 @@ function SeriesPageDetails() {
                                   marginBottom: "0.125rem",
                                   marginRight: "0.25rem",
                                   height: "2rem",
-                                  width: "2rem",
+                                  width: "2rem",                                  
                                 }}
                               >
                                 <svg
@@ -1073,7 +1074,7 @@ function SeriesPageDetails() {
                               </div>
                             </div>
                           </span>
-                        </button>
+                        </div>
                       </div>
                     )}
                   </div>
