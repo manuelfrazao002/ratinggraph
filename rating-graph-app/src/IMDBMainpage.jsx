@@ -834,7 +834,7 @@ const getPluralLabel = (text, singular, plural) => {
                           justifyContent: "center",
                           alignItems:"center",
                           position: "relative",
-                          padding: "0 8px 0 8px",
+                          padding: "1px 8px 1px 8px",
                         }}
                       >
                         <svg style={{

@@ -1014,7 +1014,7 @@ function SeriesPageDetails() {
                           style={{
                             height: "auto",
                             margin: "auto",
-                            padding: "0px 0.5rem",
+                            padding: "1px 0.5rem",
                             justifyContent: "center",
                             borderRadius: "24px",
                           }}
