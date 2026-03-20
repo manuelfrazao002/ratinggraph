@@ -2093,7 +2093,7 @@ function SeriesPageDetails() {
                                   />
                                 ))}
                                 {/* Overlay */}
-                                {episodeImages.length < 4 && (
+                                {episodeImages.length < 5 && (
                                   <div
                                     style={{
                                       position: "relative",
