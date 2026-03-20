@@ -5266,7 +5266,7 @@ const getPluralLabel = (text, singular, plural) => {
                                     />
                                   ))}
                                 {/* Overlay */}
-                                {data.Photos2 < 2 && (
+                                {data.Photos2 < 4 && (
                                   <div
                                     style={{
                                       position: "relative",
