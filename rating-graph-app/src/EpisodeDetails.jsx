@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import Papa from "papaparse";
 import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 import { useParams } from "react-router-dom";
@@ -64,28 +63,28 @@ function SeriesPageDetails() {
 
   const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
-useEffect(() => {
-  const load = async () => {
-    const res = await fetch(`${API_URL}/entries/${movieId}`);
-    const data = await res.json();
+  useEffect(() => {
+    const load = async () => {
+      const res = await fetch(`${API_URL}/entries/${movieId}`);
+      const data = await res.json();
 
-    setData(data);
+      setData(data);
 
-    const all = [];
-    data.seasons?.forEach((season) => {
-      all.push(...(season.episodes || []));
-    });
+      const all = [];
+      data.seasons?.forEach((season) => {
+        all.push(...(season.episodes || []));
+      });
 
-    setAllEpisodes(all);
+      setAllEpisodes(all);
 
-    if (episodeId) {
-      const found = all.find((ep) => String(ep.id) === String(episodeId));
-      setEpisodeData(found);
-    }
-  };
+      if (episodeId) {
+        const found = all.find((ep) => String(ep.id) === String(episodeId));
+        setEpisodeData(found);
+      }
+    };
 
-  load();
-}, [movieId, episodeId]);
+    load();
+  }, [movieId, episodeId]);
 
   useEffect(() => {
     if (!allEpisodes.length) return;
@@ -466,8 +465,8 @@ useEffect(() => {
     Number(episodeData?.CriticReviews?.toString().replace(/[,]+/g, "")) || 0;
   const metascoreReviewsNumber =
     Number(data.Metascore?.toString().replace(/[,]+/g, "")) || 0;
-  const isMovie = data.Type === "Movie";
-  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
+  const isMovie = data.type === "movie";
+  const isTVShow = data.type === "series" || data.type === "miniseries";
 
   const parseDateSafe = (dateStr) => {
     if (!dateStr) return null;
@@ -505,17 +504,20 @@ useEffect(() => {
     return parsed > new Date();
   })();
 
-const getPluralLabel = (text, singular, plural) => {
-  if (!text) return singular;
+  const getPluralLabel = (text, singular, plural) => {
+    if (!text) return singular;
 
-  const items = Array.isArray(text)
-    ? text
-    : typeof text === "string"
-    ? text.split(",").map((item) => item.trim()).filter(Boolean)
-    : [];
+    const items = Array.isArray(text)
+      ? text
+      : typeof text === "string"
+        ? text
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : [];
 
-  return items.length > 1 ? plural : singular;
-};
+    return items.length > 1 ? plural : singular;
+  };
 
   return (
     <>
@@ -534,7 +536,7 @@ const getPluralLabel = (text, singular, plural) => {
         <main>
           <div style={{ backgroundColor: "#1F1F1F", width: "100%" }}>
             <div style={{ margin: "0 auto", width: "1280px" }}>
-              <Link to={`/imdb/${movieId}`}>
+              <Link to={`/entry/${movieId}`}>
                 <div
                   style={{
                     display: "flex",
@@ -570,7 +572,7 @@ const getPluralLabel = (text, singular, plural) => {
                     <path fill="none" d="M0 0h24v24H0V0z"></path>
                     <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"></path>
                   </svg>
-                  <span>{data.Title}</span>
+                  <span>{data.title}</span>
                 </div>
               </Link>
               <div
@@ -806,105 +808,106 @@ const getPluralLabel = (text, singular, plural) => {
                           IMDb RATING
                         </div>
                         <Link to={`/imdb/${movieId}/ratings/${episodeId}`}>
-                        <div
-                        className="round-container-hover"
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            height: "38px",
-                            padding: "0px 0.5rem",
-                          }}
-                        >
                           <div
+                            className="round-container-hover"
                             style={{
-                              height: "2rem",
-                              width: "2rem",
-                              marginRight: "0.25rem",
-                              marginBottom: "0.125rem",
-                            }}
-                          >
-                            <svg
-                        style={{
-                          marginRight:"0.25rem",
-                          color:"rgb(245,197,24)",
-                          position: "relative",
-                        }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="32"
-                          height="32"
-                          class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
-                        >
-                          <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
-                        </svg>
-                          </div>
-                          <div
-                            style={{
-                              display: "inline-flex",
-                              flexDirection: "column",
-                              alignItems: "flex-start",
-                              paddingRight: "0.25rem",
-                              lineHeight: "1.25rem",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              height: "38px",
+                              padding: "0px 0.5rem",
                             }}
                           >
                             <div
                               style={{
-                                lineHeight: "1.5rem",
-                                marginBottom: "-0.125rem",
-                                display: "flex",
-                                alignItems: "center",
+                                height: "2rem",
+                                width: "2rem",
+                                marginRight: "0.25rem",
+                                marginBottom: "0.125rem",
                               }}
                             >
-                              <span
+                              <svg
                                 style={{
-                                  fontSize: "1.25rem",
-                                  color: "white",
-                                  letterSpacing: "0.0125em",
-                                  fontWeight: "600",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  paddingRight: "0.125rem",
-                                  lineHeight: "1.5rem",
-                                }}
-                              >
-                                {episodeData?.["Average Rating 2"]}
-                              </span>
-                              <span
-                                style={{
-                                  color: "rgb(255,255,255,0.7)",
-                                  fontSize: "1rem",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  fontWeight: "500",
-                                  letterSpacing: "0.03125em",
-                                  lineHeight: "1.5rem",
+                                  marginRight: "0.25rem",
+                                  color: "rgb(245,197,24)",
                                   position: "relative",
-                                  top: "1px",
                                 }}
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                role="presentation"
                               >
-                                /10
-                              </span>
+                                <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
+                              </svg>
                             </div>
-
                             <div
                               style={{
-                                fontSize: "0.75rem",
-                                color: "#BCBCBC",
-                                position: "relative",
-                                letterSpacing: "0.03333em",
-                                lineHeight: "1rem",
-                                fontWeight: "400",
-                                WebkitTextStroke: "0.1px #BCBCBC",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                display: "inline-flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                paddingRight: "0.25rem",
+                                lineHeight: "1.25rem",
                               }}
                             >
-                              {formatVotes(episodeData?.Votes2) || "N/A"}
+                              <div
+                                style={{
+                                  lineHeight: "1.5rem",
+                                  marginBottom: "-0.125rem",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "1.25rem",
+                                    color: "white",
+                                    letterSpacing: "0.0125em",
+                                    fontWeight: "600",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    paddingRight: "0.125rem",
+                                    lineHeight: "1.5rem",
+                                  }}
+                                >
+                                  {episodeData?.["Average Rating 2"]}
+                                </span>
+                                <span
+                                  style={{
+                                    color: "rgb(255,255,255,0.7)",
+                                    fontSize: "1rem",
+                                    fontFamily:
+                                      "Roboto,Helvetica,Arial,sans-serif",
+                                    fontWeight: "500",
+                                    letterSpacing: "0.03125em",
+                                    lineHeight: "1.5rem",
+                                    position: "relative",
+                                    top: "1px",
+                                  }}
+                                >
+                                  /10
+                                </span>
+                              </div>
+
+                              <div
+                                style={{
+                                  fontSize: "0.75rem",
+                                  color: "#BCBCBC",
+                                  position: "relative",
+                                  letterSpacing: "0.03333em",
+                                  lineHeight: "1rem",
+                                  fontWeight: "400",
+                                  WebkitTextStroke: "0.1px #BCBCBC",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                }}
+                              >
+                                {formatVotes(episodeData?.Votes2) || "N/A"}
+                              </div>
                             </div>
                           </div>
-                        </div>
                         </Link>
                       </div>
                     )}
@@ -925,7 +928,7 @@ const getPluralLabel = (text, singular, plural) => {
                           YOUR RATING
                         </div>
                         <div
-                        className="round-container-hover"
+                          className="round-container-hover"
                           style={{
                             height: "auto",
                             margin: "auto",
@@ -935,13 +938,13 @@ const getPluralLabel = (text, singular, plural) => {
                           }}
                         >
                           <span>
-                            <div                            
+                            <div
                               style={{
                                 display: "flex",
                                 alignItems: "center",
                               }}
                             >
-                              <div                              
+                              <div
                                 style={{
                                   display: "flex",
                                   justifyContent: "center",
@@ -949,7 +952,7 @@ const getPluralLabel = (text, singular, plural) => {
                                   marginBottom: "0.125rem",
                                   marginRight: "0.25rem",
                                   height: "2rem",
-                                  width: "2rem",                                  
+                                  width: "2rem",
                                 }}
                               >
                                 <svg
@@ -1664,9 +1667,7 @@ const getPluralLabel = (text, singular, plural) => {
                   }}
                 >
                   {/*Top Rated */}
-                  {(
-                    episodeData?.Wins > 0 ||
-                    episodeData?.Nom > 0) && (
+                  {(episodeData?.Wins > 0 || episodeData?.Nom > 0) && (
                     <section
                       style={{
                         paddingTop: "24px",
@@ -1689,33 +1690,33 @@ const getPluralLabel = (text, singular, plural) => {
                           alignItems: "center",
                         }}
                       >
-                          <div
+                        <div
+                          style={{
+                            backgroundColor: "rgba(245, 197, 24)",
+                            height: "49.2833px",
+                            minWidth: "24px",
+                            width: "max-content",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <a
+                            href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
                             style={{
-                              backgroundColor: "rgba(245, 197, 24)",
-                              height: "49.2833px",
-                              minWidth: "24px",
+                              color: "black",
+                              textDecoration: "none",
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              letterSpacing: "0.00937em",
+                              lineHeight: "1.25rem",
+                              textTransform: "none",
+                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              padding: "12px 7.5px 12px 12px",
+                              zIndex: 1,
                               width: "max-content",
-                              display: "flex",
-                              alignItems: "center",
                             }}
-                          >
-                            <a
-                              href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
-                              style={{
-                                color: "black",
-                                textDecoration: "none",
-                                fontSize: "1rem",
-                                fontWeight: "600",
-                                letterSpacing: "0.00937em",
-                                lineHeight: "1.25rem",
-                                textTransform: "none",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                padding: "12px 7.5px 12px 12px",
-                                zIndex: 1,
-                                width: "max-content",
-                              }}
-                            ></a>
-                          </div>
+                          ></a>
+                        </div>
 
                         <div
                           style={{
@@ -1744,22 +1745,22 @@ const getPluralLabel = (text, singular, plural) => {
                           >
                             <div style={{ cursor: "pointer" }}>
                               <a
-                                    href=""
-                                    style={{
-                                      cursor: "pointer",
-                                      color: "black",
-                                      fontFamily:
-                                        "Roboto,Helvetica,Arial,sans-serif",
-                                      paddingRight: "0.75rem",
-                                      textAlign: "start",
-                                      fontWeight: "600",
-                                      letterSpacing: "0.00937em",
-                                      fontSize: "1rem",
-                                      lineHeight: "1.5rem",
-                                    }}
-                                  >
-                                    Awards
-                                  </a>
+                                href=""
+                                style={{
+                                  cursor: "pointer",
+                                  color: "black",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  paddingRight: "0.75rem",
+                                  textAlign: "start",
+                                  fontWeight: "600",
+                                  letterSpacing: "0.00937em",
+                                  fontSize: "1rem",
+                                  lineHeight: "1.5rem",
+                                }}
+                              >
+                                Awards
+                              </a>
                               {episodeData?.Wins > 0 && episodeData?.Nom > 0 ? (
                                 <a
                                   style={{
@@ -1772,9 +1773,10 @@ const getPluralLabel = (text, singular, plural) => {
                                       "Roboto,Helvetica,Arial,sans-serif",
                                   }}
                                 >
-                                  {episodeData?.Wins} win{episodeData?.Wins > 1 ? "s" : ""} &{" "}
-                                  {episodeData?.Nom} nomination{episodeData?.Nom > 1 ? "s" : ""}{" "}
-                                  total
+                                  {episodeData?.Wins} win
+                                  {episodeData?.Wins > 1 ? "s" : ""} &{" "}
+                                  {episodeData?.Nom} nomination
+                                  {episodeData?.Nom > 1 ? "s" : ""} total
                                 </a>
                               ) : episodeData.Wins > 0 ? (
                                 <a
@@ -1788,8 +1790,8 @@ const getPluralLabel = (text, singular, plural) => {
                                       "Roboto,Helvetica,Arial,sans-serif",
                                   }}
                                 >
-                                  {episodeData?.Wins} win{episodeData?.Wins > 1 ? "s" : ""}{" "}
-                                  total
+                                  {episodeData?.Wins} win
+                                  {episodeData?.Wins > 1 ? "s" : ""} total
                                 </a>
                               ) : episodeData?.Nom > 0 ? (
                                 <a
@@ -1803,8 +1805,8 @@ const getPluralLabel = (text, singular, plural) => {
                                       "Roboto,Helvetica,Arial,sans-serif",
                                   }}
                                 >
-                                  {episodeData?.Nom} nomination{episodeData?.Nom > 1 ? "s" : ""}{" "}
-                                  total
+                                  {episodeData?.Nom} nomination
+                                  {episodeData?.Nom > 1 ? "s" : ""} total
                                 </a>
                               ) : null}
                             </div>
@@ -3832,11 +3834,11 @@ const getPluralLabel = (text, singular, plural) => {
                 </section>
 
                 {/*Contribute to this page*/}
-<Link to={`/admin/edit/${movieId}/episodes/${episodeId}`}>
-  <section>
-    <img src={ContributeToThisPageEpisodePage} alt="" />
-  </section>
-</Link>
+                <Link to={`/admin/edit/${movieId}/episodes/${episodeId}`}>
+                  <section>
+                    <img src={ContributeToThisPageEpisodePage} alt="" />
+                  </section>
+                </Link>
               </div>
 
               {/* Aside */}

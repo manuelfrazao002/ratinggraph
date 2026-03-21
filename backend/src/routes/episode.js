@@ -23,6 +23,19 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Buscar por season
+router.get("/season/:seasonId", async (req, res) => {
+  try {
+    const episodes = await Episode.findAll({
+      where: { seasonId: req.params.seasonId },
+    });
+
+    res.json(episodes);
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao buscar episodes" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const episode = await Episode.findByPk(req.params.id);
@@ -38,16 +51,21 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Buscar por season
-router.get("/season/:seasonId", async (req, res) => {
+// DELETE episode
+router.delete("/:id", async (req, res) => {
   try {
-    const episodes = await Episode.findAll({
-      where: { seasonId: req.params.seasonId },
-    });
+    const episode = await Episode.findByPk(req.params.id);
 
-    res.json(episodes);
+    if (!episode) {
+      return res.status(404).json({ error: "Episode não encontrado" });
+    }
+
+    await episode.destroy();
+
+    res.json({ message: "Episode apagado" });
   } catch (err) {
-    res.status(500).json({ error: "Erro ao buscar episodes" });
+    console.error(err);
+    res.status(500).json({ error: "Erro ao apagar episode" });
   }
 });
 
