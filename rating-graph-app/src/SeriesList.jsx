@@ -1,11 +1,7 @@
 import { Link } from "react-router-dom";
 import React, { useEffect, useState, useRef } from "react";
-import Papa from "papaparse";
 import Navbar from "./imgs/imdb/imdb_navbar.png";
 import { createGlobalStyle } from "styled-components";
-import { getShowCoverSrc } from "./ShowImageSrc";
-import { movieMap, movies } from "./data/MovieMap";
-import ListBiggerText from "./imgs/imdb/listpage/listbiggertext.png";
 import ListChart from "./imgs/imdb/listpage/listchart.png";
 import ListFilter from "./imgs/imdb/listpage/listfilter.png";
 import ListLayout from "./imgs/imdb/listpage/listlayout.png";
@@ -13,39 +9,33 @@ import ListPercentage from "./imgs/imdb/listpage/listpercentage.png";
 import ListSmallText from "./imgs/imdb/listpage/listsmalltext.png";
 
 import InforButton from "./imgs/imdb/listpage/infobutton.png";
-import MarkAsWatched from "./imgs/imdb/listpage/markaswatched.png";
-import RateEp from "./imgs/imdb/rateep.png";
 
 import SideContent from "./imgs/imdb/listpage/sidecontent.png";
 
 import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
 
-const urls = movies
-  .map((movie) => movieMap[movie.id]?.[0])
-  .filter(Boolean); // Remove valores undefined no caso de IDs inválidos ou entradas faltando
-
+import { getEntries } from "./services/entryService";
 
 function MovieList() {
   const [data, setData] = useState([]);
   const [sortKey, setSortKey] = useState("Popularity");
   const [sortOrder, setSortOrder] = useState("asc"); // ou "desc"
   const [hoveredId, setHoveredId] = React.useState(null);
-  const [coverImages, setCoverImages] = useState({});
 
-    // Load cover images dynamically
-  useEffect(() => {
-    const loadCoverImages = async () => {
-      const covers = {};
-      for (const movie of movies) {
-        if (movie.id) {
-          covers[movie.id] = await getShowCoverSrc(movie.id);
-        }
-      }
-      setCoverImages(covers);
-    };
-    loadCoverImages();
-  }, []);
+  
+useEffect(() => {
+  const loadEntries = async () => {
+    try {
+      const entries = await getEntries();
+      setData(entries);
+    } catch (err) {
+      console.error("Erro ao buscar entries", err);
+    }
+  };
+
+  loadEntries();
+}, []);
 
   // No início do componente MovieList, adicione uma função para filtrar animes
 const filterAnime = (data) => {
@@ -59,39 +49,6 @@ const filterAnime = (data) => {
     return !isAnime;
   });
 };
-
-useEffect(() => {
-  const urls = movies
-    .map((movie) => movieMap[movie.id]?.[0])
-    .filter(Boolean);
-
-  Promise.all(
-    urls.map((url) =>
-      fetch(url)
-        .then((res) => res.text())
-        .then(
-          (csv) =>
-            new Promise((resolve) =>
-              Papa.parse(csv, {
-                header: true,
-                complete: (results) => {
-                  const filteredData = filterAnime(results.data);
-                  resolve(filteredData);
-                },
-                error: (err) => {
-                  console.error("Erro ao carregar CSV", err);
-                  resolve([]); // evita quebrar a Promise.all
-                },
-              })
-            )
-        )
-    )
-  ).then((resultsArrays) => {
-    const allData = [].concat(...resultsArrays);
-    setData(allData);
-  });
-}, []);
-
 
   const GlobalStyle = createGlobalStyle`
   #root {
@@ -167,7 +124,7 @@ function parseVoteCount(voteStr) {
   function formatVotes(votes) {
     if (!votes) return "N/A";
 
-    const num = Number(votes.toString().replace(/[, ]+/g, ""));
+    const num = Number(votes?.toString().replace(/[, ]+/g, ""));
 
     if (isNaN(num)) return "N/A";
 
@@ -209,7 +166,7 @@ function parseVoteCount(voteStr) {
 
   const shouldShowRating = (rating, votes) => {
     const ratingNum = Number(rating);
-    const votesNum = Number(votes.toString().replace(/[,]+/g, ""));
+    const votesNum = Number(votes?.toString().replace(/[,]+/g, ""));
     return (
       !isNaN(ratingNum) && !isNaN(votesNum) && ratingNum > 0 && votesNum > 0
     );
@@ -234,6 +191,22 @@ function parseVoteCount(voteStr) {
         }}
       >
         <section style={{ paddingTop: 24 }}>
+          <Link to={'/admin/create'}>
+          <div style={{
+            padding: "0.5rem",
+            borderRadius: "12px",
+            color: "black",
+            cursor: "pointer",
+            background:"rgb(245, 197, 24)",
+            width: "110px",
+            textAlign: "center",
+            fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+            letterSpacing: "0.2px",
+            fontWeight:"600",
+          }}>
+            <span>+ Add show</span>
+          </div>
+          </Link>
           <img src={ListChart} alt="" />
           <div style={{ position: "relative", top: -6 }}>
             <div
@@ -369,9 +342,9 @@ function parseVoteCount(voteStr) {
               }}
             >
               <div style={{ padding: "12px" }}>
-                {sortedData.map((movie, index) => {
-                  const isMovie = movie.Type === "Movie";
-                  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
+                {sortedData.map((entry, index) => {
+                  const isMovie = entry.type === "Movie";
+                  const isTVShow = entry.type === "TV Series" || entry.type === "TV Mini Series";
                   return (
                     <div
                       style={{
@@ -401,8 +374,8 @@ function parseVoteCount(voteStr) {
                         >
                           <div style={{ verticalAlign: "center" }}>
                             <img
-                              src={coverImages[movie.movieId]} // movieId vem do CSV? Use esta chave para pegar a imagem
-                              alt={movie.Title}
+                              src={entry.coverImage} // movieId vem do CSV? Use esta chave para pegar a imagem
+                              alt={entry.title}
                               style={{
                                 width: "72px",
                                 height: "106.55px",
@@ -413,15 +386,15 @@ function parseVoteCount(voteStr) {
                           </div>
                           <div>
                             <Link
-                              key={movie.movieId}
-                              to={`/imdb/${movie.movieId}`}
+                              key={entry.movieId}
+                              to={`/entry/${entry.id}`}
                             >
                               <h2
-                                onMouseEnter={() => setHoveredId(movie.movieId)}
+                                onMouseEnter={() => setHoveredId(entry.movieId)}
                                 onMouseLeave={() => setHoveredId(null)}
                                 style={{
                                   color:
-                                    hoveredId === movie.movieId
+                                    hoveredId === entry.movieId
                                       ? "#666"
                                       : "black",
                                   fontWeight: "bold",
@@ -433,7 +406,7 @@ function parseVoteCount(voteStr) {
                                   cursor: "pointer", // indica que é clicável
                                 }}
                               >
-                                {index + 1}. {movie.Title}
+                                {index + 1}. {entry.title}
                               </h2>
                             </Link>
 
@@ -447,38 +420,38 @@ function parseVoteCount(voteStr) {
                                 alignItems: "center",
                               }}
                             >
-                              {movie.BeginingYear !== "" && (<>
+                              {entry.releaseDate !== "" && (<>
                               <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {movie.BeginingYear}
-                                {movie.Type === "TV Series" &&
-                                  `—${movie.EndingYear}`}
+                                {entry.releaseDate}
+                                {entry.type === "TV Series" &&
+                                  `—${entry.EndingYear}`}
                               </p>
                               
-                              {!isMovie && (
+                              {!isMovie && entry.episodes < 1 && (
                                 <p style={{ margin: "0 0.75rem 0 0" }}>
-                                  {movie.Episodes} eps
+                                  {entry.episodes} eps
                                 </p>
                               )}
                               </>)}
                               {isMovie && (
                                 <p style={{ margin: "0 0.75rem 0 0" }}>
-                                  {movie.MovieDuration}
+                                  {entry.MovieDuration}
                                 </p>
                               )}
                               <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {movie.AgeRating}
+                                {entry.AgeRating}
                               </p>
                               <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {movie.Type === "Movie" &&
-                                movie.Metascore &&
-                                movie.Metascore !== "N/A" ? (
+                                {entry.type === "Movie" &&
+                                entry.Metascore &&
+                                entry.Metascore !== "N/A" ? (
                                   <>
                                     <span
                                       style={{
                                         backgroundColor:
-                                          Number(movie.Metascore) >= 61
+                                          Number(entry.Metascore) >= 61
                                             ? "#54A72A"
-                                            : Number(movie.Metascore) >= 40
+                                            : Number(entry.Metascore) >= 40
                                             ? "#ffcc33"
                                             : "#ff0000",
                                         color: "white",
@@ -490,7 +463,7 @@ function parseVoteCount(voteStr) {
                                         marginRight: "4px",
                                       }}
                                     >
-                                      {movie.Metascore}
+                                      {entry.Metascore}
                                     </span>
                                     <span
                                       style={{
@@ -502,11 +475,11 @@ function parseVoteCount(voteStr) {
                                     </span>
                                   </>
                                 ) : (
-                                  movie.Type
+                                  entry.Type
                                 )}
                               </p>
                             </div>
-                            {shouldShowRating(movie.Rating, movie.Votes) ? (
+                            {shouldShowRating(entry.rating, entry.votes) ? (
                               <div
                                 style={{
                                   display: "flex",
@@ -539,10 +512,10 @@ function parseVoteCount(voteStr) {
                                     <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.656 5.53-6.774.602c-1.234.102-1.739 1.718-.799 2.566l5.147 4.666-1.542 6.926c-.28 1.262.023 2.262 1.09 1.585L12 20.099z"></path>
                                   </svg>
                                     <p style={{ margin: "0 4px 0 0" }}>
-                                      {movie.Rating}
+                                      {entry.rating}
                                     </p>
                                     <p style={{ margin: "0 10px 0 0" }}>
-                                      ({formatVotes(movie.Votes) || "N/A"})
+                                      ({formatVotes(entry.votes) || "N/A"})
                                     </p>
                                     <div
                                       style={{
@@ -615,7 +588,7 @@ function parseVoteCount(voteStr) {
                                   </div>
                               </div>
                             ) : null}
-                            {movie.Rating === "0.0" && (
+                            {entry.rating === "0.0" && (
                               <div style={{height: "28px", display: "flex", alignItems: "center"}}>
                             <svg width="11" height="11" style={{color: "rgba(0,0,0,0.38)"}} xmlns="http://www.w3.org/2000/svg" class="ipc-icon ipc-icon--star-inline" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path></svg>
                           </div>
@@ -635,7 +608,7 @@ function parseVoteCount(voteStr) {
                             lineHeight: "20px",
                           }}
                         >
-                          {movie.Synopsis}
+                          {entry.description}
                         </p>
                       </div>
                     </div>

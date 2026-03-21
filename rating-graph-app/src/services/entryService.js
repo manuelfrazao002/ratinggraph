@@ -1,5 +1,10 @@
 import { API_URL } from "../api";
 
+export const getEntries = async () => {
+  const res = await fetch(`${API_URL}/entries`);
+  return res.json();
+};
+
 export const getEntry = (id) =>
   fetch(`${API_URL}/entries/${id}`).then((r) => r.json());
 

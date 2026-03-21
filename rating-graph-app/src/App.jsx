@@ -24,9 +24,9 @@ function App() {
         <Route path="/" element={<SitesList/>}/>
         <Route path="/imdb/list" element={<SeriesList/>}/>
         <Route path="/ratinggraph/:movieId" element={<RatingsPage />} />
-        <Route path="/imdb/:movieId" element={<IMDBMainPage />} />
-        <Route path="/imdb/:movieId/ratings" element={<RatingsDetail />} />
-        <Route path="/imdb/:movieId/ratings/:episodeId" element={<RatingsEpisodeDetail key={location.pathname} />} />
+        <Route path="/entry/:movieId" element={<IMDBMainPage />} />
+        <Route path="/entry/:movieId/ratings" element={<RatingsDetail />} />
+        <Route path="/entry/:movieId/ratings/:episodeId" element={<RatingsEpisodeDetail key={location.pathname} />} />
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
         <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails key={location.pathname} />} />
         <Route path="/admin/create" element={<CreateEntryPage />} />

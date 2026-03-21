@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
@@ -54,6 +55,11 @@ function CreateEntryPage() {
 
   return (
     <div style={{ padding: 20 }}>
+      <Link to={'/imdb/list'}>
+      <div>
+        <span>{"< Back"}</span>
+      </div>
+      </Link>
       <h1>Criar Entry</h1>
 
       <form onSubmit={handleSubmit}>
