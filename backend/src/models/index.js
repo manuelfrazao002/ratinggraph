@@ -84,7 +84,7 @@ Popularity.belongsTo(Entry, {
 // Entry → Summary
 Entry.hasOne(Summary, {
   foreignKey: "entryId",
-  as: "summary",
+  as: "summaryData",
 });
 
 Summary.belongsTo(Entry, {
