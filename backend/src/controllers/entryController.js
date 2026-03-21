@@ -40,19 +40,51 @@ const getEntries = async (req, res) => {
 // ✅ GET ONE (FULL)
 const getEntryById = async (req, res) => {
   try {
-    const entry = await Entry.findByPk(req.params.id, {
-      include: {
-        model: Season,
-        as: "seasons",
-        include: {
-          model: Episode,
-          as: "episodes",
+    const { id } = req.params;
+
+    const entry = await Entry.findByPk(id, {
+      include: [
+        {
+          model: Season,
+          as: "seasons",
+          include: [{ model: Episode, as: "episodes" }],
         },
-      },
+      ],
     });
 
-    res.json(entry);
+    if (!entry) {
+      return res.status(404).json({ error: "Entry não encontrada" });
+    }
+
+    // 🔥 total seasons
+    const totalSeasons = entry.seasons?.length || 0;
+
+    // 🔥 todos episódios
+    const allEpisodes =
+      entry.seasons?.flatMap((s) => s.episodes || []) || [];
+
+    // 🔥 anos únicos
+    const yearsSet = new Set();
+
+    allEpisodes.forEach((ep) => {
+      if (ep.releaseDate) {
+        const year = new Date(ep.releaseDate).getFullYear();
+        if (!isNaN(year)) {
+          yearsSet.add(year);
+        }
+      }
+    });
+
+    const totalYears = yearsSet.size;
+
+    // 🔥 resposta final
+    res.json({
+      ...entry.toJSON(),
+      totalSeasons,
+      totalYears,
+    });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Erro ao buscar entry" });
   }
 };

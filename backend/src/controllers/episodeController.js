@@ -142,6 +142,21 @@ const getEndingYear = async (req, res) => {
   }
 };
 
+const updateEpisode = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Episode.update(req.body, { where: { id } });
+
+    const updated = await Episode.findByPk(id);
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao atualizar episódio" });
+  }
+};
+
 module.exports = {
   getEpisodesForGraph,
   getTopEpisodes,
@@ -149,4 +164,5 @@ module.exports = {
   getLatestEpisode,
   addCastToEpisode,
   getEndingYear,
+  updateEpisode,
 };

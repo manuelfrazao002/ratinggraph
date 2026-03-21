@@ -106,27 +106,27 @@ function SeriesPage() {
   }, [movieId]);
 
   useEffect(() => {
-  const loadRanking = async () => {
-    try {
-      const res = await fetch(
-        `https://backend-ratinggraph.onrender.com/api/ranking/${movieId}`
-      );
+    const loadRanking = async () => {
+      try {
+        const res = await fetch(
+          `https://backend-ratinggraph.onrender.com/api/ranking/${movieId}`,
+        );
 
-      const data = await res.json();
-      setRanking(data);
-    } catch (err) {
-      console.error("Erro ao buscar ranking", err);
-    }
-  };
+        const data = await res.json();
+        setRanking(data);
+      } catch (err) {
+        console.error("Erro ao buscar ranking", err);
+      }
+    };
 
-  if (movieId) loadRanking();
-}, [movieId]);
+    if (movieId) loadRanking();
+  }, [movieId]);
 
-useEffect(() => {
-  fetch(`${API_URL}/episodes/ending-year/${movieId}`)
-    .then(res => res.json())
-    .then(data => setEndingYear(data.endingYear));
-}, [movieId]);
+  useEffect(() => {
+    fetch(`${API_URL}/episodes/ending-year/${movieId}`)
+      .then((res) => res.json())
+      .then((data) => setEndingYear(data.endingYear));
+  }, [movieId]);
 
   function parseEpisodeDate(dateStr) {
     if (!dateStr) return null;
@@ -434,13 +434,20 @@ useEffect(() => {
   const getPluralLabel = (text, singular, plural) => {
     if (!text) return singular;
 
-    const items = text
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+    const items = Array.isArray(text)
+      ? text // ✅ já é array
+      : text
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
 
     return items.length > 1 ? plural : singular;
   };
+
+  const totalEpisodes =
+  data?.seasons?.reduce((total, season) => {
+    return total + (season.episodes?.length || 0);
+  }, 0) || 0;
 
   return (
     <>
@@ -505,7 +512,7 @@ useEffect(() => {
                             marginRight: "6px",
                           }}
                         >
-                          {data.episodes}
+                          {totalEpisodes}
                         </p>
                         <ChevronRight
                           size={20}
@@ -581,9 +588,9 @@ useEffect(() => {
                     )}
                     {data.releaseDate !== "" && (
                       <>
-                        {data.releaseDate && new Date(data.releaseDate).getFullYear()}
-                        {data.type === "series" &&
-                          `—${endingYear || ""}`}
+                        {data.releaseDate &&
+                          new Date(data.releaseDate).getFullYear()}
+                        {data.type === "series" && `—${endingYear || ""}`}
                         <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                           ·
                         </span>
@@ -835,13 +842,13 @@ useEffect(() => {
                         }}
                       >
                         <img
-      src={
-        ranking?.change > 0
-          ? ArrowUp
-          : ranking?.change < 0
-          ? ArrowDown
-          : ArrowStay
-      }
+                          src={
+                            ranking?.change > 0
+                              ? ArrowUp
+                              : ranking?.change < 0
+                                ? ArrowDown
+                                : ArrowStay
+                          }
                           alt=""
                           style={{ marginRight: "4px" }}
                         />
@@ -1100,8 +1107,8 @@ useEffect(() => {
                       }}
                     >
                       {videos?.length === 1
-  ? "1 VIDEO"
-  : `${videos?.length || 0} VIDEOS`}
+                        ? "1 VIDEO"
+                        : `${videos?.length || 0} VIDEOS`}
                     </p>
                   </button>
                   <button
@@ -1139,8 +1146,8 @@ useEffect(() => {
                       }}
                     >
                       {allImages?.length === 1
-  ? "1 PHOTO"
-  : `${allImages?.length || 0} PHOTOS`}
+                        ? "1 PHOTO"
+                        : `${allImages?.length || 0} PHOTOS`}
                     </p>
                   </button>
                 </div>
@@ -1172,7 +1179,7 @@ useEffect(() => {
                   >
                     {(data?.genres
                       ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
-                        data.genres.split(/(?<!\,\s)\,(?!\s\,)/)
+                        data?.genres
                           .map((genre) => genre.trim())
                           .filter((genre) => genre)
                       : []
@@ -2230,7 +2237,7 @@ useEffect(() => {
                               marginRight: "2px",
                             }}
                           >
-                            {data.Episodes}
+                            {totalEpisodes}
                           </span>
                           <svg
                             width="19.2"
@@ -2276,7 +2283,7 @@ useEffect(() => {
                       >
                         Browse episodes
                       </span>
-                      {data.Status != 0 && (
+                      {data.status !== "not aired" && (
                         <span
                           style={{
                             padding: "0 12px 0 12px",
@@ -2306,8 +2313,8 @@ useEffect(() => {
                           letterSpacing: "0.02em",
                         }}
                       >
-                        {data.Seasons} season{data.Seasons > 1 ? "s" : ""}
-                        {data.Seasons > 1 && (
+                        {data.season} season{data.season > 1 ? "s" : ""}
+                        {data.season > 1 && (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -7178,7 +7185,13 @@ useEffect(() => {
 
                 {/*Contribute to this page*/}
                 <section>
-                  <img src={ContributeToThisPage} alt="" />
+                  <Link to={`/admin/edit/${data.id}/episodes`}>
+                    <img
+                      src={ContributeToThisPage}
+                      alt=""
+                      style={{ cursor: "pointer" }}
+                    />
+                  </Link>
                 </section>
               </div>
 

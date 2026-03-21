@@ -14,12 +14,6 @@ import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
 //Top
 import UpInfo from "./imgs/imdb/upinfo.png";
 
-import StarImdb from "./imgs/imdb/starimdb.png";
-import RateIMDB from "./imgs/imdb/rateimdb.png";
-
-import IMDBRating from "./imgs/imdb/imdbrating.png";
-import YourRating from "./imgs/imdb/yourrating.png";
-
 import IMDBPro from "./imgs/imdb/imdbpro.png";
 
 import MarkedWatched from "./imgs/imdb/markwatched.png";
@@ -37,13 +31,6 @@ import PlotKeywords from "./components/PlotKeywords.jsx";
 
 //Small Icon
 import SmallIcon from "./imgs/imdb/smallicon.png";
-
-//Images for section Images
-import Img1 from "./imgs/imdb/imgs/img1.jpg";
-import Img2 from "./imgs/imdb/imgs/img2.jpg";
-import Img3 from "./imgs/imdb/imgs/img3.jpg";
-import Img4 from "./imgs/imdb/imgs/img4.jpg";
-import Img5 from "./imgs/imdb/imgs/img5.jpg";
 
 import FeaturedReviews from "./imgs/imdb/featuredreviews.png";
 import RelatedInterests from "./imgs/imdb/relatedinterests.png";
@@ -75,78 +62,30 @@ function SeriesPageDetails() {
   const [prevEpisode, setPrevEpisode] = useState(null);
   const [nextEpisodeNav, setNextEpisodeNav] = useState(null);
 
-  const urls = movieMap[movieId];
+  const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
-  useEffect(() => {
-    if (!urls || urls.length < 5) return;
+useEffect(() => {
+  const load = async () => {
+    const res = await fetch(`${API_URL}/entries/${movieId}`);
+    const data = await res.json();
 
-    fetch(urls[4]) // 👈 índice das Stars
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            console.log(
-              "⭐ STARS CSV (primeiras 3 linhas):",
-              results.data.slice(0, 3),
-            );
-            console.log(
-              "⭐ STARS CSV keys:",
-              Object.keys(results.data[0] || {}),
-            );
-            setCast(results.data);
-          },
-        });
-      });
-  }, [movieId]);
+    setData(data);
 
-  useEffect(() => {
-    if (!urls || urls.length === 0) return;
+    const all = [];
+    data.seasons?.forEach((season) => {
+      all.push(...(season.episodes || []));
+    });
 
-    fetch(urls[0])
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          complete: (results) => {
-            setData(results.data[0]);
-          },
-          error: (err) => console.error("Erro ao carregar CSV", err),
-        });
-      });
-  }, [movieId]);
+    setAllEpisodes(all);
 
-  useEffect(() => {
-    if (!urls || urls.length < 2) return;
+    if (episodeId) {
+      const found = all.find((ep) => String(ep.id) === String(episodeId));
+      setEpisodeData(found);
+    }
+  };
 
-    fetch(urls[1])
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            const episodes = results.data;
-
-            episodes.forEach((ep) => {
-              ep.Votes2 = ep.Votes2?.replace(/,/g, "") || "0";
-            });
-
-            setAllEpisodes(episodes);
-
-            if (episodeId) {
-              const foundEpisode = episodes.find(
-                (ep) => ep.episodeId === episodeId,
-              );
-
-              setEpisodeData(foundEpisode || null);
-            }
-          },
-          error: (err) => console.error("Erro episódios CSV", err),
-        });
-      });
-  }, [movieId, episodeId]);
+  load();
+}, [movieId, episodeId]);
 
   useEffect(() => {
     if (!allEpisodes.length) return;
@@ -232,7 +171,7 @@ function SeriesPageDetails() {
       .sort((a, b) => Number(a.Number2) - Number(b.Number2));
 
     const currentIndex = sortedEpisodes.findIndex(
-      (ep) => ep.episodeId === episodeId,
+      (ep) => String(ep.id) === String(episodeId),
     );
 
     setPrevEpisode(currentIndex > 0 ? sortedEpisodes[currentIndex - 1] : null);
@@ -243,30 +182,6 @@ function SeriesPageDetails() {
         : null,
     );
   }, [allEpisodes, episodeId]);
-
-  useEffect(() => {
-    if (!urls || urls.length < 6) return;
-
-    fetch(urls[5]) // 👈 EpCharCount
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            console.log(
-              "🎭 EPCHARCOUNT CSV (primeiras 5 linhas):",
-              results.data.slice(0, 5),
-            );
-            console.log(
-              "🎭 EPCHARCOUNT CSV keys:",
-              Object.keys(results.data[0] || {}),
-            );
-            setEpisodeCharCount(results.data);
-          },
-        });
-      });
-  }, [movieId]);
 
   const normalize = (v) => v?.replace(/\u00A0/g, " ").trim();
 
@@ -358,7 +273,6 @@ function SeriesPageDetails() {
     return getEpisodeImages(movieId, episodeNum, totalImages);
   }, [episodeData, movieId]);
 
-  if (!urls) return <p>Filme não encontrado</p>;
   if (!data) return <p>Carregando dados do filme...</p>;
 
   const votesNumber =
@@ -591,16 +505,17 @@ function SeriesPageDetails() {
     return parsed > new Date();
   })();
 
-  const getPluralLabel = (text, singular, plural) => {
-    if (!text) return singular;
+const getPluralLabel = (text, singular, plural) => {
+  if (!text) return singular;
 
-    const items = text
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+  const items = Array.isArray(text)
+    ? text
+    : typeof text === "string"
+    ? text.split(",").map((item) => item.trim()).filter(Boolean)
+    : [];
 
-    return items.length > 1 ? plural : singular;
-  };
+  return items.length > 1 ? plural : singular;
+};
 
   return (
     <>
@@ -3917,9 +3832,11 @@ function SeriesPageDetails() {
                 </section>
 
                 {/*Contribute to this page*/}
-                <section>
-                  <img src={ContributeToThisPageEpisodePage} alt="" />
-                </section>
+<Link to={`/admin/edit/${movieId}/episodes/${episodeId}`}>
+  <section>
+    <img src={ContributeToThisPageEpisodePage} alt="" />
+  </section>
+</Link>
               </div>
 
               {/* Aside */}

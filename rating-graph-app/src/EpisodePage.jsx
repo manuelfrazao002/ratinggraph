@@ -59,6 +59,8 @@ export default function Episodes() {
   const [allEpisodes, setAllEpisodes] = useState([]);
   const [coverSrc, setCoverSrc] = useState("");
 
+  const API_URL = "https://backend-ratinggraph.onrender.com/api";
+
   // Load cover image dynamically
   useEffect(() => {
     const loadCover = async () => {
@@ -100,153 +102,40 @@ export default function Episodes() {
   }, []);
 
   useEffect(() => {
-    if (!movieId || !movieMap[movieId]) {
-      console.error("movieId inválido");
-      return;
-    }
+const load = async () => {
+  try {
+    const res = await fetch(`${API_URL}/entries/${movieId}`);
+    const data = await res.json();
 
-    const urls = movieMap[movieId];
-    fetch(urls[0])
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          complete: (results) => {
-            const data = results.data;
-            console.log("Dados carregados:", data);
-            setData(data);
-            setFirstRow(data[0]);
+    setData(data);
 
-            // Pegando o primeiro valor (primeira linha do CSV)
-            const firstRow = data[0];
-            console.log("Primeiro valor:", firstRow);
+    const seasons = data.seasons || [];
 
-            // Exemplo: acessar um campo específico
-            // console.log("Primeiro título:", firstRow.Title);
-          },
-          error: (err) => console.error("Erro ao carregar CSV", err),
-        });
-      });
-  }, [movieId]);
+    setSeasonList(seasons.map(s => s.number));
 
-  useEffect(() => {
-    if (!movieId || !movieMap[movieId]) {
-      console.error("movieId inválido");
-      return;
-    }
+    const grouped = {};
+    let all = [];
 
-    const parseCustomDate = (dateStr) => {
-      if (!dateStr) return null;
+    seasons.forEach((season) => {
+      grouped[season.number] = season.episodes || [];
+      all = [...all, ...(season.episodes || [])];
+    });
 
-      // Se for apenas ano (YYYY)
-      if (/^\d{4}$/.test(dateStr.trim())) {
-        return new Date(`${dateStr}-12-31`);
-      }
+    setEpisodesBySeason(grouped);
+    setAllEpisodes(all);
 
-      const d = new Date(dateStr);
-      return isNaN(d) ? null : d;
-    };
+    setLoading(false); // ✅ FALTAVA ISTO
+  } catch (err) {
+    console.error(err);
+    setError("Erro ao carregar");
+    setLoading(false);
+  }
+};
 
-    const urls = movieMap[movieId];
+  load();
+}, [movieId]);
 
-    fetch(urls[1])
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.text();
-      })
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            console.log(results.data);
-
-            results.data.forEach((ep) => {
-              // Remove vírgulas e converte para número, se possível
-              ep.Votes2 = ep.Votes2 ? ep.Votes2.replace(/,/g, "") : "0";
-              ep.Trend = ep.Trend ? ep.Trend.replace(/,/g, "") : "0";
-              ep["Average Rating 2"] = ep["Average Rating 2"] || "0";
-            });
-
-            const grouped = {};
-            const allEpisodes = [];
-
-            results.data.forEach((ep) => {
-              const seasonNumber = parseInt(ep.Season);
-
-              // Ignora episódios sem Season válida (ex: "", null, undefined, NaN)
-              if (!ep.Season || isNaN(seasonNumber)) {
-                return; // simplesmente salta este episódio
-              }
-
-              const season = seasonNumber.toString();
-
-              if (!grouped[season]) grouped[season] = [];
-              grouped[season].push(ep);
-              allEpisodes.push(ep);
-            });
-
-            const seasons = Object.keys(grouped).sort((a, b) => a - b);
-            setSeasonList(seasons);
-            setEpisodesBySeason(grouped);
-            setAllEpisodes(allEpisodes);
-
-            // Agrupar por ano
-            const groupedByYear = {};
-            allEpisodes.forEach((ep) => {
-              const year = ep.Date
-                ? (parseCustomDate(ep.Date)?.getFullYear().toString() ??
-                  "Desconhecido")
-                : "Desconhecido";
-              if (!groupedByYear[year]) groupedByYear[year] = [];
-              groupedByYear[year].push(ep);
-            });
-            const years = Object.keys(groupedByYear).sort((a, b) => a - b); // Anos crescentes
-
-            setYearList(years);
-            setEpisodesByYear(groupedByYear);
-
-            // Calcular os top 10 episódios
-            const top10 = allEpisodes
-              .filter(
-                (ep) =>
-                  ep["Average Rating 2"] &&
-                  !isNaN(parseFloat(ep["Average Rating 2"])),
-              )
-              .sort((a, b) => {
-                const ratingDiff =
-                  parseFloat(b["Average Rating 2"]) -
-                  parseFloat(a["Average Rating 2"]);
-                if (ratingDiff !== 0) return ratingDiff;
-                return parseInt(b.Votes2 || "0") - parseInt(a.Votes2 || "0");
-              })
-              .slice(0, 10);
-
-            // Guardar identificadores dos top episódios (por temporada + título)
-            const topSet = new Set(
-              top10.map((ep) => `${ep.Season}-${ep.Title}`),
-            );
-            setTopEpisodesSet(topSet);
-            setTopEpisodes(top10);
-
-            setLoading(false);
-          },
-          error: (err) => {
-            setError("Erro no parsing do CSV");
-            console.error("Erro PapaParse:", err);
-            setLoading(false);
-          },
-        });
-      })
-      .catch((err) => {
-        setError("Erro ao buscar dados");
-        console.error("Erro fetch:", err);
-        setLoading(false);
-      });
-  }, [movieId]);
-
-  if (!movieId) return <p>Filme não especificado.</p>;
-  if (!movieMap[movieId]) return <p>Filme não encontrado.</p>;
+  if (!movieId) return <p>Filme não encontrado.</p>;
 
   useEffect(() => {
     if (!allEpisodes || allEpisodes.length === 0) return;
@@ -351,7 +240,7 @@ export default function Episodes() {
       top: "-1px",
     };
 
-    const match = episode.Title.match(/S(\d+)\.E(\d+)/i);
+    const match = episode.title.match(/S(\d+)\.E(\d+)/i);
     const seasonNum = match ? `s${match[1]}` : "s1"; // s1, s2 etc
     const episodeNum = match ? match[2] : "1";
 
@@ -439,7 +328,7 @@ export default function Episodes() {
         <div>
           <div>
             {activeTab !== "Top-rated" &&
-              topEpisodesSet.has(`${episode.Season}-${episode.Title}`) &&
+              topEpisodesSet.has(`${episode.season}-${episode.title}`) &&
               (hasRating || hasSynopsis || Number(votes) > 0) && (
                 <img
                   src={TopRated}
@@ -454,7 +343,7 @@ export default function Episodes() {
               )}
 
             {activeTab === "Most Recent" &&
-              topEpisodesSet.has(`${episode.Season}-${episode.Title}`) && (
+              topEpisodesSet.has(`${episode.season}-${episode.title}`) && (
                 <img
                   src={MostRecent}
                   alt="MostRecent"
@@ -497,8 +386,8 @@ export default function Episodes() {
                   }}
                 >
                   {activeTab === "Top-rated"
-                    ? `#${episode.positionNumber} · ${episode.Title}`
-                    : episode.Title}
+                    ? `#${episode.positionNumber} · ${episode.title}`
+                    : episode.title}
                 </h3>
               </Link>
               <div>
@@ -773,7 +662,7 @@ export default function Episodes() {
                   top: "3px",
                 }}
               >
-                {firstRow.Title}
+                {data?.title}
               </p>
               <p
                 style={{
@@ -902,7 +791,7 @@ export default function Episodes() {
 
                     return episodesToShow.map((episode, index) => (
                       <div
-                        key={`${episode.Season}-${episode.Title}-${index}`}
+                        key={`${episode.season}-${episode.title}-${index}`}
                         style={{
                           backgroundColor: "white",
                           paddingTop: "16px",
@@ -978,7 +867,7 @@ export default function Episodes() {
                                   top: "1px",
                                 }}
                               >
-                                {episode.Title}
+                                {episode.title}
                               </p>
                             </Link>
                           </div>
@@ -1128,7 +1017,7 @@ export default function Episodes() {
                       })
                       .map((episode, index, filteredEpisodes) => (
                         <EpisodeItem
-                          key={`${episode.Season}-${episode.Title}-${index}`}
+                          key={`${episode.season}-${episode.title}-${index}`}
                           episode={{
                             ...episode,
                             positionNumber: index + 1,
@@ -1377,7 +1266,7 @@ export default function Episodes() {
                   {(episodesByYear[yearList[currentYearIndex]] || []).map(
                     (episode, index, list) => (
                       <EpisodeItem
-                        key={`${episode.Season}-${episode.Title}`}
+                        key={`${episode.season}-${episode.title}`}
                         episode={episode}
                         index={index}
                         isLast={index === list.length - 1} // ✅ lista correta
@@ -1466,7 +1355,9 @@ export default function Episodes() {
 
               <div style={{ position: "relative", left: "-20px" }}>
                 <div style={{ marginTop: 29 }}>
+                  <Link to={`/admin/edit/${data.id}/episodes`}>
                   <img src={Contribute} alt="" />
+                  </Link>
                 </div>
                 <div style={{ marginTop: 1 }}>
                   <img src={MoreTitle} alt="" />
