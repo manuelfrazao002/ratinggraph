@@ -1,76 +1,25 @@
 const express = require("express");
-const { Entry, Season, Episode } = require("../models");
+const {
+  createEntry,
+  getEntries,
+  getEntryById,
+  updateEntry,
+  deleteEntry,
+} = require("../controllers/entryController");
 
 const router = express.Router();
 
-// ✅ Criar entry
-router.post("/", async (req, res) => {
-  try {
-    const entry = await Entry.create(req.body);
-    res.json(entry);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao criar entry" });
-  }
+router.post("/", createEntry);
+router.get("/", getEntries);
+router.get("/:id", getEntryById);
+router.get("/slug/:slug", async (req, res) => {
+  const entry = await Entry.findOne({
+    where: { slug: req.params.slug },
+  });
+
+  res.json(entry);
 });
-
-// ✅ Buscar todas
-router.get("/", async (req, res) => {
-  try {
-    const entries = await Entry.findAll();
-    res.json(entries);
-  } catch (err) {
-    res.status(500).json({ error: "Erro ao buscar entries" });
-  }
-});
-
-// 🔥 Buscar com tudo (seasons + episodes)
-router.get("/:id", async (req, res) => {
-  try {
-    const entry = await Entry.findByPk(req.params.id, {
-      include: {
-        model: Season,
-        as: "seasons",
-        include: {
-          model: Episode,
-          as: "episodes",
-        },
-      },
-    });
-
-    res.json(entry);
-  } catch (err) {
-    res.status(500).json({ error: "Erro ao buscar entry" });
-  }
-});
-
-router.put("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    await Entry.update(req.body, {
-      where: { id },
-    });
-
-    const updated = await Entry.findByPk(id);
-
-    res.json(updated);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao atualizar entry" });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
-  try {
-    await Entry.destroy({
-      where: { id: req.params.id },
-    });
-
-    res.json({ message: "Entry apagada" });
-  } catch (err) {
-    res.status(500).json({ error: "Erro ao apagar" });
-  }
-});
+router.put("/:id", updateEntry);
+router.delete("/:id", deleteEntry);
 
 module.exports = router;
