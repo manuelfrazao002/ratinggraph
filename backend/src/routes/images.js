@@ -2,12 +2,6 @@
 const express = require("express");
 const cloudinary = require("../config/cloudinary");
 
-cloudinary.config({
-  cloud_name: "duaapwky8",
-  api_key: "943211793267165",
-  api_secret: "ZnkzL08rrQK7dTpNGl3K4qbYegM"
-});
-
 const router = express.Router();
 
 router.get("/all-images/:movieId", async (req, res) => {
