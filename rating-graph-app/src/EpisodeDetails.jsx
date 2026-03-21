@@ -38,9 +38,6 @@ import MoreToExploreSticky from "./imgs/imdb/moretoexploresticky.png";
 import ContributeToThisPageEpisodePage from "./imgs/imdb/contributetothispageepisodepage.png";
 import { getEpisodeSrc, getEpisodeImages } from "./ShowImageSrc";
 
-//Data
-import { movieMap } from "./data/MovieMap";
-
 function SeriesPageDetails() {
   const { movieId, episodeId } = useParams();
   const episodeHeaderRef = useRef(null);
@@ -72,7 +69,12 @@ function SeriesPageDetails() {
 
       const all = [];
       data.seasons?.forEach((season) => {
-        all.push(...(season.episodes || []));
+        const episodesWithSeason = (season.episodes || []).map((ep) => ({
+          ...ep,
+          season: season.number, // 👈 AQUI!
+        }));
+
+        all.push(...episodesWithSeason);
       });
 
       setAllEpisodes(all);
@@ -94,7 +96,7 @@ function SeriesPageDetails() {
     const futureEpisodes = allEpisodes
       .map((ep) => ({
         ...ep,
-        parsedDate: new Date(ep.Date),
+        parsedDate: new Date(ep.airDate),
       }))
       .filter((ep) => !isNaN(ep.parsedDate) && ep.parsedDate > now)
       .sort((a, b) => a.parsedDate - b.parsedDate);
@@ -111,12 +113,12 @@ function SeriesPageDetails() {
 
     const validEpisodes = allEpisodes.filter((ep) => {
       const rating = parseFloat(ep["Average Rating 2"]);
-      const votes = parseInt(ep.Votes2);
-      const hasSynopsis = ep.Synopsis?.trim();
+      const votes = parseInt(ep.votes);
+      const hasSynopsis = ep.description?.trim();
 
       return (
-        ep.Date &&
-        !isNaN(new Date(ep.Date)) &&
+        ep.airDate &&
+        !isNaN(new Date(ep.airDate)) &&
         (hasSynopsis || rating > 0 || votes > 0)
       );
     });
@@ -130,9 +132,11 @@ function SeriesPageDetails() {
     // tenta últimos 30 dias, senão usa o mais recente disponível
     let mostRecent =
       validEpisodes
-        .filter((ep) => new Date(ep.Date) >= daysAgo30)
-        .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0] ||
-      validEpisodes.sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
+        .filter((ep) => new Date(ep.airDate) >= daysAgo30)
+        .sort((a, b) => new Date(b.airDate) - new Date(a.airDate))[0] ||
+      validEpisodes.sort(
+        (a, b) => new Date(b.airDate) - new Date(a.airDate),
+      )[0];
 
     // ✅ Top Rated (pode ser o mesmo se só existir um)
     const topRated =
@@ -140,11 +144,9 @@ function SeriesPageDetails() {
         .filter((ep) => ep !== mostRecent)
         .sort((a, b) => {
           const scoreA =
-            parseFloat(a["Average Rating 2"] || 0) *
-            Math.log((parseInt(a.Votes2) || 0) + 1);
+            parseFloat(a.rating || 0) * Math.log((parseInt(a.votes) || 0) + 1);
           const scoreB =
-            parseFloat(b["Average Rating 2"] || 0) *
-            Math.log((parseInt(b.Votes2) || 0) + 1);
+            parseFloat(b.rating || 0) * Math.log((parseInt(b.votes) || 0) + 1);
           return scoreB - scoreA;
         })[0] || mostRecent;
 
@@ -166,8 +168,8 @@ function SeriesPageDetails() {
     if (!allEpisodes.length || !episodeId) return;
 
     const sortedEpisodes = [...allEpisodes]
-      .filter((ep) => ep.episodeId && ep.Number2)
-      .sort((a, b) => Number(a.Number2) - Number(b.Number2));
+      .filter((ep) => ep.id && ep.number)
+      .sort((a, b) => Number(a.number) - Number(b.number));
 
     const currentIndex = sortedEpisodes.findIndex(
       (ep) => String(ep.id) === String(episodeId),
@@ -232,14 +234,14 @@ function SeriesPageDetails() {
       // cover default da série
       let finalCover = getShowCoverSrc(movieId);
 
-      if (episodeData?.Season && episodeData?.Number2 && episodeData?.Date3) {
-        const episodeDate = new Date(episodeData.Date3.replace(/\u00A0/g, " "));
+      if (episodeData?.season && episodeData?.number && episodeData?.airDate) {
+        const episodeDate = new Date(episodeData.airDate.replace(/\u00A0/g, " "));
         const now = new Date();
 
         // 👉 só usa cover do episódio se JÁ TIVER IDO AO AR
         if (!isNaN(episodeDate) && now > episodeDate) {
-          const seasonNum = `s${episodeData.Season}`;
-          const episodeNum = episodeData.Episode2;
+          const seasonNum = `s${episodeData.season}`;
+          const episodeNum = episodeData.number;
           finalCover = getEpisodeSrc(movieId, seasonNum, episodeNum);
         }
       }
@@ -256,8 +258,8 @@ function SeriesPageDetails() {
     if (!episodeData || !movieId) return [];
 
     // episódio ainda não foi ao ar → sem imagens
-    const episodeDate = episodeData?.Date3
-      ? new Date(episodeData.Date3.replace(/\u00A0/g, " "))
+    const episodeDate = episodeData?.airDate
+      ? new Date(episodeData.airDate.replace(/\u00A0/g, " "))
       : null;
 
     if (!episodeDate || isNaN(episodeDate) || episodeDate > new Date()) {
@@ -265,7 +267,7 @@ function SeriesPageDetails() {
     }
 
     const totalImages = Number(episodeData?.Photos) || 0;
-    const episodeNum = episodeData?.Number2;
+    const episodeNum = episodeData?.number;
 
     if (!episodeNum || totalImages <= 0) return [];
 
@@ -275,7 +277,7 @@ function SeriesPageDetails() {
   if (!data) return <p>Carregando dados do filme...</p>;
 
   const votesNumber =
-    Number(episodeData?.Votes2?.toString().replace(/[,]+/g, "")) || 0;
+    Number(episodeData?.votes?.toString().replace(/[,]+/g, "")) || 0;
   const hasVotes = votesNumber > 0;
 
   const renderListWithLimit = (listStr, limit = 3) => {
@@ -489,12 +491,12 @@ function SeriesPageDetails() {
   };
 
   // Uso no teu componente:
-  const parsedDate = parseDateSafe(episodeData?.Date3);
+  const parsedDate = parseDateSafe(episodeData?.airDate);
 
   const hasComingSoonEpisode = (() => {
     if (!isTVShow) return false;
 
-    const rawDate = data?.NextEpisodeDate || episodeData?.Date3;
+    const rawDate = data?.NextEpisodeDate || episodeData?.airDate;
     if (!rawDate) return false;
 
     const parsed = new Date(rawDate.replace?.(/\u00A0/g, " ") ?? rawDate);
@@ -518,6 +520,30 @@ function SeriesPageDetails() {
 
     return items.length > 1 ? plural : singular;
   };
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatDateLong(dateStr) {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
   return (
     <>
@@ -595,7 +621,7 @@ function SeriesPageDetails() {
                     top: 6,
                   }}
                 >
-                  {episodeData?.EpisodeName}
+                  {`S${episodeData?.season}.E${episodeData?.number}`}
                 </span>
                 <div
                   style={{
@@ -725,9 +751,7 @@ function SeriesPageDetails() {
                       top: "3px",
                     }}
                   >
-                    {episodeData?.TitleName?.trim()
-                      ? episodeData.TitleName2
-                      : episodeData?.TitleName3}
+                    {episodeData?.title?.split("∙")[1]?.trim()}
                   </h1>
                   <div
                     style={{
@@ -759,7 +783,7 @@ function SeriesPageDetails() {
                     )}
 
                     {parsedDate && parsedDate > new Date() && (
-                      <>Episode airs {episodeData?.Date3}</>
+                      <>Episode airs {formatDate(episodeData?.airDate)}</>
                     )}
                   </div>
                 </div>
@@ -1056,12 +1080,12 @@ function SeriesPageDetails() {
                         margin: "0px 0 12px 0",
                       }}
                     >
-                      {(data?.Genres
+                      {(data?.genres
                         ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
-                          data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
-                            .map((genre) => genre.trim())
-                            .filter((genre) => genre)
-                        : []
+                        data?.genres
+                          .map((genre) => genre.trim())
+                          .filter((genre) => genre)
+                      : []
                       ).map((genre, index) => (
                         <div
                           key={index}
@@ -1101,7 +1125,7 @@ function SeriesPageDetails() {
                         </div>
                       ))}
                     </div>
-                    {episodeData?.Synopsis && (
+                    {episodeData?.description && (
                       <div
                         style={{
                           marginTop: "5px",
@@ -1110,10 +1134,10 @@ function SeriesPageDetails() {
                           paddingBottom: "12px",
                         }}
                       >
-                        {episodeData?.Synopsis}
+                        {episodeData?.description}
                       </div>
                     )}
-                    {!episodeData?.Synopsis && (
+                    {!episodeData?.description && (
                       <div
                         style={{
                           marginTop: "5px",
@@ -1174,7 +1198,7 @@ function SeriesPageDetails() {
                         }}
                       >
                         {getPluralLabel(
-                          episodeData?.Directors,
+                          data?.directors,
                           "Director",
                           "Directors",
                         )}
@@ -1189,7 +1213,7 @@ function SeriesPageDetails() {
                           lineHeight: "1.5rem",
                         }}
                       >
-                        {renderListWithDotSeparator(episodeData?.Directors)}
+                        {renderListWithDotSeparator(data?.directors)}
                       </p>
                     </div>
                     <div
@@ -1212,7 +1236,7 @@ function SeriesPageDetails() {
                         }}
                       >
                         {getPluralLabel(
-                          episodeData?.Writers,
+                          data?.writers,
                           "Writer",
                           "Writers",
                         )}
@@ -1227,7 +1251,7 @@ function SeriesPageDetails() {
                           lineHeight: "1.5rem",
                         }}
                       >
-                        {renderListWithDotSeparator(episodeData?.Writers)}
+                        {renderListWithDotSeparator(data?.writers)}
                       </p>
                     </div>
                     {Array.isArray(episodeCast) &&
@@ -1363,7 +1387,7 @@ function SeriesPageDetails() {
                             }}
                           >
                             {" "}
-                            {episodeData.Date3}{" "}
+                            {formatDateLong(episodeData?.airDate)}{" "}
                           </p>
                         </div>
                       </div>
@@ -2385,7 +2409,7 @@ function SeriesPageDetails() {
                             }}
                           >
                             {getPluralLabel(
-                              episodeData?.Directors,
+                              data?.directors,
                               "Director",
                               "Directors",
                             )}
@@ -2401,7 +2425,7 @@ function SeriesPageDetails() {
                             }}
                           >
                             {renderListWithDotSeparator2(
-                              episodeData?.Directors,
+                              data?.directors,
                             )}
                           </span>
                         </div>
@@ -2427,7 +2451,7 @@ function SeriesPageDetails() {
                             }}
                           >
                             {getPluralLabel(
-                              episodeData?.Writers,
+                              data?.writers,
                               "Writer",
                               "Writers",
                             )}
@@ -2442,7 +2466,7 @@ function SeriesPageDetails() {
                               lineHeight: "1.5rem",
                             }}
                           >
-                            {renderListWithDotSeparator2(episodeData?.Writers)}
+                            {renderListWithDotSeparator2(data?.writers)}
                           </span>
                         </div>
                         <div
@@ -2724,9 +2748,9 @@ function SeriesPageDetails() {
                                   lineHeight: "3.75rem",
                                 }}
                               >
-                                {episodeData?.["Average Rating 2"] === "10.0"
+                                {episodeData?.rating === "10.0"
                                   ? 10
-                                  : episodeData?.["Average Rating 2"]}
+                                  : episodeData?.rating}
                               </span>
                             </span>
                             <span
@@ -2743,7 +2767,7 @@ function SeriesPageDetails() {
                                 height: "24px",
                               }}
                             >
-                              {formatToK(episodeData?.Votes2)}
+                              {formatToK(episodeData?.votes)}
                             </span>
                           </div>
                           <div>
@@ -2875,7 +2899,7 @@ function SeriesPageDetails() {
                           </span>
                         </div>
                       </div>
-                      {episodeData?.Votes2 > 0 && (
+                      {episodeData?.votes > 0 && (
                         <>
                           <div
                             style={{
@@ -3106,7 +3130,7 @@ function SeriesPageDetails() {
                 </section>
 
                 {/*Did You Know*/}
-                {episodeData?.Votes2 > 0 && (
+                {episodeData?.votes > 0 && (
                   <section
                     style={{
                       paddingBottom: "24px",
@@ -3210,7 +3234,7 @@ function SeriesPageDetails() {
                       width: "808px",
                     }}
                   >
-                    {episodeData?.Date4 != "" && (
+                    {episodeData?.airDate != "" && (
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -3245,7 +3269,7 @@ function SeriesPageDetails() {
                             color: "rgb(14,99,190)",
                           }}
                         >
-                          {episodeData?.Date4} {"(United States)"}
+                          {formatDateLong(episodeData?.airDate)} {"(United States)"}
                         </span>
 
                         <div
@@ -3834,7 +3858,7 @@ function SeriesPageDetails() {
                 </section>
 
                 {/*Contribute to this page*/}
-                <Link to={`/admin/edit/${movieId}/episodes/${episodeId}`}>
+                <Link to={`/admin/edit/${movieId}/episodes/${episodeData?.id}`}>
                   <section>
                     <img src={ContributeToThisPageEpisodePage} alt="" />
                   </section>

@@ -368,7 +368,7 @@ const load = async () => {
             >
               <Link
                 key={episode.episodeId}
-                to={`/episodepage/${movieId}/${episode.episodeId}`}
+                to={`/episodepage/${movieId}/${episode.id}`}
               >
                 <h3
                   style={{

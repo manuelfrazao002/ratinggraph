@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 
 const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
-function EditEpisodesPage() {
+function EditSeasonsPage() {
   const { id } = useParams(); // entryId
 
   const [seasons, setSeasons] = useState([]);
@@ -215,4 +215,4 @@ const addEpisode = async (season) => {
   );
 }
 
-export default EditEpisodesPage;
+export default EditSeasonsPage;
