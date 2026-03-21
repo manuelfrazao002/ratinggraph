@@ -38,7 +38,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
     },
     ageRating: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
     },
     genres: {
       type: DataTypes.JSON, // array tipo ["Drama", "Action"]

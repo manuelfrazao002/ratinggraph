@@ -101,10 +101,52 @@ const addCastToEpisode = async (req, res) => {
   }
 };
 
+const getEndingYear = async (req, res) => {
+  try {
+    const { entryId } = req.params;
+
+    // 🔥 buscar episódios através das seasons
+    const episodes = await Episode.findAll({
+      include: {
+        model: Season,
+        as: "season",
+        where: { entryId },
+        attributes: [],
+      },
+    });
+
+    if (!episodes.length) {
+      return res.json({ endingYear: null });
+    }
+
+    // 🔥 1. tenta episódio final manual
+    const finalEpisode = episodes.find((ep) => ep.isFinal);
+
+    // 🔥 2. fallback → último episódio por data
+    const lastEpisode =
+      finalEpisode ||
+      episodes
+        .filter((ep) => ep.airDate)
+        .sort(
+          (a, b) => new Date(b.airDate) - new Date(a.airDate)
+        )[0];
+
+    const endingYear = lastEpisode?.airDate
+      ? new Date(lastEpisode.airDate).getFullYear()
+      : null;
+
+    res.json({ endingYear });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro ao calcular ending year" });
+  }
+};
+
 module.exports = {
   getEpisodesForGraph,
   getTopEpisodes,
   getBestEpisode,
   getLatestEpisode,
   addCastToEpisode,
+  getEndingYear,
 };

@@ -78,6 +78,9 @@ function SeriesPage() {
   const [videos, setVideos] = useState([]);
   const [allImages, setAllImages] = React.useState([]);
   const [ranking, setRanking] = useState(null);
+  const [endingYear, setEndingYear] = useState(null);
+
+  const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
   useEffect(() => {
     const loadEntry = async () => {
@@ -117,6 +120,12 @@ function SeriesPage() {
   };
 
   if (movieId) loadRanking();
+}, [movieId]);
+
+useEffect(() => {
+  fetch(`${API_URL}/episodes/ending-year/${movieId}`)
+    .then(res => res.json())
+    .then(data => setEndingYear(data.endingYear));
 }, [movieId]);
 
   function parseEpisodeDate(dateStr) {
@@ -564,7 +573,7 @@ function SeriesPage() {
                   >
                     {!isMovie && (
                       <>
-                        {data.type}
+                        {data.type === "series" ? "TV Series" : data.type}
                         <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                           ·
                         </span>
@@ -572,9 +581,9 @@ function SeriesPage() {
                     )}
                     {data.releaseDate !== "" && (
                       <>
-                        {data.releaseDate}
+                        {data.releaseDate && new Date(data.releaseDate).getFullYear()}
                         {data.type === "series" &&
-                          `—${data.EndingYear || ""}`}
+                          `—${endingYear || ""}`}
                         <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                           ·
                         </span>

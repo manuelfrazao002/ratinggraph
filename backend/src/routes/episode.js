@@ -6,6 +6,7 @@ const {
   getBestEpisode,
   getLatestEpisode,
   addCastToEpisode,
+  getEndingYear,
 } = require("../controllers/episodeController");
 
 const router = express.Router();
@@ -39,5 +40,6 @@ router.get("/ranking/:seasonId", getTopEpisodes);
 router.get("/best/:seasonId", getBestEpisode);
 router.get("/latest/:seasonId", getLatestEpisode);
 router.post("/:episodeId/cast", addCastToEpisode);
+router.get("/ending-year/:entryId", getEndingYear);
 
 module.exports = router;

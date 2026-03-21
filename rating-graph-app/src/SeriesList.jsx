@@ -465,9 +465,13 @@ function MovieList() {
                               {entry.releaseDate !== "" && (
                                 <>
                                   <p style={{ margin: "0 0.75rem 0 0" }}>
-                                    {entry.releaseDate}
-                                    {entry.type === "TV Series" &&
-                                      `—${entry.EndingYear}`}
+                                    {entry.releaseDate &&
+                                      new Date(entry.releaseDate).getFullYear()}
+
+                                    {entry.type === "series" &&
+                                      (entry.endingYear
+                                        ? `—${entry.endingYear}`
+                                        : "—")}
                                   </p>
 
                                   {!isMovie && entry.episodes < 1 && (
@@ -518,8 +522,10 @@ function MovieList() {
                                       Metascore
                                     </span>
                                   </>
+                                ) : entry.type === "series" ? (
+                                  "TV Series"
                                 ) : (
-                                  entry.Type
+                                  entry.type
                                 )}
                               </p>
                             </div>

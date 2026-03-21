@@ -9,6 +9,7 @@ function CreateEntryPage() {
     type: "",
     description: "",
     releaseDate: "",
+    ageRating: "",
     genres: "",
     creators: "",
     writers: "",
@@ -108,6 +109,13 @@ function CreateEntryPage() {
           type="date"
           name="releaseDate"
           onChange={handleChange}
+        />
+
+          <input
+          name="ageRating"
+          placeholder="Age Rating"
+          onChange={handleChange}
+          required
         />
 
         {/* 🔥 NOVOS CAMPOS */}

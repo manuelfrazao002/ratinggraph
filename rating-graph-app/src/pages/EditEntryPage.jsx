@@ -11,6 +11,7 @@ function EditEntryPage() {
     type: "",
     description: "",
     releaseDate: "",
+    ageRating: "",
     genres: "",
     creators: "",
     writers: "",
@@ -138,6 +139,13 @@ function EditEntryPage() {
           name="releaseDate"
           value={form.releaseDate}
           onChange={handleChange}
+        />
+      
+        <input
+          name="ageRating"
+          placeholder="Age Rating"
+          onChange={handleChange}
+          required
         />
 
         {/* 🔥 NOVOS CAMPOS */}

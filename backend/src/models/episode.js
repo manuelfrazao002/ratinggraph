@@ -42,6 +42,10 @@ module.exports = (sequelize) => {
     duration: {
       type: DataTypes.INTEGER,
     },
+    isFinal: {
+  type: DataTypes.BOOLEAN,
+  defaultValue: false,
+},
   });
 
   return Episode;
