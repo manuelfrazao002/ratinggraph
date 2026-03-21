@@ -9,9 +9,14 @@ function CreateEntryPage() {
     type: "series",
     description: "",
     releaseDate: "",
+    genres: "",
+    creators: "",
+    writers: "",
+    directors: "",
   });
 
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -20,17 +25,30 @@ function CreateEntryPage() {
     });
   };
 
+  const parseArray = (str) =>
+    str.split(",").map((s) => s.trim()).filter(Boolean);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
+      // 🔥 preparar dados
+      const payload = {
+        ...form,
+        genres: parseArray(form.genres),
+        creators: parseArray(form.creators),
+        writers: parseArray(form.writers),
+        directors: parseArray(form.directors),
+      };
+
       // 🔥 1. criar entry
       const res = await fetch(`${API_URL}/entries`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const entry = await res.json();
@@ -50,23 +68,28 @@ function CreateEntryPage() {
     } catch (error) {
       console.error(error);
       alert("Erro ao criar entry");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <Link to={'/imdb/list'}>
-      <div>
+    <div style={{ padding: 20, maxWidth: 600, margin: "0 auto" }}>
+      <Link to="/imdb/list">
         <span>{"< Back"}</span>
-      </div>
       </Link>
+
       <h1>Criar Entry</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", flexDirection: "column", gap: 10 }}
+      >
         <input
           name="title"
           placeholder="Título"
           onChange={handleChange}
+          required
         />
 
         <select name="type" onChange={handleChange}>
@@ -87,12 +110,58 @@ function CreateEntryPage() {
           onChange={handleChange}
         />
 
+        {/* 🔥 NOVOS CAMPOS */}
+        <input
+          name="genres"
+          placeholder="Genres (Drama, Action)"
+          onChange={handleChange}
+        />
+
+        <input
+          name="creators"
+          placeholder="Creators (Vince Gilligan)"
+          onChange={handleChange}
+        />
+
+        <input
+          name="writers"
+          placeholder="Writers (Name1, Name2)"
+          onChange={handleChange}
+        />
+
+        <input
+          name="directors"
+          placeholder="Directors (Name1, Name2)"
+          onChange={handleChange}
+        />
+
+        {/* IMAGE */}
         <input
           type="file"
           onChange={(e) => setImage(e.target.files[0])}
         />
 
-        <button type="submit">Criar</button>
+        {/* PREVIEW */}
+        {image && (
+          <img
+            src={URL.createObjectURL(image)}
+            alt="preview"
+            style={{ width: 150, borderRadius: 8 }}
+          />
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            padding: 10,
+            background: "#f5c518",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          {loading ? "A criar..." : "Criar"}
+        </button>
       </form>
     </div>
   );

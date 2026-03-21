@@ -22,33 +22,34 @@ function MovieList() {
   const [sortKey, setSortKey] = useState("Popularity");
   const [sortOrder, setSortOrder] = useState("asc"); // ou "desc"
   const [hoveredId, setHoveredId] = React.useState(null);
+  const [activeMenu, setActiveMenu] = useState(null);
 
-  
-useEffect(() => {
-  const loadEntries = async () => {
-    try {
-      const entries = await getEntries();
-      setData(entries);
-    } catch (err) {
-      console.error("Erro ao buscar entries", err);
-    }
-  };
+  const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
-  loadEntries();
-}, []);
+  useEffect(() => {
+    const loadEntries = async () => {
+      try {
+        const entries = await getEntries();
+        setData(entries);
+      } catch (err) {
+        console.error("Erro ao buscar entries", err);
+      }
+    };
+
+    loadEntries();
+  }, []);
 
   // No início do componente MovieList, adicione uma função para filtrar animes
-const filterAnime = (data) => {
-  return data.filter(item => {
-    if (!item) return false;
-    
-    // Verifica múltiplas possibilidades de identificação de anime
-    const isAnime = 
-      item.Type?.toLowerCase().includes('anime');
-    
-    return !isAnime;
-  });
-};
+  const filterAnime = (data) => {
+    return data.filter((item) => {
+      if (!item) return false;
+
+      // Verifica múltiplas possibilidades de identificação de anime
+      const isAnime = item.Type?.toLowerCase().includes("anime");
+
+      return !isAnime;
+    });
+  };
 
   const GlobalStyle = createGlobalStyle`
   #root {
@@ -58,42 +59,41 @@ const filterAnime = (data) => {
   }
 `;
 
-function parseVoteCount(voteStr) {
-  if (!voteStr) return 0;
-  voteStr = voteStr.replace(",", "").toUpperCase();
+  function parseVoteCount(voteStr) {
+    if (!voteStr) return 0;
+    voteStr = voteStr.replace(",", "").toUpperCase();
 
-  if (voteStr.includes("K")) {
-    return parseFloat(voteStr.replace("K", "")) * 1000;
-  } else if (voteStr.includes("M")) {
-    return parseFloat(voteStr.replace("M", "")) * 1000000;
-  } else {
-    return parseFloat(voteStr);
+    if (voteStr.includes("K")) {
+      return parseFloat(voteStr.replace("K", "")) * 1000;
+    } else if (voteStr.includes("M")) {
+      return parseFloat(voteStr.replace("M", "")) * 1000000;
+    } else {
+      return parseFloat(voteStr);
+    }
   }
-}
-
 
   const sortedData = filterAnime([...data]).sort((a, b) => {
-  let valueA = a[sortKey];
-  let valueB = b[sortKey];
+    let valueA = a[sortKey];
+    let valueB = b[sortKey];
 
-  // Special handling for formatted "Votes"
-  if (sortKey === "Votes") {
-    valueA = parseVoteCount(valueA);
-    valueB = parseVoteCount(valueB);
-  }
+    // Special handling for formatted "Votes"
+    if (sortKey === "Votes") {
+      valueA = parseVoteCount(valueA);
+      valueB = parseVoteCount(valueB);
+    }
 
-  const isNumeric = !isNaN(valueA) && !isNaN(valueB);
+    const isNumeric = !isNaN(valueA) && !isNaN(valueB);
 
-  if (isNumeric) {
+    if (isNumeric) {
+      return sortOrder === "asc"
+        ? Number(valueA) - Number(valueB)
+        : Number(valueB) - Number(valueA);
+    }
+
     return sortOrder === "asc"
-      ? Number(valueA) - Number(valueB)
-      : Number(valueB) - Number(valueA);
-  }
-
-  return sortOrder === "asc"
-    ? String(valueA).localeCompare(String(valueB))
-    : String(valueB).localeCompare(String(valueA));
-});
+      ? String(valueA).localeCompare(String(valueB))
+      : String(valueB).localeCompare(String(valueA));
+  });
 
   const ArrowUpIcon = () => (
     <svg
@@ -144,7 +144,7 @@ function parseVoteCount(voteStr) {
   const measureTextWidth = (
     text,
     fontSize = "15px",
-    fontFamily = "Roboto, Helvetica, Arial, sans-serif"
+    fontFamily = "Roboto, Helvetica, Arial, sans-serif",
   ) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -172,12 +172,49 @@ function parseVoteCount(voteStr) {
     );
   };
 
+  const menuItemStyle = {
+    width: "100%",
+    padding: "10px",
+    border: "none",
+    background: "white",
+    cursor: "pointer",
+    textAlign: "left",
+  };
+
+  const handleEdit = (id) => {
+    window.location.href = `/admin/edit/${id}`;
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Tens a certeza?");
+
+    if (!confirmDelete) return;
+
+    try {
+      await fetch(`${API_URL}/entries/${id}`, {
+        method: "DELETE",
+      });
+
+      // 🔥 remove do UI
+      setData((prev) => prev.filter((e) => e.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao apagar");
+    }
+  };
+
+  useEffect(() => {
+    const handleClick = () => setActiveMenu(null);
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
+
   return (
-    <div style={{ padding: 0, margin: 0, backgroundColor: "black"}}>
+    <div style={{ padding: 0, margin: 0, backgroundColor: "black" }}>
       <GlobalStyle />
       <div>
         <Link to={`/`}>
-        <img src={Navbar} alt="" />
+          <img src={Navbar} alt="" />
         </Link>
       </div>
       <div
@@ -191,21 +228,23 @@ function parseVoteCount(voteStr) {
         }}
       >
         <section style={{ paddingTop: 24 }}>
-          <Link to={'/admin/create'}>
-          <div style={{
-            padding: "0.5rem",
-            borderRadius: "12px",
-            color: "black",
-            cursor: "pointer",
-            background:"rgb(245, 197, 24)",
-            width: "110px",
-            textAlign: "center",
-            fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-            letterSpacing: "0.2px",
-            fontWeight:"600",
-          }}>
-            <span>+ Add show</span>
-          </div>
+          <Link to={"/admin/create"}>
+            <div
+              style={{
+                padding: "0.5rem",
+                borderRadius: "12px",
+                color: "black",
+                cursor: "pointer",
+                background: "rgb(245, 197, 24)",
+                width: "110px",
+                textAlign: "center",
+                fontFamily: "Roboto, Helvetica, Arial, sans-serif",
+                letterSpacing: "0.2px",
+                fontWeight: "600",
+              }}
+            >
+              <span>+ Add entry</span>
+            </div>
           </Link>
           <img src={ListChart} alt="" />
           <div style={{ position: "relative", top: -6 }}>
@@ -254,12 +293,16 @@ function parseVoteCount(voteStr) {
                     alignItems: "center",
                   }}
                 >
-                  {filterAnime(sortedData).length !== 1 &&
-                  <p style={{ color: "black" }}>{filterAnime(sortedData).length} Titles</p>
-                  }
-                  {filterAnime(sortedData).length === 1 &&
-                  <p style={{ color: "black" }}>{filterAnime(sortedData).length} Title</p>
-                  }
+                  {filterAnime(sortedData).length !== 1 && (
+                    <p style={{ color: "black" }}>
+                      {filterAnime(sortedData).length} Titles
+                    </p>
+                  )}
+                  {filterAnime(sortedData).length === 1 && (
+                    <p style={{ color: "black" }}>
+                      {filterAnime(sortedData).length} Title
+                    </p>
+                  )}
                   <img src={ListLayout} alt="" style={{ height: "48px" }} />
                 </div>
                 <div style={{ margin: "4px 4px 0px 0px", width: "808px" }}>
@@ -344,7 +387,9 @@ function parseVoteCount(voteStr) {
               <div style={{ padding: "12px" }}>
                 {sortedData.map((entry, index) => {
                   const isMovie = entry.type === "Movie";
-                  const isTVShow = entry.type === "TV Series" || entry.type === "TV Mini Series";
+                  const isTVShow =
+                    entry.type === "TV Series" ||
+                    entry.type === "TV Mini Series";
                   return (
                     <div
                       style={{
@@ -385,10 +430,7 @@ function parseVoteCount(voteStr) {
                             />
                           </div>
                           <div>
-                            <Link
-                              key={entry.movieId}
-                              to={`/entry/${entry.id}`}
-                            >
+                            <Link key={entry.movieId} to={`/entry/${entry.id}`}>
                               <h2
                                 onMouseEnter={() => setHoveredId(entry.movieId)}
                                 onMouseLeave={() => setHoveredId(null)}
@@ -420,19 +462,21 @@ function parseVoteCount(voteStr) {
                                 alignItems: "center",
                               }}
                             >
-                              {entry.releaseDate !== "" && (<>
-                              <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {entry.releaseDate}
-                                {entry.type === "TV Series" &&
-                                  `—${entry.EndingYear}`}
-                              </p>
-                              
-                              {!isMovie && entry.episodes < 1 && (
-                                <p style={{ margin: "0 0.75rem 0 0" }}>
-                                  {entry.episodes} eps
-                                </p>
+                              {entry.releaseDate !== "" && (
+                                <>
+                                  <p style={{ margin: "0 0.75rem 0 0" }}>
+                                    {entry.releaseDate}
+                                    {entry.type === "TV Series" &&
+                                      `—${entry.EndingYear}`}
+                                  </p>
+
+                                  {!isMovie && entry.episodes < 1 && (
+                                    <p style={{ margin: "0 0.75rem 0 0" }}>
+                                      {entry.episodes} eps
+                                    </p>
+                                  )}
+                                </>
                               )}
-                              </>)}
                               {isMovie && (
                                 <p style={{ margin: "0 0.75rem 0 0" }}>
                                   {entry.MovieDuration}
@@ -452,8 +496,8 @@ function parseVoteCount(voteStr) {
                                           Number(entry.Metascore) >= 61
                                             ? "#54A72A"
                                             : Number(entry.Metascore) >= 40
-                                            ? "#ffcc33"
-                                            : "#ff0000",
+                                              ? "#ffcc33"
+                                              : "#ff0000",
                                         color: "white",
                                         padding: "2px 3px",
                                         fontSize: "0.85rem",
@@ -486,16 +530,16 @@ function parseVoteCount(voteStr) {
                                   alignItems: "center",
                                   height: "36px",
                                 }}
-                              >                                 
-                                  <div
-                                    style={{
-                                      color: "#757575",
-                                      display: "flex",
-                                      fontSize: "14px",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <svg
+                              >
+                                <div
+                                  style={{
+                                    color: "#757575",
+                                    display: "flex",
+                                    fontSize: "14px",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <svg
                                     width="14px"
                                     height="11.2px"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -511,92 +555,150 @@ function parseVoteCount(voteStr) {
                                   >
                                     <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.656 5.53-6.774.602c-1.234.102-1.739 1.718-.799 2.566l5.147 4.666-1.542 6.926c-.28 1.262.023 2.262 1.09 1.585L12 20.099z"></path>
                                   </svg>
-                                    <p style={{ margin: "0 4px 0 0" }}>
-                                      {entry.rating}
-                                    </p>
-                                    <p style={{ margin: "0 10px 0 0" }}>
-                                      ({formatVotes(entry.votes) || "N/A"})
-                                    </p>
-                                    <div
+                                  <p style={{ margin: "0 4px 0 0" }}>
+                                    {entry.rating}
+                                  </p>
+                                  <p style={{ margin: "0 10px 0 0" }}>
+                                    ({formatVotes(entry.votes) || "N/A"})
+                                  </p>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      padding: "0 12px 0 12px",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="14px"
+                                      height="11.2px"
+                                      class="ipc-icon ipc-icon--star-border-inline"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="presentation"
                                       style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        padding: "0 12px 0 12px",
+                                        color: "#0e63be",
+                                        paddingRight: 2,
                                       }}
                                     >
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="14px"
-                                    height="11.2px"
-                                        class="ipc-icon ipc-icon--star-border-inline"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                        role="presentation"
-                                        style={{
-                                          color: "#0e63be",
-                                          paddingRight: 2,
-                                        }}
-                                      >
-                                        <path d="M22.724 8.217l-6.786-.587-2.65-6.22c-.477-1.133-2.103-1.133-2.58 0l-2.65 6.234-6.772.573c-1.234.098-1.739 1.636-.8 2.446l5.146 4.446-1.542 6.598c-.28 1.202 1.023 2.153 2.09 1.51l5.818-3.495 5.819 3.509c1.065.643 2.37-.308 2.089-1.51l-1.542-6.612 5.145-4.446c.94-.81.45-2.348-.785-2.446zm-10.726 8.89l-5.272 3.174 1.402-5.983-4.655-4.026 6.141-.531 2.384-5.634 2.398 5.648 6.14.531-4.654 4.026 1.402 5.983-5.286-3.187z"></path>
-                                      </svg>
-                                      <p
-                                        style={{
-                                          color: "#0e63be",
-                                          margin: 0,
-                                          height: "20px"
-                                        }}
-                                      >
-                                        Rate
-                                      </p>
-                                    </div>
-                                    <div
+                                      <path d="M22.724 8.217l-6.786-.587-2.65-6.22c-.477-1.133-2.103-1.133-2.58 0l-2.65 6.234-6.772.573c-1.234.098-1.739 1.636-.8 2.446l5.146 4.446-1.542 6.598c-.28 1.202 1.023 2.153 2.09 1.51l5.818-3.495 5.819 3.509c1.065.643 2.37-.308 2.089-1.51l-1.542-6.612 5.145-4.446c.94-.81.45-2.348-.785-2.446zm-10.726 8.89l-5.272 3.174 1.402-5.983-4.655-4.026 6.141-.531 2.384-5.634 2.398 5.648 6.14.531-4.654 4.026 1.402 5.983-5.286-3.187z"></path>
+                                    </svg>
+                                    <p
                                       style={{
-                                        paddingLeft: 12,
-                                        display: "flex",
-                                        alignItems: "center",
+                                        color: "#0e63be",
+                                        margin: 0,
+                                        height: "20px",
                                       }}
                                     >
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        className="ipc-icon ipc-icon--visibility ipc-btn__icon ipc-btn__icon--pre watched-button--icon ipc-btn__icon--disable-margin"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                        role="presentation"
-                                        style={{
-                                          color: "#0e63be",
-                                          margin: "0 2px 0 0",
-                                          verticalAlign: "middle",
-                                          paddingRight: "2px",
-                                        }}
-                                      >
-                                        <path
-                                          d="M0 0h24v24H0V0z"
-                                          fill="none"
-                                        ></path>
-                                        <path d="M12 6c3.79 0 7.17 2.13 8.82 5.5C19.17 14.87 15.79 17 12 17s-7.17-2.13-8.82-5.5C4.83 8.13 8.21 6 12 6m0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 5c1.38 0 2.5 1.12 2.5 2.5S13.38 14 12 14s-2.5-1.12-2.5-2.5S10.62 9 12 9m0-2c-2.48 0-4.5 2.02-4.5 4.5S9.52 16 12 16s4.5-2.02 4.5-4.5S14.48 7 12 7z"></path>
-                                      </svg>
-                                      <p
-                                        style={{
-                                          color: "#0e63be",
-                                        }}
-                                      >
-                                        Marked as watched
-                                      </p>
-                                    </div>
+                                      Rate
+                                    </p>
                                   </div>
+                                  <div
+                                    style={{
+                                      paddingLeft: 12,
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      className="ipc-icon ipc-icon--visibility ipc-btn__icon ipc-btn__icon--pre watched-button--icon ipc-btn__icon--disable-margin"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      role="presentation"
+                                      style={{
+                                        color: "#0e63be",
+                                        margin: "0 2px 0 0",
+                                        verticalAlign: "middle",
+                                        paddingRight: "2px",
+                                      }}
+                                    >
+                                      <path
+                                        d="M0 0h24v24H0V0z"
+                                        fill="none"
+                                      ></path>
+                                      <path d="M12 6c3.79 0 7.17 2.13 8.82 5.5C19.17 14.87 15.79 17 12 17s-7.17-2.13-8.82-5.5C4.83 8.13 8.21 6 12 6m0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 5c1.38 0 2.5 1.12 2.5 2.5S13.38 14 12 14s-2.5-1.12-2.5-2.5S10.62 9 12 9m0-2c-2.48 0-4.5 2.02-4.5 4.5S9.52 16 12 16s4.5-2.02 4.5-4.5S14.48 7 12 7z"></path>
+                                    </svg>
+                                    <p
+                                      style={{
+                                        color: "#0e63be",
+                                      }}
+                                    >
+                                      Marked as watched
+                                    </p>
+                                  </div>
+                                </div>
                               </div>
                             ) : null}
                             {entry.rating === "0.0" && (
-                              <div style={{height: "28px", display: "flex", alignItems: "center"}}>
-                            <svg width="11" height="11" style={{color: "rgba(0,0,0,0.38)"}} xmlns="http://www.w3.org/2000/svg" class="ipc-icon ipc-icon--star-inline" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path></svg>
+                              <div
+                                style={{
+                                  height: "28px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <svg
+                                  width="11"
+                                  height="11"
+                                  style={{ color: "rgba(0,0,0,0.38)" }}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  class="ipc-icon ipc-icon--star-inline"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  role="presentation"
+                                >
+                                  <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path>
+                                </svg>
+                              </div>
+                            )}
                           </div>
-                          )}
-                            </div>
                         </li>
-                        <div>
-                          <img src={InforButton} alt="" />
+                        <div style={{ position: "relative" }}>
+                          <img
+                            src={InforButton}
+                            alt=""
+                            style={{ cursor: "pointer" }}
+                            onClick={(e) => {
+                              e.stopPropagation(); // 🔥 IMPORTANTE
+                              setActiveMenu(
+                                activeMenu === entry.id ? null : entry.id,
+                              );
+                            }}
+                          />
+
+                          {activeMenu === entry.id && (
+                            <div
+                              onClick={(e) => e.stopPropagation()} // 🔥 impede fechar ao clicar dentro
+                              style={{
+                                position: "absolute",
+                                right: 0,
+                                top: "30px",
+                                background: "white",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                                zIndex: 10,
+                                width: "140px",
+                              }}
+                            >
+                              <button
+                                style={menuItemStyle}
+                                onClick={() => handleEdit(entry.id)}
+                              >
+                                ✏️ Edit
+                              </button>
+
+                              <button
+                                style={menuItemStyle}
+                                onClick={() => handleDelete(entry.id)}
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div>

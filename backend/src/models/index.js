@@ -8,7 +8,9 @@ const VideoModel = require("./video");
 const CastModel = require("./cast");
 const EpisodeCastModel = require("./EpisodeCast");
 const AwardModel = require("./award");
-
+const PopularityModel = require("./popularity");
+const SummaryModel = require("./summary");
+const RatingModel = require("./rating");
 
 // Inicializar models
 const Entry = EntryModel(sequelize);
@@ -19,6 +21,9 @@ const Video = VideoModel(sequelize);
 const Cast = CastModel(sequelize);
 const EpisodeCast = EpisodeCastModel(sequelize);
 const Award = AwardModel(sequelize);
+const Popularity = PopularityModel(sequelize);
+const Summary = SummaryModel(sequelize);
+const Rating = RatingModel(sequelize);
 
 // 🔗 RELAÇÕES
 
@@ -65,6 +70,32 @@ Award.belongsTo(Entry, {
   foreignKey: "entryId",
 });
 
+// Entry → Popularity
+Entry.hasMany(Popularity, {
+  foreignKey: "entryId",
+  as: "popularityHistory",
+});
+
+Popularity.belongsTo(Entry, {
+  foreignKey: "entryId",
+  as: "entry",
+});
+
+// Entry → Summary
+Entry.hasOne(Summary, {
+  foreignKey: "entryId",
+  as: "summary",
+});
+
+Summary.belongsTo(Entry, {
+  foreignKey: "entryId",
+  as: "entry",
+});
+
+// Entry → Rating
+Entry.hasMany(Rating, { foreignKey: "entryId" });
+Rating.belongsTo(Entry, { foreignKey: "entryId" });
+
 // Episode → Awards
 Episode.hasMany(Award, {
   foreignKey: "episodeId",
@@ -74,6 +105,10 @@ Episode.hasMany(Award, {
 Award.belongsTo(Episode, {
   foreignKey: "episodeId",
 });
+
+// Episode → Rating
+Episode.hasMany(Rating, { foreignKey: "episodeId", as: "ratings" });
+Rating.belongsTo(Episode, { foreignKey: "episodeId" });
 
 // Season → Episodes
 Season.hasMany(Episode, {
@@ -119,4 +154,7 @@ module.exports = {
   Cast,
   EpisodeCast,
   Award,
+  Popularity,
+  Summary,
+  Rating,
 };

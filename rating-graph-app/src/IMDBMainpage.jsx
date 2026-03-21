@@ -10,7 +10,7 @@ import {
   getVideoThumbnail,
 } from "./ShowImageSrc";
 
-import '../src/Styles.css';
+import "../src/Styles.css";
 
 //Navbar
 import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
@@ -21,8 +21,6 @@ import EpisodeGuide from "./imgs/imdb/episodeguide.png";
 
 import VideoImg from "./imgs/imdb/videoimg.png";
 import ImgsSquares from "./imgs/imdb/imgsquares.png";
-import StarImdb from "./imgs/imdb/starimdb.png";
-import RateIMDB from "./imgs/imdb/rateimdb.png";
 
 import IMDBRating from "./imgs/imdb/imdbrating.png";
 import YourRating from "./imgs/imdb/yourrating.png";
@@ -65,9 +63,6 @@ import RelatedNews from "./imgs/imdb/relatednews.png";
 import ContributeToThisPage from "./imgs/imdb/contributetothispage.png";
 import MoreToExploreSticky from "./imgs/imdb/moretoexploresticky.png";
 
-//Data
-import { movieMap } from "./data/MovieMap";
-
 function SeriesPage() {
   const { movieId, episodeId } = useParams();
   const [data, setData] = useState(null);
@@ -82,110 +77,74 @@ function SeriesPage() {
   const [cast, setCast] = useState([]);
   const [videos, setVideos] = useState([]);
   const [allImages, setAllImages] = React.useState([]);
-
-  const urls = movieMap[movieId];
+  const [ranking, setRanking] = useState(null);
 
   useEffect(() => {
-    // Buscar e parsear CSV
-    fetch(urls[6])
-      .then((res) => res.text())
-      .then((csvText) => {
-        const parsed = Papa.parse(csvText, { header: true }).data;
-        console.log("CSV completo:", parsed); // <--- Mostra tudo que vem do CSV
-
-        // Filtra apenas os vídeos do movieId atual
-        const filtered = parsed.filter(
-          (v) => v.movieId === movieId || v.movieId === undefined,
+    const loadEntry = async () => {
+      try {
+        const res = await fetch(
+          `https://backend-ratinggraph.onrender.com/api/entries/${movieId}`,
         );
-        console.log("Vídeos filtrados para movieId:", movieId, filtered); // <--- Mostra os vídeos que vão ser renderizados
 
-        setVideos(filtered);
-      })
-      .catch((err) => console.error("Erro ao carregar vídeos:", err));
+        const data = await res.json();
+
+        console.log("ENTRY BACKEND:", data);
+
+        setData(data);
+        setAllEpisodes(data.seasons?.flatMap((s) => s.episodes) || []);
+        setCast(data.cast || []);
+        setVideos(data.videos || []);
+      } catch (err) {
+        console.error("Erro ao buscar entry", err);
+      }
+    };
+
+    loadEntry();
   }, [movieId]);
 
   useEffect(() => {
-    if (!urls || urls.length < 5) return;
+  const loadRanking = async () => {
+    try {
+      const res = await fetch(
+        `https://backend-ratinggraph.onrender.com/api/ranking/${movieId}`
+      );
 
-    fetch(urls[4]) // 👈 índice das Stars
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            setCast(results.data);
-          },
-        });
-      });
-  }, [movieId]);
+      const data = await res.json();
+      setRanking(data);
+    } catch (err) {
+      console.error("Erro ao buscar ranking", err);
+    }
+  };
 
-  useEffect(() => {
-    if (!urls || urls.length === 0) return;
-
-    fetch(urls[0])
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          complete: (results) => {
-            setData(results.data[0]);
-            console.log("CSV RAW DATA:", results.data[0]);
-          },
-          error: (err) => console.error("Erro ao carregar CSV", err),
-        });
-      });
-  }, [movieId]);
-
-  useEffect(() => {
-    if (!urls || urls.length < 2) return;
-
-    fetch(urls[1])
-      .then((res) => res.text())
-      .then((csv) => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            const episodes = results.data;
-
-            episodes.forEach((ep) => {
-              ep.Votes2 = ep.Votes2?.replace(/,/g, "") || "0";
-            });
-
-            setAllEpisodes(episodes);
-          },
-          error: (err) => console.error("Erro episódios CSV", err),
-        });
-      });
-  }, [movieId]);
+  if (movieId) loadRanking();
+}, [movieId]);
 
   function parseEpisodeDate(dateStr) {
-  if (!dateStr) return null;
+    if (!dateStr) return null;
 
-  // Se for apenas ano (ex: "2026")
-  if (/^\d{4}$/.test(dateStr)) {
-    return new Date(`${dateStr}-12-31`);
+    // Se for apenas ano (ex: "2026")
+    if (/^\d{4}$/.test(dateStr)) {
+      return new Date(`${dateStr}-12-31`);
+    }
+
+    return new Date(dateStr);
   }
 
-  return new Date(dateStr);
-}
+  useEffect(() => {
+    if (!allEpisodes.length) return;
 
-useEffect(() => {
-  if (!allEpisodes.length) return;
+    const now = new Date();
 
-  const now = new Date();
+    const futureEpisodes = allEpisodes
+      .map((ep) => {
+        const parsedDate = parseEpisodeDate(ep.Date);
+        return { ...ep, parsedDate };
+      })
+      .filter((ep) => ep.parsedDate && ep.parsedDate > now)
+      .sort((a, b) => a.parsedDate - b.parsedDate);
 
-  const futureEpisodes = allEpisodes
-    .map((ep) => {
-      const parsedDate = parseEpisodeDate(ep.Date);
-      return { ...ep, parsedDate };
-    })
-    .filter((ep) => ep.parsedDate && ep.parsedDate > now)
-    .sort((a, b) => a.parsedDate - b.parsedDate);
-
-  setNextEpisode(futureEpisodes[0] || null);
-}, [allEpisodes]);
+    setNextEpisode(futureEpisodes[0] || null);
+  }, [allEpisodes]);
 
   useEffect(() => {
     if (!allEpisodes.length) return;
@@ -194,19 +153,19 @@ useEffect(() => {
     const daysAgo30 = new Date(now);
     daysAgo30.setDate(now.getDate() - 30);
 
-const validEpisodes = allEpisodes.filter((ep) => {
-  const parsedDate = parseEpisodeDate(ep.Date);
+    const validEpisodes = allEpisodes.filter((ep) => {
+      const parsedDate = parseEpisodeDate(ep.Date);
 
-  const rating = parseFloat(ep["Average Rating 2"]);
-  const votes = parseInt(ep.Votes2);
-  const hasSynopsis = ep.Synopsis?.trim();
+      const rating = parseFloat(ep["Average Rating 2"]);
+      const votes = parseInt(ep.Votes2);
+      const hasSynopsis = ep.Synopsis?.trim();
 
-  return (
-    parsedDate &&
-    !isNaN(parsedDate) &&
-    (hasSynopsis || rating > 0 || votes > 0)
-  );
-});
+      return (
+        parsedDate &&
+        !isNaN(parsedDate) &&
+        (hasSynopsis || rating > 0 || votes > 0)
+      );
+    });
 
     if (!validEpisodes.length) {
       setRecentAndTopEpisodes([]);
@@ -275,65 +234,25 @@ const validEpisodes = allEpisodes.filter((ep) => {
     return result;
   }, [data]);
 
-  // Load cover and trailer images dynamically
-  useEffect(() => {
-    const loadImages = async () => {
-      if (movieId) {
-        const cover = await getShowCoverSrc(movieId);
-        const trailer = await getTrailerSrc(movieId);
-        setCoverSrc(cover);
-        setTrailerSrc(trailer);
-      }
-    };
-    loadImages();
-  }, [movieId]);
-
-  console.log("movieId da URL:", movieId);
-  console.log(
-    "Filmes disponíveis:",
-    movies.map((m) => m.id),
-  );
+  //USA PRIMEIRO VIDEO
+  const trailer = videos?.[0];
 
   useEffect(() => {
-    fetch(`https://backend-ratinggraph.onrender.com/api/all-images/${movieId}`) // ou URL do Render
+    fetch(`https://backend-ratinggraph.onrender.com/api/all-images/${movieId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Imagens do backend:", data); // <--- veja no console
         if (data?.images) setAllImages(data.images);
       });
-  }, []);
+  }, [movieId]);
 
   const sortedImages = useMemo(() => {
     return [...allImages].sort((a, b) => b.publicId.localeCompare(a.publicId));
   }, [allImages]);
 
-  if (!urls) return <p>Filme não encontrado</p>;
   if (!data) return <p>Carregando dados do filme...</p>;
 
-  const votesNumber = Number(data.Votes?.toString().replace(/[,]+/g, "")) || 0;
+  const votesNumber = Number(data.votes?.toString().replace(/[,]+/g, "")) || 0;
   const hasVotes = votesNumber > 0;
-
-  const renderListWithLimit = (listStr, limit = 3) => {
-    if (!listStr) return null;
-    const items = listStr
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const visible = items.slice(0, limit);
-    const hiddenCount = items.length - limit;
-
-    return (
-      <>
-        {visible.map((item, i) => (
-          <span key={i}>
-            {item}
-            {i < visible.length - 1 ? ", " : ""}
-          </span>
-        ))}
-        {hiddenCount > 0 && <span> +{hiddenCount} more</span>}
-      </>
-    );
-  };
 
   const GlobalStyle = createGlobalStyle`
   #root {
@@ -500,19 +419,19 @@ const validEpisodes = allEpisodes.filter((ep) => {
     Number(data.CriticReviews?.toString().replace(/[,]+/g, "")) || 0;
   const metascoreReviewsNumber =
     Number(data.Metascore?.toString().replace(/[,]+/g, "")) || 0;
-  const isMovie = data.Type === "Movie";
-  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
+  const isMovie = data.type === "movie";
+  const isTVShow = data.type === "series" || data.type === "miniseries";
 
-const getPluralLabel = (text, singular, plural) => {
-  if (!text) return singular;
+  const getPluralLabel = (text, singular, plural) => {
+    if (!text) return singular;
 
-  const items = text
-    .split(",")
-    .map(item => item.trim())
-    .filter(Boolean);
+    const items = text
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
-  return items.length > 1 ? plural : singular;
-};
+    return items.length > 1 ? plural : singular;
+  };
 
   return (
     <>
@@ -577,7 +496,7 @@ const getPluralLabel = (text, singular, plural) => {
                             marginRight: "6px",
                           }}
                         >
-                          {data.Episodes}
+                          {data.episodes}
                         </p>
                         <ChevronRight
                           size={20}
@@ -602,7 +521,7 @@ const getPluralLabel = (text, singular, plural) => {
                   }}
                 />
               </div>
-              {data.Type === "Movie" && (
+              {data.type === "movie" && (
                 <div style={{ width: "12px", height: "2px" }}></div>
               )}
 
@@ -628,7 +547,7 @@ const getPluralLabel = (text, singular, plural) => {
                       top: "3px",
                     }}
                   >
-                    {data.Title}
+                    {data.title}
                   </h1>
                   <div
                     style={{
@@ -645,23 +564,23 @@ const getPluralLabel = (text, singular, plural) => {
                   >
                     {!isMovie && (
                       <>
-                        {data.Type}
+                        {data.type}
                         <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                           ·
                         </span>
                       </>
                     )}
-                    {data.BeginingYear !== "" && (
+                    {data.releaseDate !== "" && (
                       <>
-                        {data.BeginingYear}
-                        {data.Type === "TV Series" &&
+                        {data.releaseDate}
+                        {data.type === "series" &&
                           `—${data.EndingYear || ""}`}
                         <span style={{ fontWeight: "bold", margin: "0 7px" }}>
                           ·
                         </span>
                       </>
                     )}
-                    {data.AgeRating}
+                    {data.ageRating}
                     {!isMovie && (
                       <>
                         {hasVotes && (
@@ -718,95 +637,97 @@ const getPluralLabel = (text, singular, plural) => {
                         }}
                       />
                       <Link to={`/imdb/${movieId}/ratings`}>
-                      <div
-                        className="round-container-hover"
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          padding: "0 8px 0 8px",
-                          position: "relative",
-                          top: "-2px",
-                        }}
-                      >
-                        <svg
-                        style={{
-                          marginRight:"0.25rem",
-                          color:"rgb(245,197,24)",
-                          position: "relative",
-                          top: "2px"
-                        }}
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="32"
-                          height="32"
-                          class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          role="presentation"
-                        >
-                          <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
-                        </svg>
                         <div
+                          className="round-container-hover"
                           style={{
                             display: "flex",
-                            flexDirection: "column",
+                            justifyContent: "center",
+                            padding: "0 8px 0 8px",
                             position: "relative",
-                            top: "-1px",
-                            paddingRight: "0.25rem",
+                            top: "-2px",
                           }}
                         >
+                          <svg
+                            style={{
+                              marginRight: "0.25rem",
+                              color: "rgb(245,197,24)",
+                              position: "relative",
+                              top: "2px",
+                            }}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="32"
+                            height="32"
+                            class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            role="presentation"
+                          >
+                            <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
+                          </svg>
                           <div
                             style={{
-                              lineHeight: "1.5rem",
-                              marginBottom: "-0.125rem",
                               display: "flex",
-                              alignItems: "center",
+                              flexDirection: "column",
+                              position: "relative",
+                              top: "-1px",
+                              paddingRight: "0.25rem",
                             }}
                           >
-                            <span
+                            <div
                               style={{
-                                fontSize: "1.25rem",
-                                color: "white",
-                                letterSpacing: "0.0125em",
-                                fontWeight: "600",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                paddingRight: "0.125rem",
                                 lineHeight: "1.5rem",
+                                marginBottom: "-0.125rem",
+                                display: "flex",
+                                alignItems: "center",
                               }}
                             >
-                              {data.Rating}
-                            </span>
+                              <span
+                                style={{
+                                  fontSize: "1.25rem",
+                                  color: "white",
+                                  letterSpacing: "0.0125em",
+                                  fontWeight: "600",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  paddingRight: "0.125rem",
+                                  lineHeight: "1.5rem",
+                                }}
+                              >
+                                {data.rating}
+                              </span>
+                              <span
+                                style={{
+                                  color: "rgb(255,255,255,0.7)",
+                                  fontSize: "1rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontWeight: "500",
+                                  letterSpacing: "0.03125em",
+                                  lineHeight: "1.5rem",
+                                  position: "relative",
+                                  top: "1px",
+                                }}
+                              >
+                                /10
+                              </span>
+                            </div>
+
                             <span
                               style={{
-                                color: "rgb(255,255,255,0.7)",
-                                fontSize: "1rem",
-                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                                fontWeight: "500",
-                                letterSpacing: "0.03125em",
-                                lineHeight: "1.5rem",
+                                fontSize: "0.75rem",
+                                color: "#BCBCBC",
                                 position: "relative",
-                                top: "1px",
+                                letterSpacing: "0.03333em",
+                                lineHeight: "1rem",
+                                fontWeight: "400",
+                                WebkitTextStroke: "0.1px #BCBCBC",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                               }}
                             >
-                              /10
+                              {formatVotes(data.votes) || "N/A"}
                             </span>
                           </div>
-
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              color: "#BCBCBC",
-                              position: "relative",
-                              letterSpacing: "0.03333em",
-                              lineHeight: "1rem",
-                              fontWeight: "400",
-                              WebkitTextStroke: "0.1px #BCBCBC",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            }}
-                          >
-                            {formatVotes(data.Votes) || "N/A"}
-                          </span>
                         </div>
-                      </div>
                       </Link>
                     </div>
                   )}
@@ -828,36 +749,52 @@ const getPluralLabel = (text, singular, plural) => {
                         }}
                       />
                       <div
-                      className="round-container-hover"
+                        className="round-container-hover"
                         style={{
                           display: "flex",
                           justifyContent: "center",
-                          alignItems:"center",
+                          alignItems: "center",
                           position: "relative",
                           padding: "1px 8px 1px 8px",
                         }}
                       >
-                        <svg style={{
-                          marginRight:"0.25rem",
-                          marginBottom:"0.125rem",
-                          color:"rgb(87,153,239)",
-                          position: "relative",
-                        }} xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="ipc-icon ipc-icon--star-border sc-c3f6308f-4 haKFkk" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path fill="none" d="M0 0h24v24H0V0z"></path><path d="M19.65 9.04l-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"></path></svg>
-                      <span style={{
-                        paddingRight:"0.25rem",
-                        lineHeight:"1.5rem",
-                        fontFamily:"Roboto,Helvetica,Arial,sans-serif",
-                        fontSize:"1.25rem",
-                        fontWeight:"600",
-                        letterSpacing:"0.0125em",
-                        color:"rgb(87,153,239)",
-                      }}>Rate</span>
+                        <svg
+                          style={{
+                            marginRight: "0.25rem",
+                            marginBottom: "0.125rem",
+                            color: "rgb(87,153,239)",
+                            position: "relative",
+                          }}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="32"
+                          height="32"
+                          class="ipc-icon ipc-icon--star-border sc-c3f6308f-4 haKFkk"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path fill="none" d="M0 0h24v24H0V0z"></path>
+                          <path d="M19.65 9.04l-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"></path>
+                        </svg>
+                        <span
+                          style={{
+                            paddingRight: "0.25rem",
+                            lineHeight: "1.5rem",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontSize: "1.25rem",
+                            fontWeight: "600",
+                            letterSpacing: "0.0125em",
+                            color: "rgb(87,153,239)",
+                          }}
+                        >
+                          Rate
+                        </span>
                       </div>
                     </div>
                   )}
 
                   <Link
-                    to={"https://www.imdb.com/chart/tvmeter/?ref_=tt_ov_pop"}
+                    to={"#"}
                     style={{
                       cursor: "pointer",
                     }}
@@ -889,13 +826,13 @@ const getPluralLabel = (text, singular, plural) => {
                         }}
                       >
                         <img
-                          src={
-                            data.PopStatus === "up"
-                              ? ArrowUp
-                              : data.PopStatus === "down"
-                                ? ArrowDown
-                                : ArrowStay
-                          }
+      src={
+        ranking?.change > 0
+          ? ArrowUp
+          : ranking?.change < 0
+          ? ArrowDown
+          : ArrowStay
+      }
                           alt=""
                           style={{ marginRight: "4px" }}
                         />
@@ -913,11 +850,11 @@ const getPluralLabel = (text, singular, plural) => {
                             top: "1px",
                           }}
                         >
-                          {data.Popularity}
+                          {ranking?.rank}
                         </span>
 
                         {/* Condicional para SmallArrowUp */}
-                        {data.PopStatus !== "stay" && (
+                        {ranking?.change !== 0 && (
                           <div
                             style={{
                               width: "24px",
@@ -934,9 +871,9 @@ const getPluralLabel = (text, singular, plural) => {
                               style={{
                                 width: "8px",
                                 position: "relative",
-                                top: data.PopStatus === "down" ? "1px" : "0px",
+                                top: ranking?.change < 0 ? "1px" : "0px",
                                 transform:
-                                  data.PopStatus === "down"
+                                  ranking?.change < 0
                                     ? "rotate(180deg)"
                                     : "rotate(0deg)",
                                 transformOrigin: "center center",
@@ -947,7 +884,7 @@ const getPluralLabel = (text, singular, plural) => {
                           </div>
                         )}
                         {/* Texto PopUp aparece só se PopStatus diferente de "stay" */}
-                        {data.PopStatus !== "stay" && (
+                        {ranking?.change !== 0 && (
                           <span
                             style={{
                               color: "rgba(255,255,255,0.7)",
@@ -960,7 +897,7 @@ const getPluralLabel = (text, singular, plural) => {
                               top: "1px",
                             }}
                           >
-                            {data.PopUp}
+                            {Math.abs(ranking?.change)}
                           </span>
                         )}
                       </div>
@@ -980,7 +917,7 @@ const getPluralLabel = (text, singular, plural) => {
               >
                 <div>
                   <img
-                    src={coverSrc}
+                    src={data.coverImage}
                     alt=""
                     loading="lazy"
                     style={{
@@ -993,7 +930,7 @@ const getPluralLabel = (text, singular, plural) => {
                 </div>
                 <div style={{ margin: "0 auto", position: "relative" }}>
                   <img
-                    src={trailerSrc}
+                    src={trailer?.thumbnailUrl || ""}
                     alt=""
                     style={{
                       width: "737.2px",
@@ -1103,7 +1040,7 @@ const getPluralLabel = (text, singular, plural) => {
                             left: "-7px",
                           }}
                         >
-                          {data.trailerDuration}
+                          {trailer?.duration || ""}
                         </span>
                       </div>
                     </div>
@@ -1153,7 +1090,9 @@ const getPluralLabel = (text, singular, plural) => {
                         fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                       }}
                     >
-                      {data.Videos}
+                      {videos?.length === 1
+  ? "1 VIDEO"
+  : `${videos?.length || 0} VIDEOS`}
                     </p>
                   </button>
                   <button
@@ -1190,7 +1129,9 @@ const getPluralLabel = (text, singular, plural) => {
                         fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                       }}
                     >
-                      {data.Photos}
+                      {allImages?.length === 1
+  ? "1 PHOTO"
+  : `${allImages?.length || 0} PHOTOS`}
                     </p>
                   </button>
                 </div>
@@ -1220,9 +1161,9 @@ const getPluralLabel = (text, singular, plural) => {
                       margin: "0px 0 12px 0",
                     }}
                   >
-                    {(data?.Genres
+                    {(data?.genres
                       ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
-                        data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
+                        data.genres.split(/(?<!\,\s)\,(?!\s\,)/)
                           .map((genre) => genre.trim())
                           .filter((genre) => genre)
                       : []
@@ -1273,7 +1214,7 @@ const getPluralLabel = (text, singular, plural) => {
                       paddingBottom: "12px",
                     }}
                   >
-                    {data.Synopsis}
+                    {data.description}
                   </div>
                   <div
                     style={{
@@ -1294,7 +1235,7 @@ const getPluralLabel = (text, singular, plural) => {
                         color: "white",
                       }}
                     >
-                      {getPluralLabel(data.Creators, "Creator", "Creators")}
+                      {getPluralLabel(data.creators, "Creator", "Creators")}
                     </p>
                     <p
                       style={{
@@ -1306,7 +1247,7 @@ const getPluralLabel = (text, singular, plural) => {
                         lineHeight: "1.5rem",
                       }}
                     >
-                      {renderListWithDotSeparator(data.Creators)}
+                      {renderListWithDotSeparator(data.creators)}
                     </p>
                   </div>
                   {!isTVShow && (
@@ -1329,7 +1270,7 @@ const getPluralLabel = (text, singular, plural) => {
                           color: "white",
                         }}
                       >
-                        {getPluralLabel(data.Writers, "Writer", "Writers")}
+                        {getPluralLabel(data.writers, "Writer", "Writers")}
                       </p>
                       <p
                         style={{
@@ -1341,11 +1282,11 @@ const getPluralLabel = (text, singular, plural) => {
                           lineHeight: "1.5rem",
                         }}
                       >
-                        {renderListWithDotSeparator(data.Writers)}
+                        {renderListWithDotSeparator(data.writers)}
                       </p>
                     </div>
                   )}
-                  {data.Cast > 0 && (
+                  {cast?.length > 0 && (
                     <>
                       {Array.isArray(cast) &&
                         cast.length > 0 &&
@@ -1397,7 +1338,7 @@ const getPluralLabel = (text, singular, plural) => {
                                     }}
                                   >
                                     {renderListWithDotSeparator(
-                                      topThree.map((actor) => actor.Name),
+                                      topThree.map((actor) => actor.name),
                                     )}
                                   </p>
                                 </div>

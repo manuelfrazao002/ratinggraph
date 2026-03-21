@@ -37,6 +37,21 @@ module.exports = (sequelize) => {
     topRank: {
       type: DataTypes.INTEGER,
     },
+    ageRating: {
+      type: DataTypes.TEXT,
+    },
+    genres: {
+      type: DataTypes.JSON, // array tipo ["Drama", "Action"]
+    },
+    creators: {
+      type: DataTypes.JSON, // ["Vince Gilligan"]
+    },
+    writers: {
+      type: DataTypes.JSON,
+    },
+    directors: {
+      type: DataTypes.JSON,
+    },
   });
 
   return Entry;
