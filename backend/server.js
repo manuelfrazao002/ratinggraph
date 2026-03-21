@@ -20,7 +20,7 @@ app.use(
 app.use(express.json());
 
 //Rotas
-app.use("/", routes);
+app.use("/api", routes);
 
 // Health check
 app.get("/health", async (req, res) => {
