@@ -487,19 +487,19 @@ function MovieList() {
                                 </p>
                               )}
                               <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {entry.AgeRating}
+                                {entry.ageRating}
                               </p>
                               <p style={{ margin: "0 0.75rem 0 0" }}>
                                 {entry.type === "Movie" &&
-                                entry.Metascore &&
-                                entry.Metascore !== "N/A" ? (
+                                entry.metascore &&
+                                entry.metascore !== "N/A" ? (
                                   <>
                                     <span
                                       style={{
                                         backgroundColor:
-                                          Number(entry.Metascore) >= 61
+                                          Number(entry.metascore) >= 61
                                             ? "#54A72A"
-                                            : Number(entry.Metascore) >= 40
+                                            : Number(entry.metascore) >= 40
                                               ? "#ffcc33"
                                               : "#ff0000",
                                         color: "white",
@@ -511,7 +511,7 @@ function MovieList() {
                                         marginRight: "4px",
                                       }}
                                     >
-                                      {entry.Metascore}
+                                      {entry.metascore}
                                     </span>
                                     <span
                                       style={{
@@ -638,7 +638,7 @@ function MovieList() {
                                 </div>
                               </div>
                             ) : null}
-                            {entry.rating === "0.0" && (
+                            {entry.status === "not aired" && (
                               <div
                                 style={{
                                   height: "28px",
