@@ -1,11 +1,25 @@
 const express = require("express");
+require("dotenv").config();
 const multer = require("multer");
 const cors = require("cors");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const sequelize = require("./src/lib/db");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+sequelize.sync({ alter: true })
+  .then(() => {
+    console.log("Database synced");
+
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Erro ao sincronizar DB:", error);
+  });
 
 // Middlewares
 app.use(
