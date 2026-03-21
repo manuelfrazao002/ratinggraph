@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 
 const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
-function CreateEntryPage() {
+function EditEntryPage() {
+  const { id } = useParams();
+
   const [form, setForm] = useState({
     title: "",
     type: "",
@@ -16,7 +18,35 @@ function CreateEntryPage() {
   });
 
   const [image, setImage] = useState(null);
+  const [existingImage, setExistingImage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 🔥 carregar dados
+  useEffect(() => {
+    const loadEntry = async () => {
+      try {
+        const res = await fetch(`${API_URL}/entries/${id}`);
+        const data = await res.json();
+
+        setForm({
+          title: data.title || "",
+          type: data.type || "series",
+          description: data.description || "",
+          releaseDate: data.releaseDate?.split("T")[0] || "",
+          genres: data.genres?.join(", ") || "",
+          creators: data.creators?.join(", ") || "",
+          writers: data.writers?.join(", ") || "",
+          directors: data.directors?.join(", ") || "",
+        });
+
+        setExistingImage(data.coverImage);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadEntry();
+  }, [id]);
 
   const handleChange = (e) => {
     setForm({
@@ -33,7 +63,6 @@ function CreateEntryPage() {
     setLoading(true);
 
     try {
-      // 🔥 preparar dados
       const payload = {
         ...form,
         genres: parseArray(form.genres),
@@ -42,57 +71,56 @@ function CreateEntryPage() {
         directors: parseArray(form.directors),
       };
 
-      // 🔥 1. criar entry
-      const res = await fetch(`${API_URL}/entries`, {
-        method: "POST",
+      // 🔥 UPDATE
+      await fetch(`${API_URL}/entries/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
-      const entry = await res.json();
-
-      // 🔥 2. upload cover
+      // 🔥 IMAGE
       if (image) {
         const formData = new FormData();
         formData.append("image", image);
 
-        await fetch(`${API_URL}/upload/cover/${entry.id}`, {
+        await fetch(`${API_URL}/upload/cover/${id}`, {
           method: "POST",
           body: formData,
         });
       }
 
-      alert("Entry criada com sucesso 🚀");
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao criar entry");
+      alert("Atualizado com sucesso 🚀");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 600, margin: "0 auto" }}>
+    <div style={{ padding: 20, maxWidth: 700, margin: "0 auto" }}>
       <Link to="/imdb/list">
         <span>{"< Back"}</span>
       </Link>
 
-      <h1>Criar Entry</h1>
+      <h1>Editar Entry</h1>
 
       <form
         onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 10 }}
+        style={{ display: "flex", flexDirection: "column", gap: 12 }}
       >
         <input
           name="title"
+          value={form.title}
           placeholder="Título"
           onChange={handleChange}
           required
         />
 
-        <select name="type" onChange={handleChange}>
+        <select name="type" value={form.type} onChange={handleChange}>
           <option value="movie">Filme</option>
           <option value="series">Série</option>
           <option value="anime">Anime</option>
@@ -100,6 +128,7 @@ function CreateEntryPage() {
 
         <textarea
           name="description"
+          value={form.description}
           placeholder="Descrição"
           onChange={handleChange}
         />
@@ -107,35 +136,49 @@ function CreateEntryPage() {
         <input
           type="date"
           name="releaseDate"
+          value={form.releaseDate}
           onChange={handleChange}
         />
 
         {/* 🔥 NOVOS CAMPOS */}
         <input
           name="genres"
+          value={form.genres}
           placeholder="Genres (Drama, Action)"
           onChange={handleChange}
         />
 
         <input
           name="creators"
-          placeholder="Creators (Vince Gilligan)"
+          value={form.creators}
+          placeholder="Creators"
           onChange={handleChange}
         />
 
         <input
           name="writers"
-          placeholder="Writers (Name1, Name2)"
+          value={form.writers}
+          placeholder="Writers"
           onChange={handleChange}
         />
 
         <input
           name="directors"
-          placeholder="Directors (Name1, Name2)"
+          value={form.directors}
+          placeholder="Directors"
           onChange={handleChange}
         />
 
-        {/* IMAGE */}
+        {/* 🔥 IMAGEM ATUAL */}
+        {existingImage && !image && (
+          <img
+            src={existingImage}
+            alt="current"
+            style={{ width: 150, borderRadius: 8 }}
+          />
+        )}
+
+        {/* 🔥 NOVA IMAGEM */}
         <input
           type="file"
           onChange={(e) => setImage(e.target.files[0])}
@@ -154,17 +197,19 @@ function CreateEntryPage() {
           type="submit"
           disabled={loading}
           style={{
-            padding: 10,
+            padding: 12,
             background: "#f5c518",
             border: "none",
             cursor: "pointer",
+            fontWeight: "600",
+            borderRadius: 8,
           }}
         >
-          {loading ? "A criar..." : "Criar"}
+          {loading ? "A guardar..." : "Guardar alterações"}
         </button>
       </form>
     </div>
   );
 }
 
-export default CreateEntryPage;
+export default EditEntryPage;

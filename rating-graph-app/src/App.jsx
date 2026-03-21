@@ -15,6 +15,7 @@ import MyAnimeList from "./myanimelist";
 import MyAnimeListPageDetails from "./myanimelistPageDetails";
 import MyAnimeListPageStats from "./myanimelistPageStats";
 import CreateEntryPage from "./pages/CreateEntryPage";
+import EditEntryPage from "./pages/EditEntryPage";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
         <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails key={location.pathname} />} />
         <Route path="/admin/create" element={<CreateEntryPage />} />
+        <Route path="/admin/edit/:id" element={<EditEntryPage />} />
         <Route path="/ratinggraph/list" element={<RatingList />} />
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
         <Route path="/anime/:id" element={<MyAnimeListPageDetails />} />

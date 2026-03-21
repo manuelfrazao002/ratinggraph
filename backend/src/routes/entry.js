@@ -44,6 +44,23 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await Entry.update(req.body, {
+      where: { id },
+    });
+
+    const updated = await Entry.findByPk(id);
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao atualizar entry" });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     await Entry.destroy({
