@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require("../config/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 const { handleCoverUpload } = require("../controllers/uploadController");
