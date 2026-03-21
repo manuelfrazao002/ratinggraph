@@ -2313,8 +2313,8 @@ function SeriesPage() {
                           letterSpacing: "0.02em",
                         }}
                       >
-                        {data.season} season{data.season > 1 ? "s" : ""}
-                        {data.season > 1 && (
+                        {data.totalSeasons} season{data.totalSeasons > 1 ? "s" : ""}
+                        {data.totalSeasons > 1 && (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -2329,7 +2329,7 @@ function SeriesPage() {
                           </svg>
                         )}
                       </span>
-                      {data.Years > 1 && (
+                      {data.totalYears > 1 && (
                         <span
                           style={{
                             display: "flex",
@@ -2344,7 +2344,7 @@ function SeriesPage() {
                             letterSpacing: "0.02em",
                           }}
                         >
-                          {data.Years} year{data.Years > 1 ? "s" : ""}
+                          {data.totalYears} year{data.totalYears > 1 ? "s" : ""}
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -2359,7 +2359,7 @@ function SeriesPage() {
                           </svg>
                         </span>
                       )}
-                      {data.Years === "1" && (
+                      {data.totalYears === "1" && (
                         <span
                           style={{
                             display: "flex",
@@ -2374,7 +2374,7 @@ function SeriesPage() {
                             letterSpacing: "0.02em",
                           }}
                         >
-                          {data.BeginingYear}
+                          {data.releaseDate}
                         </span>
                       )}
                     </div>
@@ -6133,7 +6133,7 @@ function SeriesPage() {
                             fontWeight: "400",
                           }}
                         >
-                          {data.Storyline}
+                          {data.storyline}
                         </span>
                         —
                         <span
@@ -6145,7 +6145,7 @@ function SeriesPage() {
                             fontFamily: "Roboto,Helvetica,Arial,sans-serif",
                           }}
                         >
-                          {data.StorylineAuthor}
+                          {data.storylineAuthor}
                         </span>
                       </div>
                       <div
@@ -6156,8 +6156,8 @@ function SeriesPage() {
                         }}
                       >
                         <PlotKeywords
-                          keyword={data.PlotKeywords}
-                          total={data.PlotKeywords2}
+                          keyword={data.plotKeywords}
+                          total={data.plotKeywords}
                         />
                       </div>
                       <div style={{ marginTop: "16px" }}>
@@ -6229,7 +6229,7 @@ function SeriesPage() {
                             lineHeight: "1.5rem",
                           }}
                         >
-                          {data.Tagline}
+                          {data.tagline}
                         </span>
                         <div
                           style={{

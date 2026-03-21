@@ -23,6 +23,21 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const episode = await Episode.findByPk(req.params.id);
+
+    if (!episode) {
+      return res.status(404).json({ error: "Episode não encontrado" });
+    }
+
+    res.json(episode);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao buscar episode" });
+  }
+});
+
 // Buscar por season
 router.get("/season/:seasonId", async (req, res) => {
   try {

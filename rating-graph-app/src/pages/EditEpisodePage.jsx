@@ -24,10 +24,10 @@ function EditEpisodePage() {
         const data = await res.json();
 
         setForm({
-          title: data.title || "",
-          number: data.number || "",
-          releaseDate: data.releaseDate?.split("T")[0] || "",
-          synopsis: data.synopsis || "",
+          title: data.title ?? "",
+          number: data.number ?? "",
+          releaseDate: data.airDate?.split("T")[0] ?? "",
+          synopsis: data.description ?? "",
         });
       } catch (err) {
         console.error(err);
@@ -57,8 +57,10 @@ function EditEpisodePage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...form,
+          title: form.title,
           number: Number(form.number),
+          airDate: form.releaseDate,
+          description: form.synopsis,
         }),
       });
 

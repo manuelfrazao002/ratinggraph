@@ -21,13 +21,20 @@ const Chip = ({ text }) => (
   </span>
 );
 
-const parseList = (value) =>
-  value
-    ? value
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean)
-    : [];
+const parseList = (value) => {
+  if (!value) return [];
+
+  if (Array.isArray(value)) return value;
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
 
 const PlotKeywords = ({ keyword = "", total = "" }) => {
   const keywords = parseList(keyword);
@@ -40,9 +47,9 @@ const PlotKeywords = ({ keyword = "", total = "" }) => {
         gap: "8px",
       }}
     >
-      {keywords.map((text, i) => (
+      {keywords.slice(0, 5).map((text, i) => (
         <Chip
-          key={`p-${i}`}
+          key={`keyword-${i}`}
           text={text}
           color="#1F9E46"
           icon={
@@ -70,10 +77,10 @@ const PlotKeywords = ({ keyword = "", total = "" }) => {
           }
         />
       ))}
-      {totals.map((text, i) => (
+      {keywords.length > 5 && (
         <Chip
-          key={`p-${i}`}
-          text={text}
+          key="total"
+          text={`+${keywords.length - 5} more`}
           color="#1F9E46"
           icon={
             <svg
@@ -99,7 +106,7 @@ const PlotKeywords = ({ keyword = "", total = "" }) => {
             </svg>
           }
         />
-      ))}
+      )}
     </div>
   );
 };
