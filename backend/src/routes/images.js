@@ -1,6 +1,6 @@
 // backend/routes/images.js
 const express = require("express");
-const { v2: cloudinary } = require("cloudinary");
+const cloudinary = require("../config/cloudinary");
 
 cloudinary.config({
   cloud_name: "duaapwky8",
