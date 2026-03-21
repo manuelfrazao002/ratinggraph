@@ -62,20 +62,24 @@ const updateEntry = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const entry = await Entry.findByPk(id);
+
+    if (!entry) {
+      return res.status(404).json({ error: "Entry não encontrada" });
+    }
+
     const payload = {
       ...req.body,
     };
 
-    // 🔥 atualizar slug se mudar título
+    // 🔥 slug automático
     if (req.body.title) {
       payload.slug = slugify(req.body.title);
     }
 
-    await Entry.update(payload, { where: { id } });
+    await entry.update(payload); // 🔥 AQUI está a diferença
 
-    const updated = await Entry.findByPk(id);
-
-    res.json(updated);
+    res.json(entry);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao atualizar entry" });

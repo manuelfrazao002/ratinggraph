@@ -8,6 +8,7 @@ function EditEntryPage() {
 
   const [form, setForm] = useState({
     title: "",
+    slug: "",
     type: "series",
     status: "not aired",
     endingYear: "",
@@ -42,6 +43,7 @@ function EditEntryPage() {
 
         setForm({
           title: data.title || "",
+          slug: data.slug || "",
           type: data.type || "series",
           status: data.status || "not aired",
           endingYear: data.endingYear || "",
@@ -93,7 +95,7 @@ function EditEntryPage() {
     try {
       const payload = {
         ...form,
-        endingYear: form.endingYear || null,
+        endingYear: form.endingYear ? Number(form.endingYear) : null,
 
         genres: parseArray(form.genres),
         creators: parseArray(form.creators),
@@ -158,6 +160,13 @@ function EditEntryPage() {
           placeholder="Título"
           onChange={handleChange}
           required
+        />
+
+        <input
+          name="slug"
+          value={form.slug}
+          placeholder="slug (ex: breaking-bad)"
+          onChange={handleChange}
         />
 
         <select name="type" value={form.type} onChange={handleChange}>
