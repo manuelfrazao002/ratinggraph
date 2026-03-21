@@ -8,14 +8,25 @@ function EditEntryPage() {
 
   const [form, setForm] = useState({
     title: "",
-    type: "",
+    type: "series",
+    status: "not aired",
+    endingYear: "",
     description: "",
+    summary: "",
+    storyline: "",
+    tagline: "",
     releaseDate: "",
     ageRating: "",
     genres: "",
     creators: "",
     writers: "",
     directors: "",
+    storylineAuthor: "",
+    plotKeywords: "",
+    countriesOrigin: "",
+    language: "",
+    alsoknownas: "",
+    productionCompanies: "",
   });
 
   const [image, setImage] = useState(null);
@@ -32,12 +43,25 @@ function EditEntryPage() {
         setForm({
           title: data.title || "",
           type: data.type || "series",
+          status: data.status || "not aired",
+          endingYear: data.endingYear || "",
           description: data.description || "",
+          summary: data.summary || "",
+          storyline: data.storyline || "",
+          tagline: data.tagline || "",
           releaseDate: data.releaseDate?.split("T")[0] || "",
-          genres: data.genres?.join(", ") || "",
-          creators: data.creators?.join(", ") || "",
-          writers: data.writers?.join(", ") || "",
-          directors: data.directors?.join(", ") || "",
+          ageRating: data.ageRating || "",
+
+          genres: (data.genres || []).join(", "),
+          creators: (data.creators || []).join(", "),
+          writers: (data.writers || []).join(", "),
+          directors: (data.directors || []).join(", "),
+          storylineAuthor: (data.storylineAuthor || []).join(", "),
+          plotKeywords: (data.plotKeywords || []).join(", "),
+          countriesOrigin: (data.countriesOrigin || []).join(", "),
+          language: (data.language || []).join(", "),
+          alsoknownas: (data.alsoknownas || []).join(", "),
+          productionCompanies: (data.productionCompanies || []).join(", "),
         });
 
         setExistingImage(data.coverImage);
@@ -57,7 +81,10 @@ function EditEntryPage() {
   };
 
   const parseArray = (str) =>
-    str.split(",").map((s) => s.trim()).filter(Boolean);
+    str
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,10 +93,19 @@ function EditEntryPage() {
     try {
       const payload = {
         ...form,
+        endingYear: form.endingYear || null,
+
         genres: parseArray(form.genres),
         creators: parseArray(form.creators),
         writers: parseArray(form.writers),
         directors: parseArray(form.directors),
+
+        storylineAuthor: parseArray(form.storylineAuthor),
+        plotKeywords: parseArray(form.plotKeywords),
+        countriesOrigin: parseArray(form.countriesOrigin),
+        language: parseArray(form.language),
+        alsoknownas: parseArray(form.alsoknownas),
+        productionCompanies: parseArray(form.productionCompanies),
       };
 
       // 🔥 UPDATE
@@ -111,8 +147,11 @@ function EditEntryPage() {
 
       <form
         onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12 }}
+        style={{ display: "flex", flexDirection: "column", gap: 16 }}
       >
+        {/* BASIC */}
+        <h3>Basic Info</h3>
+
         <input
           name="title"
           value={form.title}
@@ -127,12 +166,21 @@ function EditEntryPage() {
           <option value="anime">Anime</option>
         </select>
 
-        <textarea
-          name="description"
-          value={form.description}
-          placeholder="Descrição"
-          onChange={handleChange}
-        />
+        <select name="status" value={form.status} onChange={handleChange}>
+          <option value="not aired">Not aired</option>
+          <option value="running">Running</option>
+          <option value="ended">Ended</option>
+        </select>
+
+        {form.type === "series" && form.status === "ended" && (
+          <input
+            type="number"
+            name="endingYear"
+            value={form.endingYear}
+            placeholder="Ending Year"
+            onChange={handleChange}
+          />
+        )}
 
         <input
           type="date"
@@ -140,26 +188,31 @@ function EditEntryPage() {
           value={form.releaseDate}
           onChange={handleChange}
         />
-      
+
         <input
           name="ageRating"
-          placeholder="Age Rating"
+          value={form.ageRating}
+          placeholder="Age Rating (ex: TV-MA)"
           onChange={handleChange}
-          required
         />
 
-        {/* 🔥 NOVOS CAMPOS */}
-        <input
-          name="genres"
-          value={form.genres}
-          placeholder="Genres (Drama, Action)"
+        {/* DESCRIPTION */}
+        <h3>Description</h3>
+
+        <textarea
+          name="description"
+          value={form.description}
+          placeholder="Descrição"
           onChange={handleChange}
         />
+
+        {/* PEOPLE */}
+        <h3>People</h3>
 
         <input
           name="creators"
           value={form.creators}
-          placeholder="Creators"
+          placeholder="Creators (comma separated)"
           onChange={handleChange}
         />
 
@@ -177,26 +230,102 @@ function EditEntryPage() {
           onChange={handleChange}
         />
 
-        {/* 🔥 IMAGEM ATUAL */}
+        {/* GENRES */}
+        <h3>Genres</h3>
+
+        <input
+          name="genres"
+          value={form.genres}
+          placeholder="Drama, Action"
+          onChange={handleChange}
+        />
+
+        <h3>Story</h3>
+
+        <input
+          name="tagline"
+          value={form.tagline}
+          placeholder="Tagline"
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="summary"
+          value={form.summary}
+          placeholder="Summary"
+          onChange={handleChange}
+        />
+
+        <textarea
+          name="storyline"
+          value={form.storyline}
+          placeholder="Storyline"
+          onChange={handleChange}
+        />
+
+        <input
+          name="storylineAuthor"
+          value={form.storylineAuthor}
+          placeholder="Storyline Author(s)"
+          onChange={handleChange}
+        />
+
+        <h3>Details</h3>
+
+        <input
+          name="countriesOrigin"
+          value={form.countriesOrigin}
+          placeholder="Countries (USA, UK)"
+          onChange={handleChange}
+        />
+
+        <input
+          name="language"
+          value={form.language}
+          placeholder="Languages (English, Spanish)"
+          onChange={handleChange}
+        />
+
+        <input
+          name="alsoknownas"
+          value={form.alsoknownas}
+          placeholder="Also known as"
+          onChange={handleChange}
+        />
+
+        <input
+          name="productionCompanies"
+          value={form.productionCompanies}
+          placeholder="Production Companies"
+          onChange={handleChange}
+        />
+
+        <h3>Keywords</h3>
+
+        <input
+          name="plotKeywords"
+          value={form.plotKeywords}
+          placeholder="Keywords (drug trade, cartel)"
+          onChange={handleChange}
+        />
+
+        {/* IMAGE */}
+        <h3>Cover</h3>
+
         {existingImage && !image && (
           <img
             src={existingImage}
-            alt="current"
+            alt=""
             style={{ width: 150, borderRadius: 8 }}
           />
         )}
 
-        {/* 🔥 NOVA IMAGEM */}
-        <input
-          type="file"
-          onChange={(e) => setImage(e.target.files[0])}
-        />
+        <input type="file" onChange={(e) => setImage(e.target.files[0])} />
 
-        {/* PREVIEW */}
         {image && (
           <img
             src={URL.createObjectURL(image)}
-            alt="preview"
+            alt=""
             style={{ width: 150, borderRadius: 8 }}
           />
         )}
