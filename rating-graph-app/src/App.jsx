@@ -14,6 +14,7 @@ import RatingList from "./RatingList";
 import MyAnimeList from "./myanimelist";
 import MyAnimeListPageDetails from "./myanimelistPageDetails";
 import MyAnimeListPageStats from "./myanimelistPageStats";
+import CreateEntryPage from "./pages/CreateEntryPage";
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/imdb/:movieId/ratings/:episodeId" element={<RatingsEpisodeDetail key={location.pathname} />} />
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
         <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails key={location.pathname} />} />
+        <Route path="/admin/create" element={<CreateEntryPage />} />
         <Route path="/ratinggraph/list" element={<RatingList />} />
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
         <Route path="/anime/:id" element={<MyAnimeListPageDetails />} />
