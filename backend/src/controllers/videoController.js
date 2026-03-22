@@ -3,7 +3,7 @@ const { Video } = require("../models");
 const uploadVideo = async (req, res) => {
   try {
     const { entryId } = req.params;
-    const { title, type } = req.body;
+    const { title, type, duration } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ error: "Imagem não enviada" });
@@ -15,6 +15,7 @@ const uploadVideo = async (req, res) => {
       title,
       url: imageUrl, // 👈 usa o campo url como imagem
       type,
+      duration,
       entryId,
     });
 

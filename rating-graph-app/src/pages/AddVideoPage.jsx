@@ -1,17 +1,28 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 
-export default function AddVideoPage() {
+const API_URL = "https://backend-ratinggraph.onrender.com/api/videos";
+
+function AddVideoPage() {
   const { movieId } = useParams();
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState("");
-  const [type, setType] = useState("trailer");
+  const [form, setForm] = useState({
+    title: "",
+    type: "trailer",
+    duration: "",
+  });
+
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "https://backend-ratinggraph.onrender.com/api/videos";
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
@@ -26,7 +37,7 @@ export default function AddVideoPage() {
     e.preventDefault();
 
     if (!thumbnail) {
-      alert("Precisas de uma thumbnail");
+      alert("Precisas de uma imagem");
       return;
     }
 
@@ -35,8 +46,8 @@ export default function AddVideoPage() {
 
       const formData = new FormData();
       formData.append("thumbnail", thumbnail);
-      formData.append("title", title);
-      formData.append("type", type);
+      formData.append("title", form.title);
+      formData.append("type", form.type);
 
       const res = await fetch(`${API_URL}/${movieId}`, {
         method: "POST",
@@ -44,10 +55,9 @@ export default function AddVideoPage() {
       });
 
       const data = await res.json();
-
       console.log("VIDEO CRIADO:", data);
 
-      navigate(`/entry/${movieId}`); // volta à página
+      navigate(`/entry/${movieId}`);
     } catch (err) {
       console.error(err);
       alert("Erro ao criar vídeo");
@@ -57,71 +67,74 @@ export default function AddVideoPage() {
   };
 
   return (
-    <div style={{ padding: "40px", color: "black", minHeight: "100vh" }}>
+    <div style={{ padding: 20, maxWidth: 600, margin: "0 auto" }}>
+      {/* BACK */}
+      <Link to={`/entry/${movieId}`}>
+        <span>{"< Back"}</span>
+      </Link>
+
       <h1>Adicionar Vídeo</h1>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: 500 }}>
-        {/* TITLE */}
-        <label>Título</label>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", flexDirection: "column", gap: 16 }}
+      >
+        {/* BASIC */}
+        <h3>Informação</h3>
+
         <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={inputStyle}
+          name="title"
+          value={form.title}
+          placeholder="Título do vídeo"
+          onChange={handleChange}
+          required
         />
 
-        {/* TYPE */}
-        <label>Tipo</label>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          style={inputStyle}
-        >
+        <select name="type" value={form.type} onChange={handleChange}>
           <option value="trailer">Trailer</option>
           <option value="clip">Clip</option>
           <option value="opening">Opening</option>
           <option value="ending">Ending</option>
         </select>
 
-        {/* THUMBNAIL */}
-        <label>Thumbnail</label>
+        <input
+          name="duration"
+          value={form.duration}
+          placeholder="Duração (ex: 150 (2:30))"
+          onChange={handleChange}
+        />
+
+        {/* IMAGE */}
+        <h3>Imagem</h3>
+
         <input type="file" onChange={handleThumbnailChange} />
 
-        {/* PREVIEW */}
         {preview && (
           <img
             src={preview}
             alt="preview"
-            style={{ width: "100%", marginTop: 10, borderRadius: 8 }}
+            style={{ width: 200, borderRadius: 8 }}
           />
         )}
 
-        {/* BUTTON */}
+        {/* SUBMIT */}
         <button
           type="submit"
           disabled={loading}
           style={{
-            marginTop: 20,
-            padding: "10px 20px",
-            background: "#F5C518",
+            padding: 12,
+            background: "#f5c518",
             border: "none",
-            borderRadius: 8,
             cursor: "pointer",
-            fontWeight: "bold",
+            fontWeight: "600",
+            borderRadius: 8,
           }}
         >
-          {loading ? "A enviar..." : "Adicionar Vídeo"}
+          {loading ? "A enviar..." : "Adicionar"}
         </button>
       </form>
     </div>
   );
 }
 
-const inputStyle = {
-  display: "block",
-  width: "100%",
-  padding: "10px",
-  marginBottom: "15px",
-  borderRadius: "6px",
-  border: "none",
-};
+export default AddVideoPage;

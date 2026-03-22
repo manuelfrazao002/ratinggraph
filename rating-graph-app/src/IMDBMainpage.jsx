@@ -1,12 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import Papa from "papaparse";
 import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, MilkIcon } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
-  getShowCoverSrc,
-  getTrailerSrc,
   getVideoThumbnail,
 } from "./ShowImageSrc";
 
@@ -251,7 +248,7 @@ useEffect(() => {
   }, [data]);
 
   //USA PRIMEIRO VIDEO
-  const trailer = videos?.[0];
+const trailer = videos.find(v => v.type === "trailer") || videos[0];
 
   useEffect(() => {
     fetch(`https://backend-ratinggraph.onrender.com/api/all-images/${movieId}`)
@@ -493,6 +490,8 @@ function formatDateLong(dateStr) {
     year: "numeric",
   });
 }
+
+console.log("VIDEOS:", data);
 
   return (
     <>
@@ -992,7 +991,7 @@ function formatDateLong(dateStr) {
                 </div>
                 <div style={{ margin: "0 auto", position: "relative" }}>
                   <img
-                    src={trailer?.thumbnailUrl || ""}
+                    src={trailer?.url || ""}
                     alt=""
                     style={{
                       width: "737.2px",
@@ -2371,6 +2370,7 @@ function formatDateLong(dateStr) {
                   )}
 
                   {/*Videos*/}
+                  {videos?.length > 0 && (
                   <section
                     style={{
                       padding: "24px",
@@ -5038,6 +5038,7 @@ function formatDateLong(dateStr) {
                       </div>
                     </div>
                   </section>
+                  )}
 
                   {/*Images*/}
                   {data.Photos2 > 0 &&

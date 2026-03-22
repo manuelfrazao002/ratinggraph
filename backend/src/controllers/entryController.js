@@ -1,4 +1,4 @@
-const { Entry, Season, Episode } = require("../models");
+const { Entry, Season, Episode, Video } = require("../models");
 
 // 🔥 helper slug
 const slugify = (text) =>
@@ -47,7 +47,16 @@ const getEntryById = async (req, res) => {
         {
           model: Season,
           as: "seasons",
-          include: [{ model: Episode, as: "episodes" }],
+          include: [
+            {
+              model: Episode,
+              as: "episodes",
+            },
+          ],
+        },
+        {
+          model: Video,
+          as: "videos",
         },
       ],
     });
@@ -60,8 +69,7 @@ const getEntryById = async (req, res) => {
     const totalSeasons = entry.seasons?.length || 0;
 
     // 🔥 todos episódios
-    const allEpisodes =
-      entry.seasons?.flatMap((s) => s.episodes || []) || [];
+    const allEpisodes = entry.seasons?.flatMap((s) => s.episodes || []) || [];
 
     // 🔥 anos únicos
     const yearsSet = new Set();
