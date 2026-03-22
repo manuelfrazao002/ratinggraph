@@ -97,6 +97,9 @@ module.exports = (sequelize) => {
       type: DataTypes.JSON,
       defaultValue: []
     },
+    watchlistNumber: {
+      type: DataTypes.INTEGER,
+    },
   });
 
   return Entry;

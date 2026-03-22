@@ -6,37 +6,17 @@ const { EntryImage } = require("../models");
 
 const router = express.Router();
 
-router.get("/all-images/:movieId", async (req, res) => {
-  try {
-    const { movieId } = req.params;
-
-    const result = await cloudinary.api.resources({
-      type: "upload",
-      prefix: `rating-graph/show/${movieId}/imgs`,
-      max_results: 500,
-    });
-
-    const images = result.resources.map(img => ({
-      url: img.secure_url,
-      publicId: img.public_id
-    }));
-
-    res.json({ images });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao buscar imagens" });
-  }
-});
-
 // guardar em memória (não disco)
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// ✅ CREATE IMAGE
+/* =========================
+   ✅ CREATE IMAGE (AUTO ORDER)
+========================= */
 router.post("/:entryId", upload.single("image"), async (req, res) => {
   try {
     const { entryId } = req.params;
-    const { type, order } = req.body;
+    const { type } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ error: "Sem imagem" });
@@ -57,12 +37,21 @@ router.post("/:entryId", upload.single("image"), async (req, res) => {
       stream.end(req.file.buffer);
     });
 
+    // 🔥 AUTO ORDER
+    const lastImage = await EntryImage.findOne({
+      where: { entryId },
+      order: [["order", "DESC"]],
+    });
+
+    const nextOrder = lastImage ? lastImage.order + 1 : 0;
+
     // 🔥 guardar na BD
     const image = await EntryImage.create({
       entryId,
       url: result.secure_url,
       type: type || "gallery",
-      order: order || 0,
+      order: nextOrder,
+      publicId: result.public_id, // 🔥 MUITO IMPORTANTE
     });
 
     res.json(image);
@@ -72,6 +61,9 @@ router.post("/:entryId", upload.single("image"), async (req, res) => {
   }
 });
 
+/* =========================
+   ✅ DELETE IMAGE
+========================= */
 router.delete("/:id", async (req, res) => {
   try {
     const image = await EntryImage.findByPk(req.params.id);
@@ -80,15 +72,22 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ error: "Imagem não encontrada" });
     }
 
-    // 🔥 opcional: apagar também do cloudinary
-    // extrair public_id do URL (hack simples)
-    const parts = image.url.split("/");
-    const filename = parts[parts.length - 1];
-    const publicId = `rating-graph/entries/${image.entryId}/images/${filename.split(".")[0]}`;
-
-    await cloudinary.uploader.destroy(publicId);
+    // 🔥 apagar do cloudinary (clean 🔥)
+    if (image.publicId) {
+      await cloudinary.uploader.destroy(image.publicId);
+    }
 
     await image.destroy();
+
+    // 🔥 reorganizar order (sem buracos)
+    const images = await EntryImage.findAll({
+      where: { entryId: image.entryId },
+      order: [["order", "ASC"]],
+    });
+
+    for (let i = 0; i < images.length; i++) {
+      await images[i].update({ order: i });
+    }
 
     res.json({ message: "Imagem apagada" });
   } catch (err) {
