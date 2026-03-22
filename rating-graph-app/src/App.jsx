@@ -25,18 +25,27 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<SitesList/>}/>
-        <Route path="/imdb/list" element={<SeriesList/>}/>
+        <Route path="/" element={<SitesList />} />
+        <Route path="/imdb/list" element={<SeriesList />} />
         <Route path="/ratinggraph/:movieId" element={<RatingsPage />} />
         <Route path="/entry/:movieId" element={<IMDBMainPage />} />
         <Route path="/entry/:movieId/ratings" element={<RatingsDetail />} />
-        <Route path="/entry/:movieId/ratings/:episodeId" element={<RatingsEpisodeDetail key={location.pathname} />} />
+        <Route
+          path="/entry/:movieId/ratings/:episodeId"
+          element={<RatingsEpisodeDetail key={location.pathname} />}
+        />
         <Route path="/episodepage/:movieId" element={<EpisodePage />} />
-        <Route path="/episodepage/:movieId/:episodeId" element={<EpisodeDetails key={location.pathname} />} />
+        <Route
+          path="/episodepage/:movieId/:episodeId"
+          element={<EpisodeDetails key={location.pathname} />}
+        />
         <Route path="/admin/create" element={<CreateEntryPage />} />
         <Route path="/admin/edit/:id" element={<EditEntryPage />} />
         <Route path="/admin/edit/:id/episodes" element={<EditSeasonsPage />} />
-        <Route path="/admin/edit/:id/episodes/:episodeId" element={<EditEpisodePage />} />
+        <Route
+          path="/admin/edit/:id/episodes/:episodeId"
+          element={<EditEpisodePage />}
+        />
         <Route path="/admin/edit/:movieId/videos" element={<AddVideoPage />} />
         <Route path="/videos/:movieId" element={<VideosPage />} />
         <Route path="/ratinggraph/list" element={<RatingList />} />

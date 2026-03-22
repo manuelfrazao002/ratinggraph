@@ -1165,6 +1165,7 @@ const formatDuration = (seconds) => {
                     </p>
                   </button>
                   </Link>
+                  <Link to={`/images/${movieId}`}>
                   <button
                     style={{
                       display: "flex",
@@ -1204,6 +1205,7 @@ const formatDuration = (seconds) => {
                         : `${allImages?.length || 0} PHOTOS`}
                     </p>
                   </button>
+                  </Link>
                 </div>
               </section>
 

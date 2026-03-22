@@ -1,4 +1,4 @@
-const { Entry, Season, Episode, Video } = require("../models");
+const { Entry, Season, Episode, Video, EntryImage } = require("../models");
 
 // 🔥 helper slug
 const slugify = (text) =>
