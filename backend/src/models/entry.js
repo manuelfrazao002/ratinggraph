@@ -44,6 +44,7 @@ module.exports = (sequelize) => {
     },
     topRank: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     ageRating: {
       type: DataTypes.STRING,

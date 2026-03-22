@@ -78,31 +78,31 @@ function SeriesPage() {
   const API_URL = "https://backend-ratinggraph.onrender.com/api";
 
   useEffect(() => {
-const loadEntry = async () => {
-  try {
-    const res = await fetch(`${API_URL}/entries/${movieId}`);
-    const data = await res.json();
+    const loadEntry = async () => {
+      try {
+        const res = await fetch(`${API_URL}/entries/${movieId}`);
+        const data = await res.json();
 
-    console.log("ENTRY BACKEND:", data);
+        console.log("ENTRY BACKEND:", data);
 
-    setData(data);
-    setAllImages(data.images || []); // 🔥 AQUI
+        setData(data);
+        setAllImages(data.images || []); // 🔥 AQUI
 
-    setAllEpisodes(
-      data.seasons?.flatMap((s) =>
-        (s.episodes || []).map((ep) => ({
-          ...ep,
-          season: s.number,
-        }))
-      ) || []
-    );
+        setAllEpisodes(
+          data.seasons?.flatMap((s) =>
+            (s.episodes || []).map((ep) => ({
+              ...ep,
+              season: s.number,
+            })),
+          ) || [],
+        );
 
-    setCast(data.cast || []);
-    setVideos(data.videos || []);
-  } catch (err) {
-    console.error("Erro ao buscar entry", err);
-  }
-};
+        setCast(data.cast || []);
+        setVideos(data.videos || []);
+      } catch (err) {
+        console.error("Erro ao buscar entry", err);
+      }
+    };
 
     loadEntry();
   }, [movieId]);
@@ -1687,21 +1687,21 @@ const loadEntry = async () => {
                         Add to Watchlist
                       </p>
                       {data.watchlistNumber >= 1000 && (
-                      <p
-                        style={{
-                          margin: 0,
-                          color: "black",
-                          fontSize: "0.75em",
-                          letterSpacing: "0.03333em",
-                          position: "relative",
-                          bottom: "1.2px",
-                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                          fontWeight: 400,
-                        }}
-                      >
-                        Added by {formatNumberWatchList(data.watchlistNumber)}{" "}
-                        users
-                      </p>
+                        <p
+                          style={{
+                            margin: 0,
+                            color: "black",
+                            fontSize: "0.75em",
+                            letterSpacing: "0.03333em",
+                            position: "relative",
+                            bottom: "1.2px",
+                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                            fontWeight: 400,
+                          }}
+                        >
+                          Added by {formatNumberWatchList(data.watchlistNumber)}{" "}
+                          users
+                        </p>
                       )}
                     </div>
                     <div
@@ -2480,13 +2480,12 @@ const loadEntry = async () => {
                           }}
                         >
                           {/* Primeira linha: 2 vídeos */}
-                          {videos.slice(0, 2).map((video) => (<><Link
-                              to={`/videos/${movieId}`}>
+                          {videos.slice(0, 2).map((video) => (
                             <div
                               key={video.videoId}
                               style={{ flex: "0 0 calc(50% - 1rem)" }} // 50% da largura - metade do gap
                             >
-                              <div style={{ position: "relative" }}>                                
+                              <div style={{ position: "relative" }}>
                                 <img
                                   src={video?.url || ""}
                                   alt={video.title}
@@ -3768,13 +3767,10 @@ const loadEntry = async () => {
                                 )}
                               </div>
                             </div>
-                            </Link>
-                          </>))}
+                          ))}
 
                           {/* Segunda linha: 4 vídeos */}
                           {videos.slice(2, 6).map((video) => (
-                            <><Link
-                              to={`/videos/${movieId}`}>
                             <div
                               key={video.videoId}
                               style={{
@@ -5063,8 +5059,7 @@ const loadEntry = async () => {
                                 )}
                               </div>
                             </div>
-                            </Link>
-                          </>))}
+                          ))}
                         </div>
                       </div>
                     </section>
@@ -5073,7 +5068,7 @@ const loadEntry = async () => {
                   {/*Images*/}
                   {totalImages > 0 &&
                     (() => {
-                      const remainingCount = Math.max(totalImages - 5, 0);
+                      const remainingCount = Math.max(totalImages - 4, 0);
                       return (
                         <section
                           style={{
@@ -5253,9 +5248,12 @@ const loadEntry = async () => {
                                   ))}
                                 {/* Overlay */}
                                 {totalImages < 2 && (
-                                  <Link to={`/images/${movieId}`} style={{
-                                    display: "flex",
-                                  }}>
+                                  <Link
+                                    to={`/images/${movieId}`}
+                                    style={{
+                                      display: "flex",
+                                    }}
+                                  >
                                     <div
                                       style={{
                                         position: "relative",
@@ -5398,20 +5396,19 @@ const loadEntry = async () => {
                             }}
                           />
                           <div>
-                              <h3
-                                style={{
-                                  padding: "0 0 0 10px",
-                                  margin: 0,
-                                  fontSize: "1.5rem",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  letterSpacing: "normal",
-                                  lineHeight: "1.2em",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                Photos
-                              </h3>
+                            <h3
+                              style={{
+                                padding: "0 0 0 10px",
+                                margin: 0,
+                                fontSize: "1.5rem",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                letterSpacing: "normal",
+                                lineHeight: "1.2em",
+                                fontWeight: "600",
+                              }}
+                            >
+                              Photos
+                            </h3>
                           </div>
                           <div
                             style={{
