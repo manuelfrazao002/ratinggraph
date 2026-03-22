@@ -52,7 +52,7 @@ function App() {
         <Route path="/videos/:movieId" element={<VideosPage />} />
 
         <Route path="/images/:entryId" element={<ImagesPage />} />
-        <Route path="/images/add/:entryId" element={<AddImagePage />} />
+        <Route path="/admin/edit/:entryId/images" element={<AddImagePage />} />
 
         <Route path="/ratinggraph/list" element={<RatingList />} />
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
