@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    publicId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   });
 
   return EntryImage;
