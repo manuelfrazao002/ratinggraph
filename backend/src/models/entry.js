@@ -103,6 +103,10 @@ module.exports = (sequelize) => {
     lastTrafficUpdate: {
       type: DataTypes.DATE,
     },
+    votes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
   });
 
   return Entry;
