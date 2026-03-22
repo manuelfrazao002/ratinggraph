@@ -720,7 +720,7 @@ export default function Episodes() {
                         color: "rgb(0,0,0)",
                       }}
                     >
-                      {currentEpisode["Average Rating"]}
+                      {currentEpisode["Average Rating 2"]}
                     </span>
                     <span
                       style={{
