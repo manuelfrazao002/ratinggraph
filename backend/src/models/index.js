@@ -11,6 +11,7 @@ const AwardModel = require("./award");
 const PopularityModel = require("./popularity");
 const SummaryModel = require("./summary");
 const RatingModel = require("./rating");
+const EntryImageModel = require("./entryImage");
 
 // Inicializar models
 const Entry = EntryModel(sequelize);
@@ -24,6 +25,7 @@ const Award = AwardModel(sequelize);
 const Popularity = PopularityModel(sequelize);
 const Summary = SummaryModel(sequelize);
 const Rating = RatingModel(sequelize);
+const EntryImage = EntryImageModel(sequelize);
 
 // 🔗 RELAÇÕES
 
@@ -34,6 +36,17 @@ Entry.hasMany(Season, {
 });
 
 Season.belongsTo(Entry, {
+  foreignKey: "entryId",
+  as: "entry",
+});
+
+// Entry → Images
+Entry.hasMany(EntryImage, {
+  foreignKey: "entryId",
+  as: "images",
+});
+
+EntryImage.belongsTo(Entry, {
   foreignKey: "entryId",
   as: "entry",
 });
@@ -158,4 +171,5 @@ module.exports = {
   Summary,
   Rating,
   Video,
+  EntryImage,
 };

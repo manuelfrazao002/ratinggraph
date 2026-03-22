@@ -491,7 +491,14 @@ function formatDateLong(dateStr) {
   });
 }
 
-console.log("VIDEOS:", data.videos);
+const formatDuration = (seconds) => {
+  if (!seconds && seconds !== 0) return "";
+
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+
+  return `${min}:${sec.toString().padStart(2, "0")}`;
+};
 
   return (
     <>
@@ -1101,7 +1108,7 @@ console.log("VIDEOS:", data.videos);
                             left: "-7px",
                           }}
                         >
-                          {trailer?.duration || ""}
+                          {formatDuration(trailer?.duration)}
                         </span>
                       </div>
                     </div>
@@ -1117,7 +1124,7 @@ console.log("VIDEOS:", data.videos);
                     maxHeight: "414.667px",
                   }}
                 >
-                  <Link to={`/admin/edit/${movieId}/videos`}>
+                  <Link to={`/videos/${movieId}`}>
                   <button
                     style={{
                       display: "flex",
@@ -2471,8 +2478,8 @@ console.log("VIDEOS:", data.videos);
                           >
                             <div style={{ position: "relative" }}>
                               <img
-                                src={getVideoThumbnail(movieId, video.videoId)}
-                                alt={video.Title}
+                                src={video?.url || ""}
+                                alt={video.title}
                                 style={{
                                   width: "396px",
                                   height: "222.75px",
@@ -2552,9 +2559,10 @@ console.log("VIDEOS:", data.videos);
                                       left: "-4px",
                                       fontFamily:
                                         "Roboto,Helvetica,Arial,sans-serif",
+                                      textTransform: "capitalize",
                                     }}
                                   >
-                                    {video.Type}
+                                    {video.type}
                                   </span>
                                   <span
                                     style={{
@@ -2564,7 +2572,7 @@ console.log("VIDEOS:", data.videos);
                                       fontSize: "0.875rem",
                                     }}
                                   >
-                                    {video.Duration}
+                                    {formatDuration(video?.duration)}
                                   </span>
                                 </div>
                               </div>
@@ -2586,7 +2594,7 @@ console.log("VIDEOS:", data.videos);
                                 margin: "0",
                               }}
                             >
-                              {video.Title}
+                              {video.title}
                             </p>
                             <div
                               style={{

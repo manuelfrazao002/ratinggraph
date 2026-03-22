@@ -83,7 +83,7 @@ function AddVideoPage() {
   return (
     <div style={{ padding: 20, maxWidth: 600, margin: "0 auto" }}>
       {/* BACK */}
-      <Link to={`/entry/${movieId}`}>
+      <Link to={`/videos/${movieId}`}>
         <span>{"< Back"}</span>
       </Link>
 

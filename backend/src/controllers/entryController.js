@@ -58,6 +58,10 @@ const getEntryById = async (req, res) => {
           model: Video,
           as: "videos",
         },
+        {
+          model: EntryImage,
+          as: "images",
+        },
       ],
     });
 

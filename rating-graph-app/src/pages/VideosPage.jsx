@@ -1,76 +1,140 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 const API = "https://backend-ratinggraph.onrender.com/api";
 
 function VideosPage() {
   const { movieId } = useParams();
+  const navigate = useNavigate();
+
   const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/entries/${movieId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setVideos(data.videos || []);
-      });
+    loadVideos();
   }, [movieId]);
 
-const handleDelete = async (videoId) => {
-  console.log("DELETE CLICK:", videoId); // 👈 DEBUG
+  const loadVideos = async () => {
+    try {
+      const res = await fetch(`${API}/entries/${movieId}`);
+      const data = await res.json();
+      setVideos(data.videos || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const confirmDelete = window.confirm("Apagar vídeo?");
-  if (!confirmDelete) return;
+  const handleDelete = async (videoId) => {
+    const confirmDelete = window.confirm("Apagar vídeo?");
+    if (!confirmDelete) return;
 
-  try {
-    await fetch(`${API}/videos/${videoId}`, {
-      method: "DELETE",
-    });
+    try {
+      setLoading(true);
 
-    setVideos((prev) => prev.filter((v) => v.id !== videoId));
-  } catch (err) {
-    console.error(err);
-  }
+      await fetch(`${API}/videos/${videoId}`, {
+        method: "DELETE",
+      });
+
+      // 🔥 reload clean
+      await loadVideos();
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao apagar");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDuration = (seconds) => {
+  if (!seconds && seconds !== 0) return "";
+
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+
+  return `${min}:${sec.toString().padStart(2, "0")}`;
 };
 
   return (
-    <div style={{ padding: 20 }}>
-      <Link to={`/entry/${movieId}`}>⬅ Back</Link>
+    <div style={{ padding: 20, maxWidth: 700, margin: "0 auto" }}>
+      
+      {/* BACK */}
+      <Link to={`/entry/${movieId}`}>
+        <span>{"< Back"}</span>
+      </Link>
 
       <h1>Videos</h1>
 
-      {videos.length === 0 && <p>Sem vídeos</p>}
+      {/* ACTIONS */}
+      <div style={{ marginBottom: 20 }}>
+        <button
+          onClick={() => navigate(`/admin/edit/${movieId}/videos`)}
+          style={{
+            padding: 10,
+            background: "#f5c518",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "600",
+            borderRadius: 8,
+          }}
+        >
+          + Adicionar Vídeo
+        </button>
+      </div>
 
-      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+      {/* LIST */}
+      <h3>Lista de Vídeos</h3>
+
+      {videos.length === 0 && (
+        <p style={{ color: "#666" }}>Sem vídeos ainda</p>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {videos.map((video) => (
           <div
             key={video.id}
             style={{
-              width: 250,
-              background: "#111",
-              padding: 10,
+              display: "flex",
+              gap: 16,
+              alignItems: "center",
+              border: "1px solid #ddd",
+              padding: 12,
               borderRadius: 10,
-              color: "white",
+              background: "#fafafa",
             }}
           >
+            {/* THUMB */}
             <img
               src={video.thumbnail}
               alt=""
-              style={{ width: "100%", borderRadius: 8 }}
+              style={{
+                width: 120,
+                height: 70,
+                objectFit: "cover",
+                borderRadius: 6,
+              }}
             />
 
-            <h4>{video.title}</h4>
+            {/* INFO */}
+            <div style={{ flex: 1 }}>
+              <h4 style={{ margin: 0 }}>{video.title}</h4>
 
-            <p>{video.type}</p>
+              <p style={{ margin: "4px 0", color: "#666" }}>
+                {video.type} • {formatDuration(video?.duration)}
+              </p>
+            </div>
 
+            {/* ACTIONS */}
             <button
               onClick={() => handleDelete(video.id)}
+              disabled={loading}
               style={{
+                padding: "6px 10px",
                 background: "red",
                 border: "none",
-                padding: 8,
-                cursor: "pointer",
                 color: "white",
+                cursor: "pointer",
                 borderRadius: 6,
+                fontWeight: "500",
               }}
             >
               Apagar
