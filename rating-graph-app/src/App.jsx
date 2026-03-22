@@ -18,6 +18,7 @@ import CreateEntryPage from "./pages/CreateEntryPage";
 import EditEntryPage from "./pages/EditEntryPage";
 import EditSeasonsPage from "./pages/EditSeasonPage";
 import EditEpisodePage from "./pages/EditEpisodePage";
+import AddVideoPage from "./pages/AddVideoPage";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="/admin/edit/:id" element={<EditEntryPage />} />
         <Route path="/admin/edit/:id/episodes" element={<EditSeasonsPage />} />
         <Route path="/admin/edit/:id/episodes/:episodeId" element={<EditEpisodePage />} />
+        <Route path="/admin/edit/:movieId/videos" element={<AddVideoPage />} />
         <Route path="/ratinggraph/list" element={<RatingList />} />
         <Route path="/myanimelist/list" element={<MyAnimeList />} />
         <Route path="/anime/:id" element={<MyAnimeListPageDetails />} />

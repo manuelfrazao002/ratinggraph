@@ -3,24 +3,23 @@ const { Video } = require("../models");
 const uploadVideo = async (req, res) => {
   try {
     const { entryId } = req.params;
-    const { title, url, type } = req.body;
+    const { title, type } = req.body;
 
     if (!req.file) {
-      return res.status(400).json({ error: "Thumbnail não enviada" });
+      return res.status(400).json({ error: "Imagem não enviada" });
     }
 
-    const thumbnail = req.file.path;
+    const imageUrl = req.file.path; // 👈 Cloudinary
 
     const video = await Video.create({
       title,
-      url,
+      url: imageUrl, // 👈 usa o campo url como imagem
       type,
-      thumbnail,
       entryId,
     });
 
     res.json({
-      message: "Video criado com thumbnail",
+      message: "Imagem de video criada",
       video,
     });
   } catch (error) {

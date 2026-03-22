@@ -94,7 +94,14 @@ function SeriesPage() {
         console.log("ENTRY BACKEND:", data);
 
         setData(data);
-        setAllEpisodes(data.seasons?.flatMap((s) => s.episodes) || []);
+        setAllEpisodes(
+  data.seasons?.flatMap((s) =>
+    (s.episodes || []).map((ep) => ({
+      ...ep,
+      season: s.number, // 🔥 ESSENCIAL
+    })),
+  ) || [],
+);
         setCast(data.cast || []);
         setVideos(data.videos || []);
       } catch (err) {
@@ -139,21 +146,21 @@ function SeriesPage() {
     return new Date(dateStr);
   }
 
-  useEffect(() => {
-    if (!allEpisodes.length) return;
+useEffect(() => {
+  if (!allEpisodes.length) return;
 
-    const now = new Date();
+  const now = new Date();
 
-    const futureEpisodes = allEpisodes
-      .map((ep) => {
-        const parsedDate = parseEpisodeDate(ep.Date);
-        return { ...ep, parsedDate };
-      })
-      .filter((ep) => ep.parsedDate && ep.parsedDate > now)
-      .sort((a, b) => a.parsedDate - b.parsedDate);
+  const futureEpisodes = allEpisodes
+    .map((ep) => ({
+      ...ep,
+      parsedDate: new Date(ep.airDate),
+    }))
+    .filter((ep) => !isNaN(ep.parsedDate) && ep.parsedDate > now)
+    .sort((a, b) => a.parsedDate - b.parsedDate);
 
-    setNextEpisode(futureEpisodes[0] || null);
-  }, [allEpisodes]);
+  setNextEpisode(futureEpisodes[0] || null);
+}, [allEpisodes]);
 
   useEffect(() => {
     if (!allEpisodes.length) return;
@@ -449,6 +456,44 @@ function SeriesPage() {
     return total + (season.episodes?.length || 0);
   }, 0) || 0;
 
+  function getEpisodeLabel(ep) {
+  if (!ep) return "";
+
+  if (ep.season === 1 && ep.number === 1) {
+    return "SERIES PREMIERE";
+  }
+
+  if (ep.number === 1) {
+    return `SEASON ${ep.season} PREMIERE`;
+  }
+
+  return "NEXT EPISODE";
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatDateLong(dateStr) {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
   return (
     <>
       <GlobalStyle />
@@ -505,6 +550,7 @@ function SeriesPage() {
                           marginLeft: -2,
                         }}
                       >
+                        {totalEpisodes > 0 && (
                         <p
                           style={{
                             fontSize: 14,
@@ -513,7 +559,7 @@ function SeriesPage() {
                           }}
                         >
                           {totalEpisodes}
-                        </p>
+                        </p>)}
                         <ChevronRight
                           size={20}
                           style={{
@@ -1072,6 +1118,7 @@ function SeriesPage() {
                     maxHeight: "414.667px",
                   }}
                 >
+                  <Link to={`/admin/edit/${movieId}/videos`}>
                   <button
                     style={{
                       display: "flex",
@@ -1111,6 +1158,7 @@ function SeriesPage() {
                         : `${videos?.length || 0} VIDEOS`}
                     </p>
                   </button>
+                  </Link>
                   <button
                     style={{
                       display: "flex",
@@ -1394,7 +1442,7 @@ function SeriesPage() {
                     marginTop: "5px",
                   }}
                 >
-                  {isTVShow && data.NextEpisode?.trim() ? (
+                  {isTVShow && nextEpisode ? (
                     <div
                       style={{
                         position: "relative",
@@ -1425,12 +1473,7 @@ function SeriesPage() {
                             lineHeight: "1rem",
                           }}
                         >
-                          {Number(data.NextEpisodeSeason) === 1 &&
-                          Number(data.NextEpisodeNumber) === 1
-                            ? "SERIES PREMIERE"
-                            : Number(data.NextEpisodeNumber) === 1
-                              ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
-                              : "NEXT EPISODE"}
+                          {getEpisodeLabel(nextEpisode)}
                         </p>
                         <p
                           style={{
@@ -1445,66 +1488,11 @@ function SeriesPage() {
                             fontWeight: 400,
                           }}
                         >
-                          {data.NextEpisode}
+                          {formatDateLong(nextEpisode.airDate)}
                         </p>
                       </div>
                     </div>
-                  ) : isTVShow && data.NextEpisode2?.trim() ? (
-                    <div
-                      style={{
-                        position: "relative",
-                        display: "flex",
-                        paddingRight: 24,
-                        marginBottom: 16,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "4px",
-                          height: "36px",
-                          borderRadius: "12px",
-                          backgroundColor: "#F5C518",
-                          maxHeight: 36,
-                        }}
-                      />
-                      <div>
-                        <p
-                          style={{
-                            fontSize: "0.75rem",
-                            letterSpacing: "0.16667em",
-                            paddingLeft: 8,
-                            margin: 0,
-                            color: "white",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontWeight: 600,
-                            lineHeight: "1rem",
-                          }}
-                        >
-                          {Number(data.NextEpisodeSeason) === 1 &&
-                          Number(data.NextEpisodeNumber) === 1
-                            ? "SERIES PREMIERE"
-                            : Number(data.NextEpisodeNumber) === 1
-                              ? `SEASON ${Number(data.NextEpisodeSeason)} PREMIERE`
-                              : "NEXT EPISODE"}
-                        </p>
-                        <p
-                          style={{
-                            fontSize: "0.875rem",
-                            letterSpacing: "0.01786em",
-                            position: "relative",
-                            color: "white",
-                            paddingLeft: 8,
-                            margin: 0,
-                            lineHeight: "1.25rem",
-                            fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                            fontWeight: 400,
-                          }}
-                        >
-                          {data.NextEpisode2}
-                        </p>
-                      </div>
-                    </div>
-                  ) : data.Type === "Movie" && data.NextEpisode ? (
+                  ) : data.type === "movie" && data.releaseDate ? (
                     <div
                       style={{
                         position: "relative",
@@ -1544,12 +1532,12 @@ function SeriesPage() {
                             margin: 0,
                           }}
                         >
-                          Releases {data.NextEpisode}
+                          Releases {formatDate(data.releaseDate)}
                         </p>
                       </div>
                     </div>
                   ) : null}
-                  {data.Status > 0 && (
+                  {data.status !== "not aired" && (
                     <div>
                       <div style={{ width: "118.333px" }}>
                         <p
@@ -2176,6 +2164,7 @@ function SeriesPage() {
                   )}
 
                   {/*Episodes*/}
+                  {totalEpisodes > 0 && (
                   <section
                     style={{
                       padding: "24px",
@@ -2379,6 +2368,7 @@ function SeriesPage() {
                       )}
                     </div>
                   </section>
+                  )}
 
                   {/*Videos*/}
                   <section
@@ -6285,7 +6275,7 @@ function SeriesPage() {
                             lineHeight: "1.5rem",
                           }}
                         >
-                          {renderListWithDotSeparator2(data.Genres2)}
+                          {renderListWithDotSeparator2(data.genres)}
                         </span>
                       </div>
                       <div
@@ -6504,7 +6494,7 @@ function SeriesPage() {
                       width: "808px",
                     }}
                   >
-                    {data.ReleaseDate !== "" && (
+                    {data.releaseDate > 0 && (
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -6539,7 +6529,7 @@ function SeriesPage() {
                             color: "rgb(14,99,190)",
                           }}
                         >
-                          {data.ReleaseDate} {"(United States)"}
+                          {data.releaseDate} {"(United States)"}
                         </span>
                         <div
                           style={{
@@ -6598,7 +6588,7 @@ function SeriesPage() {
                           color: "rgb(14,99,190)",
                         }}
                       >
-                        {renderListWithDotSeparator2(data.CountriesOrigin)}
+                        {renderListWithDotSeparator2(data.countriesOrigin)}
                       </span>
                     </div>
                     <div
@@ -6721,10 +6711,10 @@ function SeriesPage() {
                           color: "rgb(14,99,190)",
                         }}
                       >
-                        {data.Language}
+                        {data.language}
                       </span>
                     </div>
-                    {data.AlsoKnownAs == "N/A" ? null : (
+                    {data.alsoknownas == "N/A" ? null : (
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -6759,7 +6749,7 @@ function SeriesPage() {
                             color: "rgb(14,99,190)",
                           }}
                         >
-                          {data.AlsoKnownAs}
+                          {data.alsoknownas}
                         </span>
                         <div
                           style={{
@@ -6818,7 +6808,7 @@ function SeriesPage() {
                           color: "rgb(14,99,190)",
                         }}
                       >
-                        {renderListWithDotSeparator2(data.ProductionCompanies)}
+                        {renderListWithDotSeparator2(data.productionCompanies)}
                       </span>
                       <div
                         style={{
