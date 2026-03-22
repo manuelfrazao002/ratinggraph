@@ -29,7 +29,7 @@ const authenticate = (req, res, next) => {
 };
 
 // Se estiver usando CommonJS
-const imagesRoute = require("./routes/images");
+const imagesRoute = require("./src/routes/images");
 app.use("/api", imagesRoute);
 
 // Factory function para criar storages
