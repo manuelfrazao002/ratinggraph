@@ -2436,7 +2436,7 @@ console.log("VIDEOS:", data.videos);
                                 marginRight: "2px",
                               }}
                             >
-                              {data.Videos2}
+                              {videos.length}
                             </span>
                             <svg
                               width="19.2"

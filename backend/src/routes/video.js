@@ -7,6 +7,7 @@ const {
   uploadVideo,
   likeVideo,
   reactToVideo,
+  deleteVideo,
 } = require("../controllers/videoController");
 
 const router = express.Router();
@@ -26,5 +27,6 @@ const upload = multer({ storage });
 router.post("/:entryId", upload.single("thumbnail"), uploadVideo);
 router.post("/like/:videoId", likeVideo);
 router.post("/react/:videoId", reactToVideo);
+router.delete("/videos/:id", deleteVideo);
 
 module.exports = router;

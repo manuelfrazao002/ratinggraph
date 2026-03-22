@@ -57,8 +57,28 @@ const reactToVideo = async (req, res) => {
   }
 };
 
+const deleteVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const video = await Video.findByPk(id);
+
+    if (!video) {
+      return res.status(404).json({ error: "Vídeo não encontrado" });
+    }
+
+    await video.destroy();
+
+    res.json({ message: "Vídeo apagado com sucesso" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao apagar vídeo" });
+  }
+};
+
 module.exports = {
   uploadVideo,
   likeVideo,
   reactToVideo,
+  deleteVideo,
 };

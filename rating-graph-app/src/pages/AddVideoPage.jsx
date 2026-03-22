@@ -33,6 +33,19 @@ function AddVideoPage() {
     }
   };
 
+  const convertToSeconds = (time) => {
+  if (!time) return null;
+
+  const parts = time.split(":");
+
+  if (parts.length === 2) {
+    const [min, sec] = parts;
+    return parseInt(min) * 60 + parseInt(sec);
+  }
+
+  return parseInt(time); // fallback
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -48,6 +61,7 @@ function AddVideoPage() {
       formData.append("thumbnail", thumbnail);
       formData.append("title", form.title);
       formData.append("type", form.type);
+      formData.append("duration", convertToSeconds(form.duration));
 
       const res = await fetch(`${API_URL}/${movieId}`, {
         method: "POST",
