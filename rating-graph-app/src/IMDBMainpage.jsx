@@ -3773,6 +3773,8 @@ const loadEntry = async () => {
 
                           {/* Segunda linha: 4 vídeos */}
                           {videos.slice(2, 6).map((video) => (
+                            <><Link
+                              to={`/videos/${movieId}`}>
                             <div
                               key={video.videoId}
                               style={{
@@ -5061,7 +5063,8 @@ const loadEntry = async () => {
                                 )}
                               </div>
                             </div>
-                          ))}
+                            </Link>
+                          </>))}
                         </div>
                       </div>
                     </section>
