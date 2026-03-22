@@ -27,6 +27,6 @@ const upload = multer({ storage });
 router.post("/:entryId", upload.single("thumbnail"), uploadVideo);
 router.post("/like/:videoId", likeVideo);
 router.post("/react/:videoId", reactToVideo);
-router.delete("/videos/:id", deleteVideo);
+router.delete("/:id", deleteVideo);
 
 module.exports = router;

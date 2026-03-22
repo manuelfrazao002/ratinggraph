@@ -2400,7 +2400,7 @@ console.log("VIDEOS:", data.videos);
                         />
                         <div>
                           <Link
-                            to={`/episodepage/${movieId}`}
+                            to={`/videos/${movieId}`}
                             style={{
                               display: "flex",
                               alignItems: "center",
