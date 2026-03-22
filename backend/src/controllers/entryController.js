@@ -92,91 +92,115 @@ const getEntryById = async (req, res) => {
 
     const totalYears = yearsSet.size;
 
-    /* =========================
-       🔥 FAKE TRAFFIC ENGINE
-    ========================= */
+   /* =========================
+   🔥 FAKE TRAFFIC ENGINE COMPLETO
+========================= */
 
-    const now = new Date();
-    const lastUpdate =
-      entry.lastTrafficUpdate || entry.createdAt;
+const now = new Date();
+const lastUpdate = entry.lastTrafficUpdate || entry.createdAt;
 
-    const hoursPassed = Math.floor(
-      (now - new Date(lastUpdate)) / (1000 * 60 * 60)
-    );
+const hoursPassed = Math.floor(
+  (now - new Date(lastUpdate)) / (1000 * 60 * 60)
+);
 
-    if (hoursPassed > 0) {
-      let growth = 0;
+if (hoursPassed > 0) {
+  let voteGrowth = 0;
+  let watchlistGrowth = 0;
 
-      // 📈 crescimento base
-      for (let i = 0; i < hoursPassed; i++) {
-        growth += Math.floor(Math.random() * 3); // 0–2 por hora
-      }
+  // 🔥 crescimento base
+  for (let i = 0; i < hoursPassed; i++) {
+    voteGrowth += Math.floor(Math.random() * 3);      // 0–2
+    watchlistGrowth += Math.floor(Math.random() * 4); // 0–3 (mais rápido)
+  }
 
-      // 🚀 detectar episódio recente
-      const recentEpisode = entry.seasons
-        ?.flatMap((s) => s.episodes)
-        .find((ep) => {
-          if (!ep.airDate) return false;
+  // 🔥 episódios
+  const allEpisodes = entry.seasons?.flatMap(s => s.episodes) || [];
 
-          const diff =
-            (now - new Date(ep.airDate)) /
-            (1000 * 60 * 60 * 24);
+  const recentEpisode = allEpisodes.find(ep => {
+    if (!ep.airDate) return false;
 
-          return diff >= 0 && diff <= 3;
-        });
+    const diff =
+      (now - new Date(ep.airDate)) / (1000 * 60 * 60 * 24);
 
-      // 🚀 spike
-      if (recentEpisode) {
-        growth *= 3;
-      }
+    return diff >= 0 && diff <= 3;
+  });
 
-      // 📉 decay por idade
-      if (entry.releaseDate) {
-        const releaseYear = new Date(
-          entry.releaseDate
-        ).getFullYear();
-        const currentYear = new Date().getFullYear();
-        const age = currentYear - releaseYear;
+  const hasReleasedEpisode = allEpisodes.some(ep => {
+    if (!ep.airDate) return false;
+    return new Date(ep.airDate) <= now;
+  });
 
-        if (age > 5) growth *= 0.3;
-        else if (age > 2) growth *= 0.6;
-      }
+  // 🚀 spike
+  if (recentEpisode) {
+    voteGrowth *= 3;
+    watchlistGrowth *= 2;
+  }
 
-      // 🎲 variação natural
-      growth *= 0.8 + Math.random() * 0.4;
+  // 📉 decay
+  if (entry.releaseDate) {
+    const releaseYear = new Date(entry.releaseDate).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - releaseYear;
 
-      // 🧱 limite máximo
-      growth = Math.min(growth, 50);
+    if (age > 5) {
+      voteGrowth *= 0.3;
+      watchlistGrowth *= 0.4;
+    } else if (age > 2) {
+      voteGrowth *= 0.6;
+      watchlistGrowth *= 0.7;
+    }
+  }
 
-      // ✅ aplicar votos
-      if (growth > 0) {
-        await entry.increment("votes", {
-          by: Math.floor(growth),
-        });
-      }
+  // 🔥 hype pré-lançamento
+  if (!hasReleasedEpisode) {
+    watchlistGrowth *= 1.5;
+  }
 
-      // 🎬 crescimento de vídeos
-      for (const video of entry.videos || []) {
-        let likeGrowth = Math.floor(Math.random() * 2);
+  // 🎲 variação natural
+  const randomFactor = 0.8 + Math.random() * 0.4;
+  voteGrowth *= randomFactor;
+  watchlistGrowth *= randomFactor;
 
-        if (recentEpisode) {
-          likeGrowth += 2;
-        }
+  // 🔒 limites
+  voteGrowth = Math.min(voteGrowth, 50);
+  watchlistGrowth = Math.min(watchlistGrowth, 100);
 
-        if (likeGrowth > 0) {
-          await video.increment("likes", {
-            by: likeGrowth,
-          });
-        }
-      }
+  // ✅ aplicar watchlist (SEMPRE)
+  if (watchlistGrowth > 0) {
+    await entry.increment("watchlistNumber", {
+      by: Math.floor(watchlistGrowth),
+    });
+  }
 
-      // 🔄 atualizar timestamp
-      await entry.update({
-        lastTrafficUpdate: new Date(),
-      });
+  // ✅ aplicar votos (SÓ se já lançou)
+  if (hasReleasedEpisode && voteGrowth > 0) {
+    await entry.increment("votes", {
+      by: Math.floor(voteGrowth),
+    });
+  }
+
+  // 🎬 vídeos
+  for (const video of entry.videos || []) {
+    let likeGrowth = Math.floor(Math.random() * 2);
+
+    if (recentEpisode) {
+      likeGrowth += 2;
     }
 
-    /* ========================= */
+    if (likeGrowth > 0) {
+      await video.increment("likes", {
+        by: likeGrowth,
+      });
+    }
+  }
+
+  // 🔄 atualizar timestamp
+  await entry.update({
+    lastTrafficUpdate: new Date(),
+  });
+}
+
+/* ========================= */
 
     res.json({
       ...entry.toJSON(),
