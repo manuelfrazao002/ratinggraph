@@ -157,4 +157,5 @@ module.exports = {
   Popularity,
   Summary,
   Rating,
+  Video,
 };

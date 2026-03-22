@@ -491,7 +491,7 @@ function formatDateLong(dateStr) {
   });
 }
 
-console.log("VIDEOS:", data);
+console.log("VIDEOS:", data.videos);
 
   return (
     <>
