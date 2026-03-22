@@ -2480,12 +2480,13 @@ const loadEntry = async () => {
                           }}
                         >
                           {/* Primeira linha: 2 vídeos */}
-                          {videos.slice(0, 2).map((video) => (
+                          {videos.slice(0, 2).map((video) => (<><Link
+                              to={`/videos/${movieId}`}>
                             <div
                               key={video.videoId}
                               style={{ flex: "0 0 calc(50% - 1rem)" }} // 50% da largura - metade do gap
                             >
-                              <div style={{ position: "relative" }}>
+                              <div style={{ position: "relative" }}>                                
                                 <img
                                   src={video?.url || ""}
                                   alt={video.title}
@@ -2603,6 +2604,7 @@ const loadEntry = async () => {
                                   maxHeight: "48px",
                                   maxWidth: "396px",
                                   margin: "0",
+                                  color: "black",
                                 }}
                               >
                                 {video.title}
@@ -3766,7 +3768,8 @@ const loadEntry = async () => {
                                 )}
                               </div>
                             </div>
-                          ))}
+                            </Link>
+                          </>))}
 
                           {/* Segunda linha: 4 vídeos */}
                           {videos.slice(2, 6).map((video) => (

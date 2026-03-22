@@ -99,6 +99,7 @@ module.exports = (sequelize) => {
     },
     watchlistNumber: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     lastTrafficUpdate: {
       type: DataTypes.DATE,
