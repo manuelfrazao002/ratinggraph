@@ -1686,6 +1686,7 @@ const loadEntry = async () => {
                       >
                         Add to Watchlist
                       </p>
+                      {data.watchlistNumber >= 1000 && (
                       <p
                         style={{
                           margin: 0,
@@ -1698,9 +1699,10 @@ const loadEntry = async () => {
                           fontWeight: 400,
                         }}
                       >
-                        Added by {formatNumberWatchList(data.WatchlistNumber)}{" "}
+                        Added by {formatNumberWatchList(data.watchlistNumber)}{" "}
                         users
                       </p>
+                      )}
                     </div>
                     <div
                       style={{
@@ -2613,7 +2615,7 @@ const loadEntry = async () => {
                                   alignItems: "center",
                                 }}
                               >
-                                {video.Likes > 0 && (
+                                {video.likes > 0 && (
                                   <>
                                     <div
                                       style={{
@@ -2650,11 +2652,11 @@ const loadEntry = async () => {
                                         fontWeight: "400",
                                       }}
                                     >
-                                      {formatNumber(video.Likes)}
+                                      {formatNumber(video.likes)}
                                     </p>
                                   </>
                                 )}
-                                {video.Reactions > 0 && (
+                                {video.reactions > 0 && (
                                   <>
                                     <div
                                       style={{
@@ -3758,7 +3760,7 @@ const loadEntry = async () => {
                                         marginLeft: "-0.75rem",
                                       }}
                                     >
-                                      {formatNumber(video.Reactions)}
+                                      {formatNumber(video.reactions)}
                                     </p>
                                   </>
                                 )}
@@ -5390,17 +5392,6 @@ const loadEntry = async () => {
                             }}
                           />
                           <div>
-                            <Link
-                              to={`#`}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                color: "black",
-                                cursor: "pointer",
-                              }}
-                              onMouseEnter={() => setHovered(true)}
-                              onMouseLeave={() => setHovered(false)}
-                            >
                               <h3
                                 style={{
                                   padding: "0 0 0 10px",
@@ -5415,7 +5406,6 @@ const loadEntry = async () => {
                               >
                                 Photos
                               </h3>
-                            </Link>
                           </div>
                           <div
                             style={{

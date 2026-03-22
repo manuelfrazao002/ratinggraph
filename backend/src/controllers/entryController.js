@@ -37,7 +37,7 @@ const getEntries = async (req, res) => {
   }
 };
 
-// ✅ GET ONE (FULL)
+// ✅ GET ONE (FULL + FAKE TRAFFIC ENGINE)
 const getEntryById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -61,6 +61,8 @@ const getEntryById = async (req, res) => {
         {
           model: EntryImage,
           as: "images",
+          separate: true,
+          order: [["order", "ASC"]],
         },
       ],
     });
@@ -73,7 +75,8 @@ const getEntryById = async (req, res) => {
     const totalSeasons = entry.seasons?.length || 0;
 
     // 🔥 todos episódios
-    const allEpisodes = entry.seasons?.flatMap((s) => s.episodes || []) || [];
+    const allEpisodes =
+      entry.seasons?.flatMap((s) => s.episodes || []) || [];
 
     // 🔥 anos únicos
     const yearsSet = new Set();
@@ -89,7 +92,92 @@ const getEntryById = async (req, res) => {
 
     const totalYears = yearsSet.size;
 
-    // 🔥 resposta final
+    /* =========================
+       🔥 FAKE TRAFFIC ENGINE
+    ========================= */
+
+    const now = new Date();
+    const lastUpdate =
+      entry.lastTrafficUpdate || entry.createdAt;
+
+    const hoursPassed = Math.floor(
+      (now - new Date(lastUpdate)) / (1000 * 60 * 60)
+    );
+
+    if (hoursPassed > 0) {
+      let growth = 0;
+
+      // 📈 crescimento base
+      for (let i = 0; i < hoursPassed; i++) {
+        growth += Math.floor(Math.random() * 3); // 0–2 por hora
+      }
+
+      // 🚀 detectar episódio recente
+      const recentEpisode = entry.seasons
+        ?.flatMap((s) => s.episodes)
+        .find((ep) => {
+          if (!ep.airDate) return false;
+
+          const diff =
+            (now - new Date(ep.airDate)) /
+            (1000 * 60 * 60 * 24);
+
+          return diff >= 0 && diff <= 3;
+        });
+
+      // 🚀 spike
+      if (recentEpisode) {
+        growth *= 3;
+      }
+
+      // 📉 decay por idade
+      if (entry.releaseDate) {
+        const releaseYear = new Date(
+          entry.releaseDate
+        ).getFullYear();
+        const currentYear = new Date().getFullYear();
+        const age = currentYear - releaseYear;
+
+        if (age > 5) growth *= 0.3;
+        else if (age > 2) growth *= 0.6;
+      }
+
+      // 🎲 variação natural
+      growth *= 0.8 + Math.random() * 0.4;
+
+      // 🧱 limite máximo
+      growth = Math.min(growth, 50);
+
+      // ✅ aplicar votos
+      if (growth > 0) {
+        await entry.increment("votes", {
+          by: Math.floor(growth),
+        });
+      }
+
+      // 🎬 crescimento de vídeos
+      for (const video of entry.videos || []) {
+        let likeGrowth = Math.floor(Math.random() * 2);
+
+        if (recentEpisode) {
+          likeGrowth += 2;
+        }
+
+        if (likeGrowth > 0) {
+          await video.increment("likes", {
+            by: likeGrowth,
+          });
+        }
+      }
+
+      // 🔄 atualizar timestamp
+      await entry.update({
+        lastTrafficUpdate: new Date(),
+      });
+    }
+
+    /* ========================= */
+
     res.json({
       ...entry.toJSON(),
       totalSeasons,
@@ -121,7 +209,7 @@ const updateEntry = async (req, res) => {
       payload.slug = slugify(req.body.title);
     }
 
-    await entry.update(payload); // 🔥 AQUI está a diferença
+    await entry.update(payload);
 
     res.json(entry);
   } catch (err) {

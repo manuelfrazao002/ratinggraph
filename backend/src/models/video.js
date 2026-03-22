@@ -24,7 +24,7 @@ module.exports = (sequelize) => {
     type: {
       type: DataTypes.ENUM("trailer", "clip", "opening", "ending"),
     },
-        likes: {
+    likes: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },

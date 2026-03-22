@@ -50,19 +50,19 @@ module.exports = (sequelize) => {
     },
     genres: {
       type: DataTypes.JSON, // array tipo ["Drama", "Action"]
-      defaultValue: []
+      defaultValue: [],
     },
     creators: {
       type: DataTypes.JSON, // ["Vince Gilligan"]
-      defaultValue: []
+      defaultValue: [],
     },
     writers: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     directors: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     summary: {
       type: DataTypes.TEXT,
@@ -72,33 +72,36 @@ module.exports = (sequelize) => {
     },
     storylineAuthor: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     plotKeywords: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     tagline: {
       type: DataTypes.STRING,
     },
     countriesOrigin: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     language: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     alsoknownas: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     productionCompanies: {
       type: DataTypes.JSON,
-      defaultValue: []
+      defaultValue: [],
     },
     watchlistNumber: {
       type: DataTypes.INTEGER,
+    },
+    lastTrafficUpdate: {
+      type: DataTypes.DATE,
     },
   });
 

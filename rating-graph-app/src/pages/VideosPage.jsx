@@ -46,17 +46,40 @@ function VideosPage() {
   };
 
   const formatDuration = (seconds) => {
-  if (!seconds && seconds !== 0) return "";
+    if (!seconds && seconds !== 0) return "";
 
-  const min = Math.floor(seconds / 60);
-  const sec = seconds % 60;
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
 
-  return `${min}:${sec.toString().padStart(2, "0")}`;
-};
+    return `${min}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  const handleLike = async (videoId) => {
+    try {
+      await fetch(`${API}/videos/like/${videoId}`, {
+        method: "POST",
+      });
+
+      await loadVideos(); // reload
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleReaction = async (videoId) => {
+    try {
+      await fetch(`${API}/videos/react/${videoId}`, {
+        method: "POST",
+      });
+
+      await loadVideos(); // reload
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div style={{ padding: 20, maxWidth: 700, margin: "0 auto" }}>
-      
       {/* BACK */}
       <Link to={`/entry/${movieId}`}>
         <span>{"< Back"}</span>
@@ -84,9 +107,7 @@ function VideosPage() {
       {/* LIST */}
       <h3>Lista de Vídeos</h3>
 
-      {videos.length === 0 && (
-        <p style={{ color: "#666" }}>Sem vídeos ainda</p>
-      )}
+      {videos.length === 0 && <p style={{ color: "#666" }}>Sem vídeos ainda</p>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {videos.map((video) => (
@@ -104,7 +125,7 @@ function VideosPage() {
           >
             {/* THUMB */}
             <img
-              src={video.thumbnail}
+              src={video?.url || ""}
               alt=""
               style={{
                 width: 120,
@@ -121,6 +142,34 @@ function VideosPage() {
               <p style={{ margin: "4px 0", color: "#666" }}>
                 {video.type} • {formatDuration(video?.duration)}
               </p>
+            </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => handleLike(video.id)}
+                style={{
+                  padding: "6px 10px",
+                  background: "#eee",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                👍 {video.likes || 0}
+              </button>
+
+              <button
+                onClick={() => handleReaction(video.id)}
+                style={{
+                  padding: "6px 10px",
+                  background: "#eee",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                🔥 {video.reactions || 0}
+              </button>
             </div>
 
             {/* ACTIONS */}
