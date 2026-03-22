@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import Papa from "papaparse";
 import { createGlobalStyle } from "styled-components";
 import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 import { useParams } from "react-router-dom";
@@ -12,6 +13,12 @@ import IMDBNavbar from "./imgs/imdb/imdb_navbar.png";
 
 //Top
 import UpInfo from "./imgs/imdb/upinfo.png";
+
+import StarImdb from "./imgs/imdb/starimdb.png";
+import RateIMDB from "./imgs/imdb/rateimdb.png";
+
+import IMDBRating from "./imgs/imdb/imdbrating.png";
+import YourRating from "./imgs/imdb/yourrating.png";
 
 import IMDBPro from "./imgs/imdb/imdbpro.png";
 
@@ -31,12 +38,22 @@ import PlotKeywords from "./components/PlotKeywords.jsx";
 //Small Icon
 import SmallIcon from "./imgs/imdb/smallicon.png";
 
+//Images for section Images
+import Img1 from "./imgs/imdb/imgs/img1.jpg";
+import Img2 from "./imgs/imdb/imgs/img2.jpg";
+import Img3 from "./imgs/imdb/imgs/img3.jpg";
+import Img4 from "./imgs/imdb/imgs/img4.jpg";
+import Img5 from "./imgs/imdb/imgs/img5.jpg";
+
 import FeaturedReviews from "./imgs/imdb/featuredreviews.png";
 import RelatedInterests from "./imgs/imdb/relatedinterests.png";
 import DidYouKnow from "./imgs/imdb/didyouknow.png";
 import MoreToExploreSticky from "./imgs/imdb/moretoexploresticky.png";
 import ContributeToThisPageEpisodePage from "./imgs/imdb/contributetothispageepisodepage.png";
 import { getEpisodeSrc, getEpisodeImages } from "./ShowImageSrc";
+
+//Data
+import { movieMap } from "./data/MovieMap";
 
 function SeriesPageDetails() {
   const { movieId, episodeId } = useParams();
@@ -58,34 +75,77 @@ function SeriesPageDetails() {
   const [prevEpisode, setPrevEpisode] = useState(null);
   const [nextEpisodeNav, setNextEpisodeNav] = useState(null);
 
-  const API_URL = "https://backend-ratinggraph.onrender.com/api";
+  const urls = movieMap[movieId];
 
   useEffect(() => {
-    const load = async () => {
-      const res = await fetch(`${API_URL}/entries/${movieId}`);
-      const data = await res.json();
+    if (!urls || urls.length < 5) return;
 
-      setData(data);
-
-      const all = [];
-      data.seasons?.forEach((season) => {
-        const episodesWithSeason = (season.episodes || []).map((ep) => ({
-          ...ep,
-          season: season.number, // 👈 AQUI!
-        }));
-
-        all.push(...episodesWithSeason);
+    fetch(urls[4]) // 👈 índice das Stars
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            console.log(
+              "⭐ STARS CSV (primeiras 3 linhas):",
+              results.data.slice(0, 3),
+            );
+            console.log(
+              "⭐ STARS CSV keys:",
+              Object.keys(results.data[0] || {}),
+            );
+            setCast(results.data);
+          },
+        });
       });
+  }, [movieId]);
 
-      setAllEpisodes(all);
+  useEffect(() => {
+    if (!urls || urls.length === 0) return;
 
-      if (episodeId) {
-        const found = all.find((ep) => String(ep.id) === String(episodeId));
-        setEpisodeData(found);
-      }
-    };
+    fetch(urls[0])
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          complete: (results) => {
+            setData(results.data[0]);
+          },
+          error: (err) => console.error("Erro ao carregar CSV", err),
+        });
+      });
+  }, [movieId]);
 
-    load();
+  useEffect(() => {
+    if (!urls || urls.length < 2) return;
+
+    fetch(urls[1])
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const episodes = results.data;
+
+            episodes.forEach((ep) => {
+              ep.Votes2 = ep.Votes2?.replace(/,/g, "") || "0";
+            });
+
+            setAllEpisodes(episodes);
+
+            if (episodeId) {
+              const foundEpisode = episodes.find(
+                (ep) => ep.episodeId === episodeId,
+              );
+
+              setEpisodeData(foundEpisode || null);
+            }
+          },
+          error: (err) => console.error("Erro episódios CSV", err),
+        });
+      });
   }, [movieId, episodeId]);
 
   useEffect(() => {
@@ -96,7 +156,7 @@ function SeriesPageDetails() {
     const futureEpisodes = allEpisodes
       .map((ep) => ({
         ...ep,
-        parsedDate: new Date(ep.airDate),
+        parsedDate: new Date(ep.Date),
       }))
       .filter((ep) => !isNaN(ep.parsedDate) && ep.parsedDate > now)
       .sort((a, b) => a.parsedDate - b.parsedDate);
@@ -113,12 +173,12 @@ function SeriesPageDetails() {
 
     const validEpisodes = allEpisodes.filter((ep) => {
       const rating = parseFloat(ep["Average Rating 2"]);
-      const votes = parseInt(ep.votes);
-      const hasSynopsis = ep.description?.trim();
+      const votes = parseInt(ep.Votes2);
+      const hasSynopsis = ep.Synopsis?.trim();
 
       return (
-        ep.airDate &&
-        !isNaN(new Date(ep.airDate)) &&
+        ep.Date &&
+        !isNaN(new Date(ep.Date)) &&
         (hasSynopsis || rating > 0 || votes > 0)
       );
     });
@@ -132,11 +192,9 @@ function SeriesPageDetails() {
     // tenta últimos 30 dias, senão usa o mais recente disponível
     let mostRecent =
       validEpisodes
-        .filter((ep) => new Date(ep.airDate) >= daysAgo30)
-        .sort((a, b) => new Date(b.airDate) - new Date(a.airDate))[0] ||
-      validEpisodes.sort(
-        (a, b) => new Date(b.airDate) - new Date(a.airDate),
-      )[0];
+        .filter((ep) => new Date(ep.Date) >= daysAgo30)
+        .sort((a, b) => new Date(b.Date) - new Date(a.Date))[0] ||
+      validEpisodes.sort((a, b) => new Date(b.Date) - new Date(a.Date))[0];
 
     // ✅ Top Rated (pode ser o mesmo se só existir um)
     const topRated =
@@ -144,9 +202,11 @@ function SeriesPageDetails() {
         .filter((ep) => ep !== mostRecent)
         .sort((a, b) => {
           const scoreA =
-            parseFloat(a.rating || 0) * Math.log((parseInt(a.votes) || 0) + 1);
+            parseFloat(a["Average Rating 2"] || 0) *
+            Math.log((parseInt(a.Votes2) || 0) + 1);
           const scoreB =
-            parseFloat(b.rating || 0) * Math.log((parseInt(b.votes) || 0) + 1);
+            parseFloat(b["Average Rating 2"] || 0) *
+            Math.log((parseInt(b.Votes2) || 0) + 1);
           return scoreB - scoreA;
         })[0] || mostRecent;
 
@@ -168,11 +228,11 @@ function SeriesPageDetails() {
     if (!allEpisodes.length || !episodeId) return;
 
     const sortedEpisodes = [...allEpisodes]
-      .filter((ep) => ep.id && ep.number)
-      .sort((a, b) => Number(a.number) - Number(b.number));
+      .filter((ep) => ep.episodeId && ep.Number2)
+      .sort((a, b) => Number(a.Number2) - Number(b.Number2));
 
     const currentIndex = sortedEpisodes.findIndex(
-      (ep) => String(ep.id) === String(episodeId),
+      (ep) => ep.episodeId === episodeId,
     );
 
     setPrevEpisode(currentIndex > 0 ? sortedEpisodes[currentIndex - 1] : null);
@@ -183,6 +243,30 @@ function SeriesPageDetails() {
         : null,
     );
   }, [allEpisodes, episodeId]);
+
+  useEffect(() => {
+    if (!urls || urls.length < 6) return;
+
+    fetch(urls[5]) // 👈 EpCharCount
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            console.log(
+              "🎭 EPCHARCOUNT CSV (primeiras 5 linhas):",
+              results.data.slice(0, 5),
+            );
+            console.log(
+              "🎭 EPCHARCOUNT CSV keys:",
+              Object.keys(results.data[0] || {}),
+            );
+            setEpisodeCharCount(results.data);
+          },
+        });
+      });
+  }, [movieId]);
 
   const normalize = (v) => v?.replace(/\u00A0/g, " ").trim();
 
@@ -234,14 +318,14 @@ function SeriesPageDetails() {
       // cover default da série
       let finalCover = getShowCoverSrc(movieId);
 
-      if (episodeData?.season && episodeData?.number && episodeData?.airDate) {
-        const episodeDate = new Date(episodeData.airDate.replace(/\u00A0/g, " "));
+      if (episodeData?.Season && episodeData?.Number2 && episodeData?.Date3) {
+        const episodeDate = new Date(episodeData.Date3.replace(/\u00A0/g, " "));
         const now = new Date();
 
         // 👉 só usa cover do episódio se JÁ TIVER IDO AO AR
         if (!isNaN(episodeDate) && now > episodeDate) {
-          const seasonNum = `s${episodeData.season}`;
-          const episodeNum = episodeData.number;
+          const seasonNum = `s${episodeData.Season}`;
+          const episodeNum = episodeData.Episode2;
           finalCover = getEpisodeSrc(movieId, seasonNum, episodeNum);
         }
       }
@@ -258,8 +342,8 @@ function SeriesPageDetails() {
     if (!episodeData || !movieId) return [];
 
     // episódio ainda não foi ao ar → sem imagens
-    const episodeDate = episodeData?.airDate
-      ? new Date(episodeData.airDate.replace(/\u00A0/g, " "))
+    const episodeDate = episodeData?.Date3
+      ? new Date(episodeData.Date3.replace(/\u00A0/g, " "))
       : null;
 
     if (!episodeDate || isNaN(episodeDate) || episodeDate > new Date()) {
@@ -267,17 +351,18 @@ function SeriesPageDetails() {
     }
 
     const totalImages = Number(episodeData?.Photos) || 0;
-    const episodeNum = episodeData?.number;
+    const episodeNum = episodeData?.Number2;
 
     if (!episodeNum || totalImages <= 0) return [];
 
     return getEpisodeImages(movieId, episodeNum, totalImages);
   }, [episodeData, movieId]);
 
+  if (!urls) return <p>Filme não encontrado</p>;
   if (!data) return <p>Carregando dados do filme...</p>;
 
   const votesNumber =
-    Number(episodeData?.votes?.toString().replace(/[,]+/g, "")) || 0;
+    Number(episodeData?.Votes2?.toString().replace(/[,]+/g, "")) || 0;
   const hasVotes = votesNumber > 0;
 
   const renderListWithLimit = (listStr, limit = 3) => {
@@ -467,8 +552,8 @@ function SeriesPageDetails() {
     Number(episodeData?.CriticReviews?.toString().replace(/[,]+/g, "")) || 0;
   const metascoreReviewsNumber =
     Number(data.Metascore?.toString().replace(/[,]+/g, "")) || 0;
-  const isMovie = data.type === "movie";
-  const isTVShow = data.type === "series" || data.type === "miniseries";
+  const isMovie = data.Type === "Movie";
+  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
 
   const parseDateSafe = (dateStr) => {
     if (!dateStr) return null;
@@ -491,12 +576,12 @@ function SeriesPageDetails() {
   };
 
   // Uso no teu componente:
-  const parsedDate = parseDateSafe(episodeData?.airDate);
+  const parsedDate = parseDateSafe(episodeData?.Date3);
 
   const hasComingSoonEpisode = (() => {
     if (!isTVShow) return false;
 
-    const rawDate = data?.NextEpisodeDate || episodeData?.airDate;
+    const rawDate = data?.NextEpisodeDate || episodeData?.Date3;
     if (!rawDate) return false;
 
     const parsed = new Date(rawDate.replace?.(/\u00A0/g, " ") ?? rawDate);
@@ -509,41 +594,13 @@ function SeriesPageDetails() {
   const getPluralLabel = (text, singular, plural) => {
     if (!text) return singular;
 
-    const items = Array.isArray(text)
-      ? text
-      : typeof text === "string"
-        ? text
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
-        : [];
+    const items = text
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
     return items.length > 1 ? plural : singular;
   };
-
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-
-  const date = new Date(dateStr);
-
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatDateLong(dateStr) {
-  if (!dateStr) return "";
-
-  const date = new Date(dateStr);
-
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
   return (
     <>
@@ -562,7 +619,7 @@ function formatDateLong(dateStr) {
         <main>
           <div style={{ backgroundColor: "#1F1F1F", width: "100%" }}>
             <div style={{ margin: "0 auto", width: "1280px" }}>
-              <Link to={`/entry/${movieId}`}>
+              <Link to={`/imdb/${movieId}`}>
                 <div
                   style={{
                     display: "flex",
@@ -598,7 +655,7 @@ function formatDateLong(dateStr) {
                     <path fill="none" d="M0 0h24v24H0V0z"></path>
                     <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z"></path>
                   </svg>
-                  <span>{data.title}</span>
+                  <span>{data.Title}</span>
                 </div>
               </Link>
               <div
@@ -621,7 +678,7 @@ function formatDateLong(dateStr) {
                     top: 6,
                   }}
                 >
-                  {`S${episodeData?.season}.E${episodeData?.number}`}
+                  {episodeData?.EpisodeName}
                 </span>
                 <div
                   style={{
@@ -751,7 +808,9 @@ function formatDateLong(dateStr) {
                       top: "3px",
                     }}
                   >
-                    {episodeData?.title?.split("∙")[1]?.trim()}
+                    {episodeData?.TitleName?.trim()
+                      ? episodeData.TitleName2
+                      : episodeData?.TitleName3}
                   </h1>
                   <div
                     style={{
@@ -783,7 +842,7 @@ function formatDateLong(dateStr) {
                     )}
 
                     {parsedDate && parsedDate > new Date() && (
-                      <>Episode airs {formatDate(episodeData?.airDate)}</>
+                      <>Episode airs {episodeData?.Date3}</>
                     )}
                   </div>
                 </div>
@@ -832,106 +891,105 @@ function formatDateLong(dateStr) {
                           IMDb RATING
                         </div>
                         <Link to={`/imdb/${movieId}/ratings/${episodeId}`}>
+                        <div
+                        className="round-container-hover"
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            height: "38px",
+                            padding: "0px 0.5rem",
+                          }}
+                        >
                           <div
-                            className="round-container-hover"
                             style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              height: "38px",
-                              padding: "0px 0.5rem",
+                              height: "2rem",
+                              width: "2rem",
+                              marginRight: "0.25rem",
+                              marginBottom: "0.125rem",
+                            }}
+                          >
+                            <svg
+                        style={{
+                          marginRight:"0.25rem",
+                          color:"rgb(245,197,24)",
+                          position: "relative",
+                        }}
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="32"
+                          height="32"
+                          class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
+                        </svg>
+                          </div>
+                          <div
+                            style={{
+                              display: "inline-flex",
+                              flexDirection: "column",
+                              alignItems: "flex-start",
+                              paddingRight: "0.25rem",
+                              lineHeight: "1.25rem",
                             }}
                           >
                             <div
                               style={{
-                                height: "2rem",
-                                width: "2rem",
-                                marginRight: "0.25rem",
-                                marginBottom: "0.125rem",
+                                lineHeight: "1.5rem",
+                                marginBottom: "-0.125rem",
+                                display: "flex",
+                                alignItems: "center",
                               }}
                             >
-                              <svg
+                              <span
                                 style={{
-                                  marginRight: "0.25rem",
-                                  color: "rgb(245,197,24)",
-                                  position: "relative",
-                                }}
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="32"
-                                height="32"
-                                class="ipc-icon ipc-icon--star sc-a30a09c4-4 cUiqql"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                role="presentation"
-                              >
-                                <path d="M12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72 3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5z"></path>
-                              </svg>
-                            </div>
-                            <div
-                              style={{
-                                display: "inline-flex",
-                                flexDirection: "column",
-                                alignItems: "flex-start",
-                                paddingRight: "0.25rem",
-                                lineHeight: "1.25rem",
-                              }}
-                            >
-                              <div
-                                style={{
-                                  lineHeight: "1.5rem",
-                                  marginBottom: "-0.125rem",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    fontSize: "1.25rem",
-                                    color: "white",
-                                    letterSpacing: "0.0125em",
-                                    fontWeight: "600",
-                                    fontFamily:
-                                      "Roboto,Helvetica,Arial,sans-serif",
-                                    paddingRight: "0.125rem",
-                                    lineHeight: "1.5rem",
-                                  }}
-                                >
-                                  {episodeData?.["Average Rating 2"]}
-                                </span>
-                                <span
-                                  style={{
-                                    color: "rgb(255,255,255,0.7)",
-                                    fontSize: "1rem",
-                                    fontFamily:
-                                      "Roboto,Helvetica,Arial,sans-serif",
-                                    fontWeight: "500",
-                                    letterSpacing: "0.03125em",
-                                    lineHeight: "1.5rem",
-                                    position: "relative",
-                                    top: "1px",
-                                  }}
-                                >
-                                  /10
-                                </span>
-                              </div>
-
-                              <div
-                                style={{
-                                  fontSize: "0.75rem",
-                                  color: "#BCBCBC",
-                                  position: "relative",
-                                  letterSpacing: "0.03333em",
-                                  lineHeight: "1rem",
-                                  fontWeight: "400",
-                                  WebkitTextStroke: "0.1px #BCBCBC",
+                                  fontSize: "1.25rem",
+                                  color: "white",
+                                  letterSpacing: "0.0125em",
+                                  fontWeight: "600",
                                   fontFamily:
                                     "Roboto,Helvetica,Arial,sans-serif",
+                                  paddingRight: "0.125rem",
+                                  lineHeight: "1.5rem",
                                 }}
                               >
-                                {formatVotes(episodeData?.Votes2) || "N/A"}
-                              </div>
+                                {episodeData?.["Average Rating 2"]}
+                              </span>
+                              <span
+                                style={{
+                                  color: "rgb(255,255,255,0.7)",
+                                  fontSize: "1rem",
+                                  fontFamily:
+                                    "Roboto,Helvetica,Arial,sans-serif",
+                                  fontWeight: "500",
+                                  letterSpacing: "0.03125em",
+                                  lineHeight: "1.5rem",
+                                  position: "relative",
+                                  top: "1px",
+                                }}
+                              >
+                                /10
+                              </span>
+                            </div>
+
+                            <div
+                              style={{
+                                fontSize: "0.75rem",
+                                color: "#BCBCBC",
+                                position: "relative",
+                                letterSpacing: "0.03333em",
+                                lineHeight: "1rem",
+                                fontWeight: "400",
+                                WebkitTextStroke: "0.1px #BCBCBC",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                              }}
+                            >
+                              {formatVotes(episodeData?.Votes2) || "N/A"}
                             </div>
                           </div>
+                        </div>
                         </Link>
                       </div>
                     )}
@@ -952,7 +1010,7 @@ function formatDateLong(dateStr) {
                           YOUR RATING
                         </div>
                         <div
-                          className="round-container-hover"
+                        className="round-container-hover"
                           style={{
                             height: "auto",
                             margin: "auto",
@@ -962,13 +1020,13 @@ function formatDateLong(dateStr) {
                           }}
                         >
                           <span>
-                            <div
+                            <div                            
                               style={{
                                 display: "flex",
                                 alignItems: "center",
                               }}
                             >
-                              <div
+                              <div                              
                                 style={{
                                   display: "flex",
                                   justifyContent: "center",
@@ -976,7 +1034,7 @@ function formatDateLong(dateStr) {
                                   marginBottom: "0.125rem",
                                   marginRight: "0.25rem",
                                   height: "2rem",
-                                  width: "2rem",
+                                  width: "2rem",                                  
                                 }}
                               >
                                 <svg
@@ -1080,12 +1138,12 @@ function formatDateLong(dateStr) {
                         margin: "0px 0 12px 0",
                       }}
                     >
-                      {(data?.genres
+                      {(data?.Genres
                         ? // Primeiro dividimos por vírgula que não esteja dentro de um termo
-                        data?.genres
-                          .map((genre) => genre.trim())
-                          .filter((genre) => genre)
-                      : []
+                          data.Genres.split(/(?<!\,\s)\,(?!\s\,)/)
+                            .map((genre) => genre.trim())
+                            .filter((genre) => genre)
+                        : []
                       ).map((genre, index) => (
                         <div
                           key={index}
@@ -1125,7 +1183,7 @@ function formatDateLong(dateStr) {
                         </div>
                       ))}
                     </div>
-                    {episodeData?.description && (
+                    {episodeData?.Synopsis && (
                       <div
                         style={{
                           marginTop: "5px",
@@ -1134,10 +1192,10 @@ function formatDateLong(dateStr) {
                           paddingBottom: "12px",
                         }}
                       >
-                        {episodeData?.description}
+                        {episodeData?.Synopsis}
                       </div>
                     )}
-                    {!episodeData?.description && (
+                    {!episodeData?.Synopsis && (
                       <div
                         style={{
                           marginTop: "5px",
@@ -1198,7 +1256,7 @@ function formatDateLong(dateStr) {
                         }}
                       >
                         {getPluralLabel(
-                          data?.directors,
+                          episodeData?.Directors,
                           "Director",
                           "Directors",
                         )}
@@ -1213,7 +1271,7 @@ function formatDateLong(dateStr) {
                           lineHeight: "1.5rem",
                         }}
                       >
-                        {renderListWithDotSeparator(data?.directors)}
+                        {renderListWithDotSeparator(episodeData?.Directors)}
                       </p>
                     </div>
                     <div
@@ -1236,7 +1294,7 @@ function formatDateLong(dateStr) {
                         }}
                       >
                         {getPluralLabel(
-                          data?.writers,
+                          episodeData?.Writers,
                           "Writer",
                           "Writers",
                         )}
@@ -1251,7 +1309,7 @@ function formatDateLong(dateStr) {
                           lineHeight: "1.5rem",
                         }}
                       >
-                        {renderListWithDotSeparator(data?.writers)}
+                        {renderListWithDotSeparator(episodeData?.Writers)}
                       </p>
                     </div>
                     {Array.isArray(episodeCast) &&
@@ -1387,7 +1445,7 @@ function formatDateLong(dateStr) {
                             }}
                           >
                             {" "}
-                            {formatDateLong(episodeData?.airDate)}{" "}
+                            {episodeData.Date3}{" "}
                           </p>
                         </div>
                       </div>
@@ -1691,7 +1749,9 @@ function formatDateLong(dateStr) {
                   }}
                 >
                   {/*Top Rated */}
-                  {(episodeData?.Wins > 0 || episodeData?.Nom > 0) && (
+                  {(
+                    episodeData?.Wins > 0 ||
+                    episodeData?.Nom > 0) && (
                     <section
                       style={{
                         paddingTop: "24px",
@@ -1714,33 +1774,33 @@ function formatDateLong(dateStr) {
                           alignItems: "center",
                         }}
                       >
-                        <div
-                          style={{
-                            backgroundColor: "rgba(245, 197, 24)",
-                            height: "49.2833px",
-                            minWidth: "24px",
-                            width: "max-content",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <a
-                            href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                          <div
                             style={{
-                              color: "black",
-                              textDecoration: "none",
-                              fontSize: "1rem",
-                              fontWeight: "600",
-                              letterSpacing: "0.00937em",
-                              lineHeight: "1.25rem",
-                              textTransform: "none",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              padding: "12px 7.5px 12px 12px",
-                              zIndex: 1,
+                              backgroundColor: "rgba(245, 197, 24)",
+                              height: "49.2833px",
+                              minWidth: "24px",
                               width: "max-content",
+                              display: "flex",
+                              alignItems: "center",
                             }}
-                          ></a>
-                        </div>
+                          >
+                            <a
+                              href="https://www.imdb.com/chart/toptv/?ref_=tt_awd"
+                              style={{
+                                color: "black",
+                                textDecoration: "none",
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                letterSpacing: "0.00937em",
+                                lineHeight: "1.25rem",
+                                textTransform: "none",
+                                fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                                padding: "12px 7.5px 12px 12px",
+                                zIndex: 1,
+                                width: "max-content",
+                              }}
+                            ></a>
+                          </div>
 
                         <div
                           style={{
@@ -1769,22 +1829,22 @@ function formatDateLong(dateStr) {
                           >
                             <div style={{ cursor: "pointer" }}>
                               <a
-                                href=""
-                                style={{
-                                  cursor: "pointer",
-                                  color: "black",
-                                  fontFamily:
-                                    "Roboto,Helvetica,Arial,sans-serif",
-                                  paddingRight: "0.75rem",
-                                  textAlign: "start",
-                                  fontWeight: "600",
-                                  letterSpacing: "0.00937em",
-                                  fontSize: "1rem",
-                                  lineHeight: "1.5rem",
-                                }}
-                              >
-                                Awards
-                              </a>
+                                    href=""
+                                    style={{
+                                      cursor: "pointer",
+                                      color: "black",
+                                      fontFamily:
+                                        "Roboto,Helvetica,Arial,sans-serif",
+                                      paddingRight: "0.75rem",
+                                      textAlign: "start",
+                                      fontWeight: "600",
+                                      letterSpacing: "0.00937em",
+                                      fontSize: "1rem",
+                                      lineHeight: "1.5rem",
+                                    }}
+                                  >
+                                    Awards
+                                  </a>
                               {episodeData?.Wins > 0 && episodeData?.Nom > 0 ? (
                                 <a
                                   style={{
@@ -1797,10 +1857,9 @@ function formatDateLong(dateStr) {
                                       "Roboto,Helvetica,Arial,sans-serif",
                                   }}
                                 >
-                                  {episodeData?.Wins} win
-                                  {episodeData?.Wins > 1 ? "s" : ""} &{" "}
-                                  {episodeData?.Nom} nomination
-                                  {episodeData?.Nom > 1 ? "s" : ""} total
+                                  {episodeData?.Wins} win{episodeData?.Wins > 1 ? "s" : ""} &{" "}
+                                  {episodeData?.Nom} nomination{episodeData?.Nom > 1 ? "s" : ""}{" "}
+                                  total
                                 </a>
                               ) : episodeData.Wins > 0 ? (
                                 <a
@@ -1814,8 +1873,8 @@ function formatDateLong(dateStr) {
                                       "Roboto,Helvetica,Arial,sans-serif",
                                   }}
                                 >
-                                  {episodeData?.Wins} win
-                                  {episodeData?.Wins > 1 ? "s" : ""} total
+                                  {episodeData?.Wins} win{episodeData?.Wins > 1 ? "s" : ""}{" "}
+                                  total
                                 </a>
                               ) : episodeData?.Nom > 0 ? (
                                 <a
@@ -1829,8 +1888,8 @@ function formatDateLong(dateStr) {
                                       "Roboto,Helvetica,Arial,sans-serif",
                                   }}
                                 >
-                                  {episodeData?.Nom} nomination
-                                  {episodeData?.Nom > 1 ? "s" : ""} total
+                                  {episodeData?.Nom} nomination{episodeData?.Nom > 1 ? "s" : ""}{" "}
+                                  total
                                 </a>
                               ) : null}
                             </div>
@@ -2409,7 +2468,7 @@ function formatDateLong(dateStr) {
                             }}
                           >
                             {getPluralLabel(
-                              data?.directors,
+                              episodeData?.Directors,
                               "Director",
                               "Directors",
                             )}
@@ -2425,7 +2484,7 @@ function formatDateLong(dateStr) {
                             }}
                           >
                             {renderListWithDotSeparator2(
-                              data?.directors,
+                              episodeData?.Directors,
                             )}
                           </span>
                         </div>
@@ -2451,7 +2510,7 @@ function formatDateLong(dateStr) {
                             }}
                           >
                             {getPluralLabel(
-                              data?.writers,
+                              episodeData?.Writers,
                               "Writer",
                               "Writers",
                             )}
@@ -2466,7 +2525,7 @@ function formatDateLong(dateStr) {
                               lineHeight: "1.5rem",
                             }}
                           >
-                            {renderListWithDotSeparator2(data?.writers)}
+                            {renderListWithDotSeparator2(episodeData?.Writers)}
                           </span>
                         </div>
                         <div
@@ -2748,9 +2807,9 @@ function formatDateLong(dateStr) {
                                   lineHeight: "3.75rem",
                                 }}
                               >
-                                {episodeData?.rating === "10.0"
+                                {episodeData?.["Average Rating 2"] === "10.0"
                                   ? 10
-                                  : episodeData?.rating}
+                                  : episodeData?.["Average Rating 2"]}
                               </span>
                             </span>
                             <span
@@ -2767,7 +2826,7 @@ function formatDateLong(dateStr) {
                                 height: "24px",
                               }}
                             >
-                              {formatToK(episodeData?.votes)}
+                              {formatToK(episodeData?.Votes2)}
                             </span>
                           </div>
                           <div>
@@ -2899,7 +2958,7 @@ function formatDateLong(dateStr) {
                           </span>
                         </div>
                       </div>
-                      {episodeData?.votes > 0 && (
+                      {episodeData?.Votes2 > 0 && (
                         <>
                           <div
                             style={{
@@ -3130,7 +3189,7 @@ function formatDateLong(dateStr) {
                 </section>
 
                 {/*Did You Know*/}
-                {episodeData?.votes > 0 && (
+                {episodeData?.Votes2 > 0 && (
                   <section
                     style={{
                       paddingBottom: "24px",
@@ -3234,7 +3293,7 @@ function formatDateLong(dateStr) {
                       width: "808px",
                     }}
                   >
-                    {episodeData?.airDate != "" && (
+                    {episodeData?.Date4 != "" && (
                       <div
                         style={{
                           borderTopWidth: "1px",
@@ -3269,7 +3328,7 @@ function formatDateLong(dateStr) {
                             color: "rgb(14,99,190)",
                           }}
                         >
-                          {formatDateLong(episodeData?.airDate)} {"(United States)"}
+                          {episodeData?.Date4} {"(United States)"}
                         </span>
 
                         <div
@@ -3858,11 +3917,9 @@ function formatDateLong(dateStr) {
                 </section>
 
                 {/*Contribute to this page*/}
-                <Link to={`/admin/edit/${movieId}/episodes/${episodeData?.id}`}>
-                  <section>
-                    <img src={ContributeToThisPageEpisodePage} alt="" />
-                  </section>
-                </Link>
+                <section>
+                  <img src={ContributeToThisPageEpisodePage} alt="" />
+                </section>
               </div>
 
               {/* Aside */}

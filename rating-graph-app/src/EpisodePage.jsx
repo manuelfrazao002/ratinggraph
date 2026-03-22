@@ -59,8 +59,6 @@ export default function Episodes() {
   const [allEpisodes, setAllEpisodes] = useState([]);
   const [coverSrc, setCoverSrc] = useState("");
 
-  const API_URL = "https://backend-ratinggraph.onrender.com/api";
-
   // Load cover image dynamically
   useEffect(() => {
     const loadCover = async () => {
@@ -102,40 +100,153 @@ export default function Episodes() {
   }, []);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch(`${API_URL}/entries/${movieId}`);
-        const data = await res.json();
+    if (!movieId || !movieMap[movieId]) {
+      console.error("movieId inválido");
+      return;
+    }
 
-        setData(data);
+    const urls = movieMap[movieId];
+    fetch(urls[0])
+      .then((res) => res.text())
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          complete: (results) => {
+            const data = results.data;
+            console.log("Dados carregados:", data);
+            setData(data);
+            setFirstRow(data[0]);
 
-        const seasons = data.seasons || [];
+            // Pegando o primeiro valor (primeira linha do CSV)
+            const firstRow = data[0];
+            console.log("Primeiro valor:", firstRow);
 
-        setSeasonList(seasons.map((s) => s.number));
-
-        const grouped = {};
-        let all = [];
-
-        seasons.forEach((season) => {
-          grouped[season.number] = season.episodes || [];
-          all = [...all, ...(season.episodes || [])];
+            // Exemplo: acessar um campo específico
+            // console.log("Primeiro título:", firstRow.Title);
+          },
+          error: (err) => console.error("Erro ao carregar CSV", err),
         });
-
-        setEpisodesBySeason(grouped);
-        setAllEpisodes(all);
-
-        setLoading(false); // ✅ FALTAVA ISTO
-      } catch (err) {
-        console.error(err);
-        setError("Erro ao carregar");
-        setLoading(false);
-      }
-    };
-
-    load();
+      });
   }, [movieId]);
 
-  if (!movieId) return <p>Filme não encontrado.</p>;
+  useEffect(() => {
+    if (!movieId || !movieMap[movieId]) {
+      console.error("movieId inválido");
+      return;
+    }
+
+    const parseCustomDate = (dateStr) => {
+      if (!dateStr) return null;
+
+      // Se for apenas ano (YYYY)
+      if (/^\d{4}$/.test(dateStr.trim())) {
+        return new Date(`${dateStr}-12-31`);
+      }
+
+      const d = new Date(dateStr);
+      return isNaN(d) ? null : d;
+    };
+
+    const urls = movieMap[movieId];
+
+    fetch(urls[1])
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.text();
+      })
+      .then((csv) => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            console.log(results.data);
+
+            results.data.forEach((ep) => {
+              // Remove vírgulas e converte para número, se possível
+              ep.Votes2 = ep.Votes2 ? ep.Votes2.replace(/,/g, "") : "0";
+              ep.Trend = ep.Trend ? ep.Trend.replace(/,/g, "") : "0";
+              ep["Average Rating 2"] = ep["Average Rating 2"] || "0";
+            });
+
+            const grouped = {};
+            const allEpisodes = [];
+
+            results.data.forEach((ep) => {
+              const seasonNumber = parseInt(ep.Season);
+
+              // Ignora episódios sem Season válida (ex: "", null, undefined, NaN)
+              if (!ep.Season || isNaN(seasonNumber)) {
+                return; // simplesmente salta este episódio
+              }
+
+              const season = seasonNumber.toString();
+
+              if (!grouped[season]) grouped[season] = [];
+              grouped[season].push(ep);
+              allEpisodes.push(ep);
+            });
+
+            const seasons = Object.keys(grouped).sort((a, b) => a - b);
+            setSeasonList(seasons);
+            setEpisodesBySeason(grouped);
+            setAllEpisodes(allEpisodes);
+
+            // Agrupar por ano
+            const groupedByYear = {};
+            allEpisodes.forEach((ep) => {
+              const year = ep.Date
+                ? (parseCustomDate(ep.Date)?.getFullYear().toString() ??
+                  "Desconhecido")
+                : "Desconhecido";
+              if (!groupedByYear[year]) groupedByYear[year] = [];
+              groupedByYear[year].push(ep);
+            });
+            const years = Object.keys(groupedByYear).sort((a, b) => a - b); // Anos crescentes
+
+            setYearList(years);
+            setEpisodesByYear(groupedByYear);
+
+            // Calcular os top 10 episódios
+            const top10 = allEpisodes
+              .filter(
+                (ep) =>
+                  ep["Average Rating 2"] &&
+                  !isNaN(parseFloat(ep["Average Rating 2"])),
+              )
+              .sort((a, b) => {
+                const ratingDiff =
+                  parseFloat(b["Average Rating 2"]) -
+                  parseFloat(a["Average Rating 2"]);
+                if (ratingDiff !== 0) return ratingDiff;
+                return parseInt(b.Votes2 || "0") - parseInt(a.Votes2 || "0");
+              })
+              .slice(0, 10);
+
+            // Guardar identificadores dos top episódios (por temporada + título)
+            const topSet = new Set(
+              top10.map((ep) => `${ep.Season}-${ep.Title}`),
+            );
+            setTopEpisodesSet(topSet);
+            setTopEpisodes(top10);
+
+            setLoading(false);
+          },
+          error: (err) => {
+            setError("Erro no parsing do CSV");
+            console.error("Erro PapaParse:", err);
+            setLoading(false);
+          },
+        });
+      })
+      .catch((err) => {
+        setError("Erro ao buscar dados");
+        console.error("Erro fetch:", err);
+        setLoading(false);
+      });
+  }, [movieId]);
+
+  if (!movieId) return <p>Filme não especificado.</p>;
+  if (!movieMap[movieId]) return <p>Filme não encontrado.</p>;
 
   useEffect(() => {
     if (!allEpisodes || allEpisodes.length === 0) return;
@@ -203,6 +314,7 @@ export default function Episodes() {
   }
   if (loading) return <p>Carregando episódios...</p>;
   if (error) return <p>{error}</p>;
+  if (seasonList.length === 0) return <p>Nenhuma temporada encontrada.</p>;
 
   const currentSeason = seasonList[currentSeasonIndex];
   const currentEpisodes = episodesBySeason[currentSeason] || [];
@@ -239,7 +351,7 @@ export default function Episodes() {
       top: "-1px",
     };
 
-    const match = episode.title.match(/S(\d+)\.E(\d+)/i);
+    const match = episode.Title.match(/S(\d+)\.E(\d+)/i);
     const seasonNum = match ? `s${match[1]}` : "s1"; // s1, s2 etc
     const episodeNum = match ? match[2] : "1";
 
@@ -327,7 +439,7 @@ export default function Episodes() {
         <div>
           <div>
             {activeTab !== "Top-rated" &&
-              topEpisodesSet.has(`${episode.season}-${episode.title}`) &&
+              topEpisodesSet.has(`${episode.Season}-${episode.Title}`) &&
               (hasRating || hasSynopsis || Number(votes) > 0) && (
                 <img
                   src={TopRated}
@@ -342,7 +454,7 @@ export default function Episodes() {
               )}
 
             {activeTab === "Most Recent" &&
-              topEpisodesSet.has(`${episode.season}-${episode.title}`) && (
+              topEpisodesSet.has(`${episode.Season}-${episode.Title}`) && (
                 <img
                   src={MostRecent}
                   alt="MostRecent"
@@ -367,7 +479,7 @@ export default function Episodes() {
             >
               <Link
                 key={episode.episodeId}
-                to={`/episodepage/${movieId}/${episode.id}`}
+                to={`/episodepage/${movieId}/${episode.episodeId}`}
               >
                 <h3
                   style={{
@@ -385,8 +497,8 @@ export default function Episodes() {
                   }}
                 >
                   {activeTab === "Top-rated"
-                    ? `#${episode.positionNumber} · ${episode.title}`
-                    : episode.title}
+                    ? `#${episode.positionNumber} · ${episode.Title}`
+                    : episode.Title}
                 </h3>
               </Link>
               <div>
@@ -656,27 +768,19 @@ export default function Episodes() {
                   fontWeight: "bold",
                   marginTop: "0",
                   marginBottom: "0",
-                  fontSize: "1.125rem",
+                  fontSize: "20px",
                   position: "relative",
-                  top: "-3px",
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  fontWeight: "600",
-                  letterSpacing: "0.0125em",
+                  top: "3px",
                 }}
               >
-                {data?.title}
+                {firstRow.Title}
               </p>
               <p
                 style={{
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  fontSize: "2.625rem",
-                  fontWeight: "300",
-                  lineHeight: "3rem",
-                  letterSpacing: "normal",
                   color: "white",
-                  position: "relative",
-                  top: "2px",
+                  fontSize: "42px",
                   margin: 0,
+                  letterSpacing: 0.2,
                 }}
               >
                 Episode list
@@ -686,64 +790,7 @@ export default function Episodes() {
         </section>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          margin: "0 auto",
-          width: "1280px",
-          marginBottom: "-44px",
-        }}
-      >
-        <div
-          style={{
-            margin: "8px 0px 10px 24px",
-            width: "760px",
-          }}
-        >
-          {currentEpisodes.length === 0 && (
-            <>
-              <p
-                style={{
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  fontSize: "1rem",
-                  fontWeight: "400",
-                  lineHeight: "1.5rem",
-                  letterSpacing: "0.03125em",
-                  color: "rgb(0,0,0)",
-                  marginLeft: "24px",
-                  marginBottom: "-6px",
-                }}
-              >
-                It looks like we don't have any episode list for this title yet.
-                <span style={{ color: "#0e63be", cursor: "pointer" }}>
-                  {" "}
-                  Be the first to contribute.
-                </span>
-              </p>
-              <p
-                style={{
-                  fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                  fontSize: "1rem",
-                  fontWeight: "400",
-                  lineHeight: "1.5rem",
-                  letterSpacing: "0.03125em",
-                  color: "#0e63be",
-                  marginLeft: "24px",
-                  cursor: "pointer",
-                }}
-              >
-                Learn more
-              </p>
-            </>
-          )}
-        </div>
-      </div>
-      {currentEpisodes.length !== 0 && (
-        <div
-          className="break-point"
-          style={{ width: "100%", height: "31px" }}
-        />
-      )}
+      <div className="break-point" style={{ width: "100%", height: "31px" }} />
       <div style={{ display: "flex", margin: "0 auto", width: "1280px" }}>
         <div>
           {/* Next Episode */}
@@ -855,7 +902,7 @@ export default function Episodes() {
 
                     return episodesToShow.map((episode, index) => (
                       <div
-                        key={`${episode.season}-${episode.title}-${index}`}
+                        key={`${episode.Season}-${episode.Title}-${index}`}
                         style={{
                           backgroundColor: "white",
                           paddingTop: "16px",
@@ -931,7 +978,7 @@ export default function Episodes() {
                                   top: "1px",
                                 }}
                               >
-                                {episode.title}
+                                {episode.Title}
                               </p>
                             </Link>
                           </div>
@@ -1030,72 +1077,176 @@ export default function Episodes() {
             }}
           >
             <section style={{ width: "856px" }}>
-              {currentEpisodes.length !== 0 && (
-                <>
-                  <div
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  marginBottom: "10px",
+                  marginTop: "36px",
+                  backgroundColor: "#FAFAFA",
+                  fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                  alignItems: "center", // alinha verticalmente no meio (caso a altura varie)
+                  height: "auto", // só para garantir
+                  width: "808px",
+                  position: "relative",
+                  left: 4,
+                  top: 1,
+                }}
+              >
+                {tabs.map((tab) => {
+                  const isActive = tab === activeTab;
+                  const isClosing = tab === closingTab;
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => handleClick(tab)}
+                      className={`tab-button ${isActive ? "active" : ""} ${
+                        isClosing ? `closing-${closingDirection}` : ""
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {activeTab === "Top-rated" && (
+                <div>
+                  {topEpisodes.length === 0 ? (
+                    <p>Nenhum episódio top-rated encontrado.</p>
+                  ) : (
+                    topEpisodes
+                      .filter((ep) => {
+                        const hasSynopsis =
+                          ep.Synopsis && ep.Synopsis.trim() !== "";
+                        const rating = parseFloat(ep["Average Rating 2"]);
+                        const votes = parseInt(ep.Votes2);
+                        const hasRatingOrVotes =
+                          (!isNaN(rating) && rating > 0) ||
+                          (!isNaN(votes) && votes > 0);
+                        return hasSynopsis || hasRatingOrVotes;
+                      })
+                      .map((episode, index, filteredEpisodes) => (
+                        <EpisodeItem
+                          key={`${episode.Season}-${episode.Title}-${index}`}
+                          episode={{
+                            ...episode,
+                            positionNumber: index + 1,
+                          }}
+                          index={index}
+                          isLast={index === filteredEpisodes.length - 1} // Passa isLast aqui, direto como prop!
+                        />
+                      ))
+                  )}
+                  <a
+                    href="https://www.imdb.com/search/title/?title_type=tv_episode&sort=num_votes,desc"
                     style={{
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      marginBottom: "10px",
-                      marginTop: "36px",
-                      backgroundColor: "#FAFAFA",
-                      fontFamily:
-                        "'Helvetica Neue', Helvetica, Arial, sans-serif",
-                      alignItems: "center", // alinha verticalmente no meio (caso a altura varie)
-                      height: "auto", // só para garantir
-                      width: "808px",
-                      position: "relative",
-                      left: 4,
-                      top: 1,
+                      cursor: "pointer",
+                      background: "none",
+                      border: "none",
+                      padding: "0 1rem",
+                      minHeight: "2.25rem",
+                      fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      lineHeight: "1.25",
+                      color: "rgb(14,99,190)",
+                      minWidth: "3rem",
+                      width: "100&",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      letterSpacing: "0.02em",
+                      margin: "0 4px 0 0",
                     }}
                   >
-                    {tabs.map((tab) => {
-                      const isActive = tab === activeTab;
-                      const isClosing = tab === closingTab;
+                    <span>Show more</span>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
+                    </svg>
+                  </a>
+                </div>
+              )}
+
+              {activeTab === "Seasons" && (
+                <div>
+                  <div
+                    style={{
+                      marginBottom: "20px",
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      gap: "0px",
+                      width: "808px",
+                      position: "relative",
+                      left: "4px",
+                      top: "3px",
+                    }}
+                  >
+                    {seasonList.map((season, index) => {
+                      const isActive = index === currentSeasonIndex;
                       return (
-                        <button
-                          key={tab}
-                          onClick={() => handleClick(tab)}
-                          className={`tab-button ${isActive ? "active" : ""} ${
-                            isClosing ? `closing-${closingDirection}` : ""
-                          }`}
+                        <div
+                          key={season}
+                          style={{
+                            width: "48.03333px",
+                            height: "48px",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            backgroundColor: isActive
+                              ? "#F5C518"
+                              : "transparent",
+                            color: "black",
+                            fontWeight: "bold",
+                            userSelect: "none",
+                            letterSpacing: "0.7px",
+                            fontSize: "0.9rem",
+                            transition:
+                              "background-color 0.3s ease, transform 0.2s ease",
+                            ":hover": {
+                              backgroundColor: isActive ? "#F5C518" : "#EBEBEB",
+                              transform: "scale(1.05)",
+                            },
+                          }}
+                          onMouseDown={(e) => e.preventDefault()} // Previne flicker no click
+                          onClick={() => setCurrentSeasonIndex(index)}
                         >
-                          {tab}
-                        </button>
+                          {season}
+                        </div>
                       );
                     })}
                   </div>
 
-                  {activeTab === "Top-rated" && (
-                    <div>
-                      {topEpisodes.length === 0 ? (
-                        <p>Nenhum episódio top-rated encontrado.</p>
-                      ) : (
-                        topEpisodes
-                          .filter((ep) => {
-                            const hasSynopsis =
-                              ep.Synopsis && ep.Synopsis.trim() !== "";
-                            const rating = parseFloat(ep["Average Rating 2"]);
-                            const votes = parseInt(ep.Votes2);
-                            const hasRatingOrVotes =
-                              (!isNaN(rating) && rating > 0) ||
-                              (!isNaN(votes) && votes > 0);
-                            return hasSynopsis || hasRatingOrVotes;
-                          })
-                          .map((episode, index, filteredEpisodes) => (
-                            <EpisodeItem
-                              key={`${episode.season}-${episode.title}-${index}`}
-                              episode={{
-                                ...episode,
-                                positionNumber: index + 1,
-                              }}
-                              index={index}
-                              isLast={index === filteredEpisodes.length - 1} // Passa isLast aqui, direto como prop!
-                            />
-                          ))
-                      )}
-                      <a
-                        href="https://www.imdb.com/search/title/?title_type=tv_episode&sort=num_votes,desc"
+                  {currentEpisodes.length === 0 && (
+                    <p>Nenhum episódio encontrado.</p>
+                  )}
+                  {currentEpisodes.map((episode, index) => (
+                    <EpisodeItem
+                      key={`${episode.Season}-${episode.Episode}`}
+                      episode={episode}
+                      index={index}
+                      isLast={index === currentEpisodes.length - 1}
+                    />
+                  ))}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      marginTop: "1rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {/* Previous */}
+                    {currentSeasonIndex > 0 && (
+                      <button
+                        onClick={goPrevSeason}
                         style={{
                           cursor: "pointer",
                           background: "none",
@@ -1108,14 +1259,197 @@ export default function Episodes() {
                           lineHeight: "1.25",
                           color: "rgb(14,99,190)",
                           minWidth: "3rem",
-                          width: "100&",
                           display: "inline-flex",
                           alignItems: "center",
                           letterSpacing: "0.02em",
-                          margin: "0 4px 0 0",
                         }}
                       >
-                        <span>Show more</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z" />
+                        </svg>
+                        <span>{seasonList[currentSeasonIndex - 1]}</span>
+                      </button>
+                    )}
+
+                    {/* Next */}
+                    {currentSeasonIndex < seasonList.length - 1 && (
+                      <button
+                        onClick={goNextSeason}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <span>{seasonList[currentSeasonIndex + 1]}</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          role="presentation"
+                        >
+                          <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "Years" && (
+                <div>
+                  {/* Navegação em bolinhas dos anos */}
+                  <div
+                    className="flex gap-2 justify-center mb-4"
+                    style={{
+                      marginBottom: "20px",
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      gap: "0px",
+                      width: "808px",
+                      position: "relative",
+                      left: "4px",
+                      top: "3px",
+                    }}
+                  >
+                    {yearList.map((year, index) => {
+                      const isActive = currentYearIndex === index;
+                      const isHovered = hoveredYearIndex === index;
+
+                      return (
+                        <div
+                          key={year}
+                          onClick={() => setCurrentYearIndex(index)}
+                          onMouseEnter={() =>
+                            !isActive && setHoveredYearIndex(index)
+                          }
+                          onMouseLeave={() =>
+                            !isActive && setHoveredYearIndex(null)
+                          }
+                          style={{
+                            width: "72.133px",
+                            height: "48px",
+                            borderRadius: "40px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            backgroundColor: isActive
+                              ? "#F5C518"
+                              : isHovered
+                                ? "#EBEBEB"
+                                : "transparent",
+                            color: "black",
+                            fontWeight: "bold",
+                            userSelect: "none",
+                            fontSize: "0.9rem",
+                            transition: "background-color 0.2s ease",
+                          }}
+                          title={`Ano ${year}`}
+                        >
+                          {year}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Lista de episódios do ano selecionado */}
+                  {(episodesByYear[yearList[currentYearIndex]] || []).map(
+                    (episode, index, list) => (
+                      <EpisodeItem
+                        key={`${episode.Season}-${episode.Title}`}
+                        episode={episode}
+                        index={index}
+                        isLast={index === list.length - 1} // ✅ lista correta
+                      />
+                    ),
+                  )}
+
+                  {/* Navegação Previous / Next (igual às seasons) */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      marginTop: "1rem",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {/* Previous */}
+                    {currentYearIndex > 0 && (
+                      <button
+                        onClick={goPrevYear}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z" />
+                        </svg>
+                        <span>{yearList[currentYearIndex - 1]}</span>
+                      </button>
+                    )}
+
+                    {/* Next */}
+                    {currentYearIndex < yearList.length - 1 && (
+                      <button
+                        onClick={goNextYear}
+                        style={{
+                          cursor: "pointer",
+                          background: "none",
+                          border: "none",
+                          padding: "0 1rem",
+                          minHeight: "2.25rem",
+                          fontFamily: "Roboto,Helvetica,Arial,sans-serif",
+                          fontSize: "0.875rem",
+                          fontWeight: "600",
+                          lineHeight: "1.25",
+                          color: "rgb(14,99,190)",
+                          minWidth: "3rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        <span>{yearList[currentYearIndex + 1]}</span>
                         <svg
                           width="24"
                           height="24"
@@ -1124,311 +1458,15 @@ export default function Episodes() {
                         >
                           <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
                         </svg>
-                      </a>
-                    </div>
-                  )}
-
-                  {activeTab === "Seasons" && (
-                    <div>
-                      <div
-                        style={{
-                          marginBottom: "20px",
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          gap: "0px",
-                          width: "808px",
-                          position: "relative",
-                          left: "4px",
-                          top: "3px",
-                        }}
-                      >
-                        {seasonList.map((season, index) => {
-                          const isActive = index === currentSeasonIndex;
-                          return (
-                            <div
-                              key={season}
-                              style={{
-                                width: "48.03333px",
-                                height: "48px",
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                backgroundColor: isActive
-                                  ? "#F5C518"
-                                  : "transparent",
-                                color: "black",
-                                fontWeight: "bold",
-                                userSelect: "none",
-                                letterSpacing: "0.7px",
-                                fontSize: "0.9rem",
-                                transition:
-                                  "background-color 0.3s ease, transform 0.2s ease",
-                                ":hover": {
-                                  backgroundColor: isActive
-                                    ? "#F5C518"
-                                    : "#EBEBEB",
-                                  transform: "scale(1.05)",
-                                },
-                              }}
-                              onMouseDown={(e) => e.preventDefault()} // Previne flicker no click
-                              onClick={() => setCurrentSeasonIndex(index)}
-                            >
-                              {season}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {currentEpisodes.length === 0 && (
-                        <p>Nenhum episódio encontrado.</p>
-                      )}
-                      {currentEpisodes.map((episode, index) => (
-                        <EpisodeItem
-                          key={`${episode.Season}-${episode.Episode}`}
-                          episode={episode}
-                          index={index}
-                          isLast={index === currentEpisodes.length - 1}
-                        />
-                      ))}
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "1rem",
-                          marginTop: "1rem",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {/* Previous */}
-                        {currentSeasonIndex > 0 && (
-                          <button
-                            onClick={goPrevSeason}
-                            style={{
-                              cursor: "pointer",
-                              background: "none",
-                              border: "none",
-                              padding: "0 1rem",
-                              minHeight: "2.25rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              lineHeight: "1.25",
-                              color: "rgb(14,99,190)",
-                              minWidth: "3rem",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                            >
-                              <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z" />
-                            </svg>
-                            <span>{seasonList[currentSeasonIndex - 1]}</span>
-                          </button>
-                        )}
-
-                        {/* Next */}
-                        {currentSeasonIndex < seasonList.length - 1 && (
-                          <button
-                            onClick={goNextSeason}
-                            style={{
-                              cursor: "pointer",
-                              background: "none",
-                              border: "none",
-                              padding: "0 1rem",
-                              minHeight: "2.25rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              lineHeight: "1.25",
-                              color: "rgb(14,99,190)",
-                              minWidth: "3rem",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            <span>{seasonList[currentSeasonIndex + 1]}</span>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              role="presentation"
-                            >
-                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === "Years" && (
-                    <div>
-                      {/* Navegação em bolinhas dos anos */}
-                      <div
-                        className="flex gap-2 justify-center mb-4"
-                        style={{
-                          marginBottom: "20px",
-                          display: "flex",
-                          justifyContent: "flex-start",
-                          gap: "0px",
-                          width: "808px",
-                          position: "relative",
-                          left: "4px",
-                          top: "3px",
-                        }}
-                      >
-                        {yearList.map((year, index) => {
-                          const isActive = currentYearIndex === index;
-                          const isHovered = hoveredYearIndex === index;
-
-                          return (
-                            <div
-                              key={year}
-                              onClick={() => setCurrentYearIndex(index)}
-                              onMouseEnter={() =>
-                                !isActive && setHoveredYearIndex(index)
-                              }
-                              onMouseLeave={() =>
-                                !isActive && setHoveredYearIndex(null)
-                              }
-                              style={{
-                                width: "72.133px",
-                                height: "48px",
-                                borderRadius: "40px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                backgroundColor: isActive
-                                  ? "#F5C518"
-                                  : isHovered
-                                    ? "#EBEBEB"
-                                    : "transparent",
-                                color: "black",
-                                fontWeight: "bold",
-                                userSelect: "none",
-                                fontSize: "0.9rem",
-                                transition: "background-color 0.2s ease",
-                              }}
-                              title={`Ano ${year}`}
-                            >
-                              {year}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Lista de episódios do ano selecionado */}
-                      {(episodesByYear[yearList[currentYearIndex]] || []).map(
-                        (episode, index, list) => (
-                          <EpisodeItem
-                            key={`${episode.season}-${episode.title}`}
-                            episode={episode}
-                            index={index}
-                            isLast={index === list.length - 1} // ✅ lista correta
-                          />
-                        ),
-                      )}
-
-                      {/* Navegação Previous / Next (igual às seasons) */}
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "1rem",
-                          marginTop: "1rem",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {/* Previous */}
-                        {currentYearIndex > 0 && (
-                          <button
-                            onClick={goPrevYear}
-                            style={{
-                              cursor: "pointer",
-                              background: "none",
-                              border: "none",
-                              padding: "0 1rem",
-                              minHeight: "2.25rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              lineHeight: "1.25",
-                              color: "rgb(14,99,190)",
-                              minWidth: "3rem",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                            >
-                              <path d="M14.71 6.71a.996.996 0 0 0-1.41 0L8.71 11.3a.996.996 0 0 0 0 1.41l4.59 4.59a.996.996 0 1 0 1.41-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z" />
-                            </svg>
-                            <span>{yearList[currentYearIndex - 1]}</span>
-                          </button>
-                        )}
-
-                        {/* Next */}
-                        {currentYearIndex < yearList.length - 1 && (
-                          <button
-                            onClick={goNextYear}
-                            style={{
-                              cursor: "pointer",
-                              background: "none",
-                              border: "none",
-                              padding: "0 1rem",
-                              minHeight: "2.25rem",
-                              fontFamily: "Roboto,Helvetica,Arial,sans-serif",
-                              fontSize: "0.875rem",
-                              fontWeight: "600",
-                              lineHeight: "1.25",
-                              color: "rgb(14,99,190)",
-                              minWidth: "3rem",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            <span>{yearList[currentYearIndex + 1]}</span>
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                            >
-                              <path d="M9.29 6.71a.996.996 0 0 0 0 1.41L13.17 12l-3.88 3.88a.996.996 0 1 0 1.41 1.41l4.59-4.59a.996.996 0 0 0 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </>
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
 
               <div style={{ position: "relative", left: "-20px" }}>
                 <div style={{ marginTop: 29 }}>
-                  <Link to={`/admin/edit/${data.id}/episodes`}>
-                    <img src={Contribute} alt="" />
-                  </Link>
+                  <img src={Contribute} alt="" />
                 </div>
                 <div style={{ marginTop: 1 }}>
                   <img src={MoreTitle} alt="" />

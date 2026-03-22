@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 import React, { useEffect, useState, useRef } from "react";
+import Papa from "papaparse";
 import Navbar from "./imgs/imdb/imdb_navbar.png";
 import { createGlobalStyle } from "styled-components";
+import { getShowCoverSrc } from "./ShowImageSrc";
+import { movieMap, movies } from "./data/MovieMap";
+import ListBiggerText from "./imgs/imdb/listpage/listbiggertext.png";
 import ListChart from "./imgs/imdb/listpage/listchart.png";
 import ListFilter from "./imgs/imdb/listpage/listfilter.png";
 import ListLayout from "./imgs/imdb/listpage/listlayout.png";
@@ -9,47 +13,85 @@ import ListPercentage from "./imgs/imdb/listpage/listpercentage.png";
 import ListSmallText from "./imgs/imdb/listpage/listsmalltext.png";
 
 import InforButton from "./imgs/imdb/listpage/infobutton.png";
+import MarkAsWatched from "./imgs/imdb/listpage/markaswatched.png";
+import RateEp from "./imgs/imdb/rateep.png";
 
 import SideContent from "./imgs/imdb/listpage/sidecontent.png";
 
 import Footer1 from "./imgs/imdb/footer1.png";
 import Footer2 from "./imgs/imdb/footer2.png";
 
-import { getEntries } from "./services/entryService";
+const urls = movies
+  .map((movie) => movieMap[movie.id]?.[0])
+  .filter(Boolean); // Remove valores undefined no caso de IDs inválidos ou entradas faltando
+
 
 function MovieList() {
   const [data, setData] = useState([]);
   const [sortKey, setSortKey] = useState("Popularity");
   const [sortOrder, setSortOrder] = useState("asc"); // ou "desc"
   const [hoveredId, setHoveredId] = React.useState(null);
-  const [activeMenu, setActiveMenu] = useState(null);
+  const [coverImages, setCoverImages] = useState({});
 
-  const API_URL = "https://backend-ratinggraph.onrender.com/api";
-
+    // Load cover images dynamically
   useEffect(() => {
-    const loadEntries = async () => {
-      try {
-        const entries = await getEntries();
-        setData(entries);
-      } catch (err) {
-        console.error("Erro ao buscar entries", err);
+    const loadCoverImages = async () => {
+      const covers = {};
+      for (const movie of movies) {
+        if (movie.id) {
+          covers[movie.id] = await getShowCoverSrc(movie.id);
+        }
       }
+      setCoverImages(covers);
     };
-
-    loadEntries();
+    loadCoverImages();
   }, []);
 
   // No início do componente MovieList, adicione uma função para filtrar animes
-  const filterAnime = (data) => {
-    return data.filter((item) => {
-      if (!item) return false;
+const filterAnime = (data) => {
+  return data.filter(item => {
+    if (!item) return false;
+    
+    // Verifica múltiplas possibilidades de identificação de anime
+    const isAnime = 
+      item.Type?.toLowerCase().includes('anime');
+    
+    return !isAnime;
+  });
+};
 
-      // Verifica múltiplas possibilidades de identificação de anime
-      const isAnime = item.Type?.toLowerCase().includes("anime");
+useEffect(() => {
+  const urls = movies
+    .map((movie) => movieMap[movie.id]?.[0])
+    .filter(Boolean);
 
-      return !isAnime;
-    });
-  };
+  Promise.all(
+    urls.map((url) =>
+      fetch(url)
+        .then((res) => res.text())
+        .then(
+          (csv) =>
+            new Promise((resolve) =>
+              Papa.parse(csv, {
+                header: true,
+                complete: (results) => {
+                  const filteredData = filterAnime(results.data);
+                  resolve(filteredData);
+                },
+                error: (err) => {
+                  console.error("Erro ao carregar CSV", err);
+                  resolve([]); // evita quebrar a Promise.all
+                },
+              })
+            )
+        )
+    )
+  ).then((resultsArrays) => {
+    const allData = [].concat(...resultsArrays);
+    setData(allData);
+  });
+}, []);
+
 
   const GlobalStyle = createGlobalStyle`
   #root {
@@ -59,41 +101,42 @@ function MovieList() {
   }
 `;
 
-  function parseVoteCount(voteStr) {
-    if (!voteStr) return 0;
-    voteStr = voteStr.replace(",", "").toUpperCase();
+function parseVoteCount(voteStr) {
+  if (!voteStr) return 0;
+  voteStr = voteStr.replace(",", "").toUpperCase();
 
-    if (voteStr.includes("K")) {
-      return parseFloat(voteStr.replace("K", "")) * 1000;
-    } else if (voteStr.includes("M")) {
-      return parseFloat(voteStr.replace("M", "")) * 1000000;
-    } else {
-      return parseFloat(voteStr);
-    }
+  if (voteStr.includes("K")) {
+    return parseFloat(voteStr.replace("K", "")) * 1000;
+  } else if (voteStr.includes("M")) {
+    return parseFloat(voteStr.replace("M", "")) * 1000000;
+  } else {
+    return parseFloat(voteStr);
   }
+}
+
 
   const sortedData = filterAnime([...data]).sort((a, b) => {
-    let valueA = a[sortKey];
-    let valueB = b[sortKey];
+  let valueA = a[sortKey];
+  let valueB = b[sortKey];
 
-    // Special handling for formatted "Votes"
-    if (sortKey === "Votes") {
-      valueA = parseVoteCount(valueA);
-      valueB = parseVoteCount(valueB);
-    }
+  // Special handling for formatted "Votes"
+  if (sortKey === "Votes") {
+    valueA = parseVoteCount(valueA);
+    valueB = parseVoteCount(valueB);
+  }
 
-    const isNumeric = !isNaN(valueA) && !isNaN(valueB);
+  const isNumeric = !isNaN(valueA) && !isNaN(valueB);
 
-    if (isNumeric) {
-      return sortOrder === "asc"
-        ? Number(valueA) - Number(valueB)
-        : Number(valueB) - Number(valueA);
-    }
-
+  if (isNumeric) {
     return sortOrder === "asc"
-      ? String(valueA).localeCompare(String(valueB))
-      : String(valueB).localeCompare(String(valueA));
-  });
+      ? Number(valueA) - Number(valueB)
+      : Number(valueB) - Number(valueA);
+  }
+
+  return sortOrder === "asc"
+    ? String(valueA).localeCompare(String(valueB))
+    : String(valueB).localeCompare(String(valueA));
+});
 
   const ArrowUpIcon = () => (
     <svg
@@ -124,7 +167,7 @@ function MovieList() {
   function formatVotes(votes) {
     if (!votes) return "N/A";
 
-    const num = Number(votes?.toString().replace(/[, ]+/g, ""));
+    const num = Number(votes.toString().replace(/[, ]+/g, ""));
 
     if (isNaN(num)) return "N/A";
 
@@ -144,7 +187,7 @@ function MovieList() {
   const measureTextWidth = (
     text,
     fontSize = "15px",
-    fontFamily = "Roboto, Helvetica, Arial, sans-serif",
+    fontFamily = "Roboto, Helvetica, Arial, sans-serif"
   ) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -166,55 +209,18 @@ function MovieList() {
 
   const shouldShowRating = (rating, votes) => {
     const ratingNum = Number(rating);
-    const votesNum = Number(votes?.toString().replace(/[,]+/g, ""));
+    const votesNum = Number(votes.toString().replace(/[,]+/g, ""));
     return (
       !isNaN(ratingNum) && !isNaN(votesNum) && ratingNum > 0 && votesNum > 0
     );
   };
 
-  const menuItemStyle = {
-    width: "100%",
-    padding: "10px",
-    border: "none",
-    background: "white",
-    cursor: "pointer",
-    textAlign: "left",
-  };
-
-  const handleEdit = (id) => {
-    window.location.href = `/admin/edit/${id}`;
-  };
-
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Tens a certeza?");
-
-    if (!confirmDelete) return;
-
-    try {
-      await fetch(`${API_URL}/entries/${id}`, {
-        method: "DELETE",
-      });
-
-      // 🔥 remove do UI
-      setData((prev) => prev.filter((e) => e.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao apagar");
-    }
-  };
-
-  useEffect(() => {
-    const handleClick = () => setActiveMenu(null);
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
-  }, []);
-
   return (
-    <div style={{ padding: 0, margin: 0, backgroundColor: "black" }}>
+    <div style={{ padding: 0, margin: 0, backgroundColor: "black"}}>
       <GlobalStyle />
       <div>
         <Link to={`/`}>
-          <img src={Navbar} alt="" />
+        <img src={Navbar} alt="" />
         </Link>
       </div>
       <div
@@ -228,24 +234,6 @@ function MovieList() {
         }}
       >
         <section style={{ paddingTop: 24 }}>
-          <Link to={"/admin/create"}>
-            <div
-              style={{
-                padding: "0.5rem",
-                borderRadius: "12px",
-                color: "black",
-                cursor: "pointer",
-                background: "rgb(245, 197, 24)",
-                width: "110px",
-                textAlign: "center",
-                fontFamily: "Roboto, Helvetica, Arial, sans-serif",
-                letterSpacing: "0.2px",
-                fontWeight: "600",
-              }}
-            >
-              <span>+ Add entry</span>
-            </div>
-          </Link>
           <img src={ListChart} alt="" />
           <div style={{ position: "relative", top: -6 }}>
             <div
@@ -293,16 +281,12 @@ function MovieList() {
                     alignItems: "center",
                   }}
                 >
-                  {filterAnime(sortedData).length !== 1 && (
-                    <p style={{ color: "black" }}>
-                      {filterAnime(sortedData).length} Titles
-                    </p>
-                  )}
-                  {filterAnime(sortedData).length === 1 && (
-                    <p style={{ color: "black" }}>
-                      {filterAnime(sortedData).length} Title
-                    </p>
-                  )}
+                  {filterAnime(sortedData).length !== 1 &&
+                  <p style={{ color: "black" }}>{filterAnime(sortedData).length} Titles</p>
+                  }
+                  {filterAnime(sortedData).length === 1 &&
+                  <p style={{ color: "black" }}>{filterAnime(sortedData).length} Title</p>
+                  }
                   <img src={ListLayout} alt="" style={{ height: "48px" }} />
                 </div>
                 <div style={{ margin: "4px 4px 0px 0px", width: "808px" }}>
@@ -385,11 +369,9 @@ function MovieList() {
               }}
             >
               <div style={{ padding: "12px" }}>
-                {sortedData.map((entry, index) => {
-                  const isMovie = entry.type === "Movie";
-                  const isTVShow =
-                    entry.type === "TV Series" ||
-                    entry.type === "TV Mini Series";
+                {sortedData.map((movie, index) => {
+                  const isMovie = movie.Type === "Movie";
+                  const isTVShow = data.Type === "TV Series" || data.Type === "TV Mini Series";
                   return (
                     <div
                       style={{
@@ -419,8 +401,8 @@ function MovieList() {
                         >
                           <div style={{ verticalAlign: "center" }}>
                             <img
-                              src={entry.coverImage} // movieId vem do CSV? Use esta chave para pegar a imagem
-                              alt={entry.title}
+                              src={coverImages[movie.movieId]} // movieId vem do CSV? Use esta chave para pegar a imagem
+                              alt={movie.Title}
                               style={{
                                 width: "72px",
                                 height: "106.55px",
@@ -430,13 +412,16 @@ function MovieList() {
                             />
                           </div>
                           <div>
-                            <Link key={entry.movieId} to={`/entry/${entry.id}`}>
+                            <Link
+                              key={movie.movieId}
+                              to={`/imdb/${movie.movieId}`}
+                            >
                               <h2
-                                onMouseEnter={() => setHoveredId(entry.movieId)}
+                                onMouseEnter={() => setHoveredId(movie.movieId)}
                                 onMouseLeave={() => setHoveredId(null)}
                                 style={{
                                   color:
-                                    hoveredId === entry.movieId
+                                    hoveredId === movie.movieId
                                       ? "#666"
                                       : "black",
                                   fontWeight: "bold",
@@ -448,7 +433,7 @@ function MovieList() {
                                   cursor: "pointer", // indica que é clicável
                                 }}
                               >
-                                {index + 1}. {entry.title}
+                                {index + 1}. {movie.Title}
                               </h2>
                             </Link>
 
@@ -462,46 +447,40 @@ function MovieList() {
                                 alignItems: "center",
                               }}
                             >
-                              {entry.releaseDate !== "" && (
-                                <>
-                                  <p style={{ margin: "0 0.75rem 0 0" }}>
-                                    {entry.releaseDate &&
-                                      new Date(entry.releaseDate).getFullYear()}
-
-                                    {entry.type === "series" &&
-                                      (entry.endingYear
-                                        ? `—${entry.endingYear}`
-                                        : "—")}
-                                  </p>
-
-                                  {!isMovie && entry.episodes < 1 && (
-                                    <p style={{ margin: "0 0.75rem 0 0" }}>
-                                      {entry.episodes} eps
-                                    </p>
-                                  )}
-                                </>
+                              {movie.BeginingYear !== "" && (<>
+                              <p style={{ margin: "0 0.75rem 0 0" }}>
+                                {movie.BeginingYear}
+                                {movie.Type === "TV Series" &&
+                                  `—${movie.EndingYear}`}
+                              </p>
+                              
+                              {!isMovie && (
+                                <p style={{ margin: "0 0.75rem 0 0" }}>
+                                  {movie.Episodes} eps
+                                </p>
                               )}
+                              </>)}
                               {isMovie && (
                                 <p style={{ margin: "0 0.75rem 0 0" }}>
-                                  {entry.MovieDuration}
+                                  {movie.MovieDuration}
                                 </p>
                               )}
                               <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {entry.ageRating}
+                                {movie.AgeRating}
                               </p>
                               <p style={{ margin: "0 0.75rem 0 0" }}>
-                                {entry.type === "Movie" &&
-                                entry.metascore &&
-                                entry.metascore !== "N/A" ? (
+                                {movie.Type === "Movie" &&
+                                movie.Metascore &&
+                                movie.Metascore !== "N/A" ? (
                                   <>
                                     <span
                                       style={{
                                         backgroundColor:
-                                          Number(entry.metascore) >= 61
+                                          Number(movie.Metascore) >= 61
                                             ? "#54A72A"
-                                            : Number(entry.metascore) >= 40
-                                              ? "#ffcc33"
-                                              : "#ff0000",
+                                            : Number(movie.Metascore) >= 40
+                                            ? "#ffcc33"
+                                            : "#ff0000",
                                         color: "white",
                                         padding: "2px 3px",
                                         fontSize: "0.85rem",
@@ -511,7 +490,7 @@ function MovieList() {
                                         marginRight: "4px",
                                       }}
                                     >
-                                      {entry.metascore}
+                                      {movie.Metascore}
                                     </span>
                                     <span
                                       style={{
@@ -522,30 +501,28 @@ function MovieList() {
                                       Metascore
                                     </span>
                                   </>
-                                ) : entry.type === "series" ? (
-                                  "TV Series"
                                 ) : (
-                                  entry.type
+                                  movie.Type
                                 )}
                               </p>
                             </div>
-                            {shouldShowRating(entry.rating, entry.votes) ? (
+                            {shouldShowRating(movie.Rating, movie.Votes) ? (
                               <div
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
                                   height: "36px",
                                 }}
-                              >
-                                <div
-                                  style={{
-                                    color: "#757575",
-                                    display: "flex",
-                                    fontSize: "14px",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <svg
+                              >                                 
+                                  <div
+                                    style={{
+                                      color: "#757575",
+                                      display: "flex",
+                                      fontSize: "14px",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <svg
                                     width="14px"
                                     height="11.2px"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -561,150 +538,92 @@ function MovieList() {
                                   >
                                     <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.656 5.53-6.774.602c-1.234.102-1.739 1.718-.799 2.566l5.147 4.666-1.542 6.926c-.28 1.262.023 2.262 1.09 1.585L12 20.099z"></path>
                                   </svg>
-                                  <p style={{ margin: "0 4px 0 0" }}>
-                                    {entry.rating}
-                                  </p>
-                                  <p style={{ margin: "0 10px 0 0" }}>
-                                    ({formatVotes(entry.votes) || "N/A"})
-                                  </p>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      padding: "0 12px 0 12px",
-                                    }}
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="14px"
-                                      height="11.2px"
-                                      class="ipc-icon ipc-icon--star-border-inline"
-                                      viewBox="0 0 24 24"
-                                      fill="currentColor"
-                                      role="presentation"
-                                      style={{
-                                        color: "#0e63be",
-                                        paddingRight: 2,
-                                      }}
-                                    >
-                                      <path d="M22.724 8.217l-6.786-.587-2.65-6.22c-.477-1.133-2.103-1.133-2.58 0l-2.65 6.234-6.772.573c-1.234.098-1.739 1.636-.8 2.446l5.146 4.446-1.542 6.598c-.28 1.202 1.023 2.153 2.09 1.51l5.818-3.495 5.819 3.509c1.065.643 2.37-.308 2.089-1.51l-1.542-6.612 5.145-4.446c.94-.81.45-2.348-.785-2.446zm-10.726 8.89l-5.272 3.174 1.402-5.983-4.655-4.026 6.141-.531 2.384-5.634 2.398 5.648 6.14.531-4.654 4.026 1.402 5.983-5.286-3.187z"></path>
-                                    </svg>
-                                    <p
-                                      style={{
-                                        color: "#0e63be",
-                                        margin: 0,
-                                        height: "20px",
-                                      }}
-                                    >
-                                      Rate
+                                    <p style={{ margin: "0 4px 0 0" }}>
+                                      {movie.Rating}
                                     </p>
-                                  </div>
-                                  <div
-                                    style={{
-                                      paddingLeft: 12,
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="16"
-                                      height="16"
-                                      className="ipc-icon ipc-icon--visibility ipc-btn__icon ipc-btn__icon--pre watched-button--icon ipc-btn__icon--disable-margin"
-                                      viewBox="0 0 24 24"
-                                      fill="currentColor"
-                                      role="presentation"
-                                      style={{
-                                        color: "#0e63be",
-                                        margin: "0 2px 0 0",
-                                        verticalAlign: "middle",
-                                        paddingRight: "2px",
-                                      }}
-                                    >
-                                      <path
-                                        d="M0 0h24v24H0V0z"
-                                        fill="none"
-                                      ></path>
-                                      <path d="M12 6c3.79 0 7.17 2.13 8.82 5.5C19.17 14.87 15.79 17 12 17s-7.17-2.13-8.82-5.5C4.83 8.13 8.21 6 12 6m0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 5c1.38 0 2.5 1.12 2.5 2.5S13.38 14 12 14s-2.5-1.12-2.5-2.5S10.62 9 12 9m0-2c-2.48 0-4.5 2.02-4.5 4.5S9.52 16 12 16s4.5-2.02 4.5-4.5S14.48 7 12 7z"></path>
-                                    </svg>
-                                    <p
-                                      style={{
-                                        color: "#0e63be",
-                                      }}
-                                    >
-                                      Marked as watched
+                                    <p style={{ margin: "0 10px 0 0" }}>
+                                      ({formatVotes(movie.Votes) || "N/A"})
                                     </p>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        padding: "0 12px 0 12px",
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="14px"
+                                    height="11.2px"
+                                        class="ipc-icon ipc-icon--star-border-inline"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        role="presentation"
+                                        style={{
+                                          color: "#0e63be",
+                                          paddingRight: 2,
+                                        }}
+                                      >
+                                        <path d="M22.724 8.217l-6.786-.587-2.65-6.22c-.477-1.133-2.103-1.133-2.58 0l-2.65 6.234-6.772.573c-1.234.098-1.739 1.636-.8 2.446l5.146 4.446-1.542 6.598c-.28 1.202 1.023 2.153 2.09 1.51l5.818-3.495 5.819 3.509c1.065.643 2.37-.308 2.089-1.51l-1.542-6.612 5.145-4.446c.94-.81.45-2.348-.785-2.446zm-10.726 8.89l-5.272 3.174 1.402-5.983-4.655-4.026 6.141-.531 2.384-5.634 2.398 5.648 6.14.531-4.654 4.026 1.402 5.983-5.286-3.187z"></path>
+                                      </svg>
+                                      <p
+                                        style={{
+                                          color: "#0e63be",
+                                          margin: 0,
+                                          height: "20px"
+                                        }}
+                                      >
+                                        Rate
+                                      </p>
+                                    </div>
+                                    <div
+                                      style={{
+                                        paddingLeft: 12,
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        className="ipc-icon ipc-icon--visibility ipc-btn__icon ipc-btn__icon--pre watched-button--icon ipc-btn__icon--disable-margin"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        role="presentation"
+                                        style={{
+                                          color: "#0e63be",
+                                          margin: "0 2px 0 0",
+                                          verticalAlign: "middle",
+                                          paddingRight: "2px",
+                                        }}
+                                      >
+                                        <path
+                                          d="M0 0h24v24H0V0z"
+                                          fill="none"
+                                        ></path>
+                                        <path d="M12 6c3.79 0 7.17 2.13 8.82 5.5C19.17 14.87 15.79 17 12 17s-7.17-2.13-8.82-5.5C4.83 8.13 8.21 6 12 6m0-2C7 4 2.73 7.11 1 11.5 2.73 15.89 7 19 12 19s9.27-3.11 11-7.5C21.27 7.11 17 4 12 4zm0 5c1.38 0 2.5 1.12 2.5 2.5S13.38 14 12 14s-2.5-1.12-2.5-2.5S10.62 9 12 9m0-2c-2.48 0-4.5 2.02-4.5 4.5S9.52 16 12 16s4.5-2.02 4.5-4.5S14.48 7 12 7z"></path>
+                                      </svg>
+                                      <p
+                                        style={{
+                                          color: "#0e63be",
+                                        }}
+                                      >
+                                        Marked as watched
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
                               </div>
                             ) : null}
-                            {entry.status === "not aired" && (
-                              <div
-                                style={{
-                                  height: "28px",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <svg
-                                  width="11"
-                                  height="11"
-                                  style={{ color: "rgba(0,0,0,0.38)" }}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  class="ipc-icon ipc-icon--star-inline"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  role="presentation"
-                                >
-                                  <path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path>
-                                </svg>
-                              </div>
-                            )}
+                            {movie.Rating === "0.0" && (
+                              <div style={{height: "28px", display: "flex", alignItems: "center"}}>
+                            <svg width="11" height="11" style={{color: "rgba(0,0,0,0.38)"}} xmlns="http://www.w3.org/2000/svg" class="ipc-icon ipc-icon--star-inline" viewBox="0 0 24 24" fill="currentColor" role="presentation"><path d="M12 20.1l5.82 3.682c1.066.675 2.37-.322 2.09-1.584l-1.543-6.926 5.146-4.667c.94-.85.435-2.465-.799-2.567l-6.773-.602L13.29.89a1.38 1.38 0 0 0-2.581 0l-2.65 6.53-6.774.602C.052 8.126-.453 9.74.486 10.59l5.147 4.666-1.542 6.926c-.28 1.262 1.023 2.26 2.09 1.585L12 20.099z"></path></svg>
                           </div>
-                        </li>
-                        <div style={{ position: "relative" }}>
-                          <img
-                            src={InforButton}
-                            alt=""
-                            style={{ cursor: "pointer" }}
-                            onClick={(e) => {
-                              e.stopPropagation(); // 🔥 IMPORTANTE
-                              setActiveMenu(
-                                activeMenu === entry.id ? null : entry.id,
-                              );
-                            }}
-                          />
-
-                          {activeMenu === entry.id && (
-                            <div
-                              onClick={(e) => e.stopPropagation()} // 🔥 impede fechar ao clicar dentro
-                              style={{
-                                position: "absolute",
-                                right: 0,
-                                top: "30px",
-                                background: "white",
-                                border: "1px solid #ddd",
-                                borderRadius: "8px",
-                                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                                zIndex: 10,
-                                width: "140px",
-                              }}
-                            >
-                              <button
-                                style={menuItemStyle}
-                                onClick={() => handleEdit(entry.id)}
-                              >
-                                ✏️ Edit
-                              </button>
-
-                              <button
-                                style={menuItemStyle}
-                                onClick={() => handleDelete(entry.id)}
-                              >
-                                🗑️ Delete
-                              </button>
-                            </div>
                           )}
+                            </div>
+                        </li>
+                        <div>
+                          <img src={InforButton} alt="" />
                         </div>
                       </div>
                       <div>
@@ -716,7 +635,7 @@ function MovieList() {
                             lineHeight: "20px",
                           }}
                         >
-                          {entry.description}
+                          {movie.Synopsis}
                         </p>
                       </div>
                     </div>
